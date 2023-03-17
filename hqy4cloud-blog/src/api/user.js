@@ -49,7 +49,19 @@ export const logout = () => {
 export const registry = (data) => axios.post('/blog/account/registry', data)
 
 // 发送注册邮件
-export const sendEmail = (data) => axios.post('/blog/account/registry/email', data)
+export const sendEmail = (email) => {
+        return ins.request({
+                url: 'blog/email/' + email,
+                method: 'post',
+                headers: {
+                        isToken: false,
+                }
+        })
+}
+
+
+
+export const sendRegistryEmail = (data) => axios.post('/blog/account/registry/email', data)
 
 // 发送忘记密码邮件
 export const sendForgetPasswordEmail = (usernameOrEmail) => axios.post('/blog/account/password/email', qs.stringify({

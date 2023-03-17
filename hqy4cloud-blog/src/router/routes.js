@@ -44,28 +44,13 @@ export default [
     name: "Message",
     component: () => import(/!* webpackChunkName: "article" *!/ "../views/MessageBoard")
   },*/
+
   {
     path: "/login",
     name: "Login",
     component: () => import(/* webpackChunkName: "other" */ "../views/Login"),
     meta: {
       title: 'LOGIN'
-    }
-  },
-  {
-    path: "/registry",
-    name: "Registry",
-    component: () => import(/* webpackChunkName: "other" */ "../views/Registry"),
-    meta: {
-      title: 'REGISTRY'
-    }
-  },
-  {
-    path: "/password/reset",
-    name: "ForgetPassword",
-    component: () => import(/* webpackChunkName: "other" */ "../views/ForgetPassword"),
-    meta: {
-      title: 'RESET | PASSWORD'
     }
   },
   {

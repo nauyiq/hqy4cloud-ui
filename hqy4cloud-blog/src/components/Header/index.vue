@@ -151,7 +151,8 @@ export default {
     },
     toLogout() {
       this.$store.dispatch("LogOut");
-      this.$message.success("Logout success.");
+      this.$message.success("退出登录成功");
+      window.location.reload()
     },
     toUserInfo() {
       this.$router.push({path: '/account'})

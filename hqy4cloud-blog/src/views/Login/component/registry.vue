@@ -1,14 +1,8 @@
 <template>
 
   <div id="login">
-    <div class="max flex align-center justify-center">
-      <div class="icon flex align-center">
-        <i @click="toHome" class="iconfont el-icon-s-home el-home"></i>
-        <i @click="toIndex" class="iconfont el-icon-menu"></i>
-      </div>
-    </div>
-    <div class="login-wrap">
 
+    <div class="login-wrap">
       <el-form
           :model="ruleForm"
           :rules="rules"
@@ -17,44 +11,43 @@
           class="login-form"
           size="medium">
         <img class="login_image" src="@/assets/login-1.png"/>
-        <div class="title">Create a Hongqy Account.</div>
+        <div class="title">注册账号</div>
         <el-form-item prop="username" class="item-form">
-          <el-input v-model="ruleForm.username" placeholder="username"></el-input>
+          <el-input v-model="ruleForm.username" auto-complete="off" placeholder="请输入用户名"></el-input>
         </el-form-item>
         <el-form-item prop="email" class="item-form">
-          <el-input v-model="ruleForm.email" placeholder="email"></el-input>
+          <el-input v-model="ruleForm.email" auto-complete="off" placeholder="请输入邮箱"></el-input>
         </el-form-item>
-
-        <el-row type="flex" class="row-bg">
-        <el-col :span="16">
-          <el-form-item prop="code"  class="item-form">
-            <el-input style="width:12em;float: left" v-model="ruleForm.code" placeholder="email verify code"></el-input>
-          </el-form-item>
-        </el-col>
-          <el-form-item class="item-form">
-            <el-button style="width:10em" type="primary"  @click="submitForm('ruleForm', 1)" class="block">Send email</el-button>
-          </el-form-item>
-        </el-row>
-
 
         <el-form-item prop="password" class="item-form" >
           <el-input
               type="password"
               maxlength="20"
               minlength="6"
+              :readonly="readonlyInput" @focus="cancelReadOnly()"
+              auto-complete="off"
               v-model="ruleForm.password"
-              placeholder="password"
+              placeholder="请输入账号密码"
           ></el-input>
         </el-form-item>
 
+        <el-row type="flex" class="row-bg">
+          <el-col :span="16">
+            <el-form-item prop="code"  class="item-form">
+              <el-input style="width:11em;float: left" auto-complete="off" v-model="ruleForm.code" placeholder="请输入邮箱验证码"></el-input>
+            </el-form-item>
+          </el-col>
+          <el-form-item class="item-form">
+            <el-button :class="[{display:msgKey}]" style="width:10em" type="primary"  @click="handleSend" class="block">{{msgText}}</el-button>
+          </el-form-item>
+        </el-row>
+
         <el-form-item>
-          <el-button type="primary" @click="submitForm('ruleForm', 2)" class="login-btn block">Sign up</el-button>
+          <el-button type="primary" @click="submitForm('ruleForm', 2)" class="login-btn block">注册</el-button>
         </el-form-item>
-<!--        <p class="notice">-->
-<!--          <span>Already have an account? Sign in</span>-->
-<!--        </p>-->
+
         <p class="options">
-          <span @click="showPopup('Create Account')">Already have an account? Sign in</span>
+          <span @click="getActiveName('passwordLogin')">已经有账号，去登录</span>
         </p>
       </el-form>
     </div>
@@ -63,12 +56,21 @@
 
 
 <script>
-import {registry, sendEmail} from '../../api/user'
 import md5 from "js-md5"
+
+const MSGINIT = '发送验证码',
+    MSGSCUCCESS = '${time}秒后重发',
+    MSGTIME = 60
+
 export default {
+  name: 'registry',
   data() {
     return {
-      model: "",
+      msgText: MSGINIT,
+      msgTime: MSGTIME,
+      msgKey: false,
+      redirect: '',
+      readonlyInput: true,
       ruleForm: {
         username: "",
         password: "",
@@ -76,17 +78,61 @@ export default {
         code:""
       },
       rules: {
-        username: [{ required: true, message: 'Please input your username.', trigger: 'change' }],
-        password: [{ required: true, message: "Please input your password.", trigger: "change" }],
-        email: [
-            { required: true, message: "Please input your email.", trigger: "change" },
-            { pattern: /^([0-9A-Za-z\-_\.]+)@([0-9a-z]+\.[a-z]{2,3}(\.[a-z]{2})?)$/g,  message: "Please input a legal email."}
+        username: [{ required: true, message: '请输入用户名', trigger: 'change' }],
+        password: [{ required: true, message: "请输入密码", trigger: "change" }],
+        email: [{ required: true, message: '邮箱不能为空', trigger: 'change'},
+          { pattern: /^([0-9A-Za-z\-_\.]+)@([0-9a-z]+\.[a-z]{2,3}(\.[a-z]{2})?)$/g,  message: "请输入正确的邮箱"}
         ],
-        code: [{ required: true, message: "Please input your verify code.", trigger: "change" }]
+        code: [{ required: true, message: "请输入邮箱验证码", trigger: "change" }]
       }
     };
   },
   methods: {
+    getActiveName(value) {
+      this.$emit('getActiveName', value)
+    },
+
+    cancelReadOnly() {
+      this.readonlyInput= false;
+    },
+
+    handleSend() {
+      // 判断是否可以发送（时间限制）
+      if (this.msgKey) return
+      // 发送验证码
+      // this.$refs.smsForm.validateField('phone', (valid) => {
+      if (true) {
+        // this.smsForm.exist = this.exist
+        // sendSmsCode(this.smsForm).then((response) => {
+        //   if (response.data.data) {
+        this.$message.success('验证码发送成功')
+        // this.$emit('smsForm', this.smsForm)
+        this.timeCacl()
+        // } else {
+        //   this.$message.error(response.data.msg)
+        // }
+        // })
+      }
+      // })
+    },
+
+    timeCacl() {
+      // 计时避免重复发送
+      this.msgText = MSGSCUCCESS.replace('${time}', this.msgTime)
+      this.msgKey = true
+      const time = setInterval(() => {
+        this.msgTime--
+        this.msgText = MSGSCUCCESS.replace('${time}', this.msgTime)
+        if (this.msgTime === 0) {
+          this.msgTime = MSGTIME
+          this.msgText = MSGINIT
+          this.msgKey = false
+          clearInterval(time)
+        }
+      }, 1000)
+    },
+
+
     submitForm(formName, type) {
       // 发送注册邮箱邮件
       if (type === 1) {
@@ -132,18 +178,7 @@ export default {
         });
       }
     },
-    toIndex () {
-      this.$router.replace("/index")
-    },
-    toHome () {
-      this.$router.push({path: '/'})
-    },
-    showPopup(name) {
-      this.$emit('handleOpenPopup', {
-        popupTitle: name,
-      })
-      this.$router.replace("/login")
-    }
+
   }
 };
 </script>
@@ -161,9 +196,6 @@ export default {
     //text-transform: uppercase;
     &:hover {
       color: #0b9aff;
-    }
-    &:last-child:hover {
-      color: red;
     }
   }
 }
@@ -297,7 +329,7 @@ export default {
   }
   .title {
     font-size: 21px;
-    color: #0b9aff;
+    color: #ccc;
     letter-spacing: 1px;
     margin: 10px 0 24px;
   }
