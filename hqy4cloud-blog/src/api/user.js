@@ -22,6 +22,20 @@ export const loginByUsername = (username, password) => {
         })
 }
 
+// 登录邮箱
+export const loginByEmail = (email, code) => {
+        const grant_type = 'email'
+        return ins.request({
+                url: '/oauth2/token',
+                headers: {
+                        isToken: false,
+                        Authorization: auth['password']
+                },
+                method: 'post',
+                data: qs.stringify({ email, code, grant_type, scope })
+        })
+}
+
 
 //刷新token
 export const refreshToken = (refresh_token) => {
@@ -45,10 +59,7 @@ export const logout = () => {
 }
 
 
-// 注册
-export const registry = (data) => axios.post('/blog/account/registry', data)
-
-// 发送注册邮件
+// 发送邮件
 export const sendEmail = (email) => {
         return ins.request({
                 url: 'blog/email/' + email,
@@ -60,16 +71,42 @@ export const sendEmail = (email) => {
 }
 
 
-
-export const sendRegistryEmail = (data) => axios.post('/blog/account/registry/email', data)
-
-// 发送忘记密码邮件
-export const sendForgetPasswordEmail = (usernameOrEmail) => axios.post('/blog/account/password/email', qs.stringify({
-        usernameOrEmail:usernameOrEmail
-}))
-
 // 忘记密码
-export const resetPassword = (data) => axios.post('/blog/account/password/reset', data)
+export const resetPassword = (usernameOrEmail, password, code) => {
+        password = md5(password)
+        return ins.request({
+                url: '/blog/account/password/forget',
+                method: 'post',
+                headers: {
+                        isToken: false,
+                },
+                data: {usernameOrEmail, password, code}
+        })
+}
+
+// 发送注册邮件
+export const sendRegistryEmail = (email) => {
+        return ins.request({
+                url: 'blog/email/registry/' + email,
+                method: 'post',
+                headers: {
+                        isToken: false,
+                }
+        })
+}
+
+// 注册
+export const registry = (username, email, password, code) => {
+        password = md5(password)
+        return ins.request({
+                url: '/blog/account/registry',
+                method: 'post',
+                headers: {
+                        isToken: false,
+                },
+                data: {username, email, password, code}
+        })
+}
 
 
 //修改密码

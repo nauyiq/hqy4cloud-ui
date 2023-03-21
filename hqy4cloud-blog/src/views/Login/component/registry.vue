@@ -56,7 +56,8 @@
 
 
 <script>
-import md5 from "js-md5"
+import {sendRegistryEmail, registry} from "@/api/user";
+import errorCode from "@/const/errorCode";
 
 const MSGINIT = '发送验证码',
     MSGSCUCCESS = '${time}秒后重发',
@@ -78,12 +79,12 @@ export default {
         code:""
       },
       rules: {
-        username: [{ required: true, message: '请输入用户名', trigger: 'change' }],
-        password: [{ required: true, message: "请输入密码", trigger: "change" }],
-        email: [{ required: true, message: '邮箱不能为空', trigger: 'change'},
+        username: [{ required: true, message: '请输入用户名', trigger: 'blur' }],
+        password: [{ required: true, message: "请输入新的密码", trigger: "blur"  }, {min:6, max:20, trigger: "blur", message: "密码的长度必须为6到20"}],
+        email: [{ required: true, message: '邮箱不能为空', trigger: 'blur'},
           { pattern: /^([0-9A-Za-z\-_\.]+)@([0-9a-z]+\.[a-z]{2,3}(\.[a-z]{2})?)$/g,  message: "请输入正确的邮箱"}
         ],
-        code: [{ required: true, message: "请输入邮箱验证码", trigger: "change" }]
+        code: [{ required: true, message: "请输入邮箱验证码", trigger: "blur" }, {min:6, max:6, trigger: "blur", message: "请输入6位数验证码"}]
       }
     };
   },
@@ -100,20 +101,19 @@ export default {
       // 判断是否可以发送（时间限制）
       if (this.msgKey) return
       // 发送验证码
-      // this.$refs.smsForm.validateField('phone', (valid) => {
-      if (true) {
-        // this.smsForm.exist = this.exist
-        // sendSmsCode(this.smsForm).then((response) => {
-        //   if (response.data.data) {
-        this.$message.success('验证码发送成功')
-        // this.$emit('smsForm', this.smsForm)
-        this.timeCacl()
-        // } else {
-        //   this.$message.error(response.data.msg)
-        // }
-        // })
-      }
-      // })
+      this.$refs["ruleForm"].validateField("email", callback => {
+        if (!callback) {
+          sendRegistryEmail(this.ruleForm.email).then((response) => {
+            if (response.data.code === 0) {
+              this.$message.success('验证码发送成功')
+              this.timeCacl()
+            } else {
+              const message =  errorCode[response.data.code] || errorCode['default']
+              this.$message.error(message)
+            }
+          })
+        }
+      })
     },
 
     timeCacl() {
@@ -133,50 +133,19 @@ export default {
     },
 
 
-    submitForm(formName, type) {
-      // 发送注册邮箱邮件
-      if (type === 1) {
-        this.$refs[formName].validateField('username', (username) => {
-          if (username) return
-          this.$refs[formName].validateField("email", (email) => {
-            if(email) return
-            sendEmail(this.ruleForm).then(res => {
-              if (res.data.code === 0) {
-                this.$message.success('验证已经发送到邮箱.')
-              } else {
-                this.$message({
-                  type: 'warning',
-                  message: res.data.message,
-                  offset: 60
-                })
-              }
-
-            })
-          })
-        });
-      } else {
-        this.$refs[formName].validate(valid => {
-          if (!valid) return
-          const md5Password = md5(this.ruleForm.password);
-          const inputPassword = this.ruleForm.password;
-          this.ruleForm.password = md5Password;
-          registry(this.ruleForm).then(res => {
-            if (res.data.code === 0) {
-              this.$message.success('注册成功.')
-              setTimeout(() => {
-                this.$router.push("/login")
-              }, 1000)
-            } else {
-              this.ruleForm.password = inputPassword;
-              this.$message({
-                type: 'warning',
-                message: res.data.message,
-                offset: 60
-              })
-            }
-          })
-        });
-      }
+    submitForm(formName) {
+      this.$refs[formName].validate(valid => {
+        if (!valid) return
+        registry(this.ruleForm.username, this.ruleForm.email, this.ruleForm.password, this.ruleForm.code).then(res => {
+          if (res.data.code === 0) {
+            this.$message.success('注册成功')
+            window.location.reload()
+          } else {
+            const message = errorCode[res.data.code] || errorCode['default']
+            this.$message.error(message)
+          }
+        })
+      });
     },
 
   }

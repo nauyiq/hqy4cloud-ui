@@ -50,11 +50,12 @@ ins.interceptors.response.use(resp => {
     }
 
     if (resp.request.responseURL.includes("/oauth2/token")) {
-        if (status === 200 && resultCode && resultCode === 3001) {
-            Message.warning(message)
+        if (status === 200 && resultCode && resultCode !== 0) {
+            Message.warning(errorCode[resultCode])
+            return Promise.reject(new Error(message))
         }
         if (status !== 200) {
-            Message.error(message)
+            Message.error(errorCode[resultCode])
             return Promise.reject(new Error(message))
         } else {
             return resp
@@ -83,6 +84,8 @@ ins.interceptors.response.use(resp => {
             Message.error(message)
         }
     }
+
+
     return resp;
 }, err => {
     if (err.response.status === 503) {

@@ -53,7 +53,7 @@ export default {
       },
       rules: {
         username: [{ required: true, message: '请输入用户名', trigger: 'blur' }],
-        password: [{ required: true, message: "请输入密码", trigger: "blur" }]
+        password: [{ required: true, message: "请输入新的密码", trigger: "blur"  }, {min:6, max:20, trigger: "blur", message: "密码的长度必须为6到20"}],
       }
     };
   },

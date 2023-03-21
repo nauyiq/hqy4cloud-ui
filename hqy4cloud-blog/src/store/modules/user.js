@@ -1,6 +1,6 @@
 import { setToken, setRefreshToken } from '@/utils/auth'
 import { getStore, setStore } from '@/utils/store'
-import {loginByUsername, getUserInfo, logout, refreshToken} from '@/api/user'
+import {loginByUsername, loginByEmail, getUserInfo, logout, refreshToken} from '@/api/user'
 
 
 const user = {
@@ -41,6 +41,21 @@ const user = {
         })
       })
     },
+    //根据邮箱登录
+    LoginByEmail({ commit }, userInfo) {
+      return new Promise((resolve, reject) => {
+        loginByEmail(userInfo.email, userInfo.code).then(response => {
+          const data = response.data
+          commit('SET_ACCESS_TOKEN', data.access_token)
+          commit('SET_REFRESH_TOKEN', data.refresh_token)
+          commit('CLEAR_LOCK')
+          resolve()
+        }).catch(error => {
+          reject(error)
+        })
+      })
+    },
+
     // 根据手机号登录
     /*LoginByPhone({ commit }, smsForm) {
       return new Promise((resolve, reject) => {

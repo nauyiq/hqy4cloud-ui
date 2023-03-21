@@ -13,7 +13,7 @@
         <img class="login_image" src="@/assets/login-2.png"/>
         <div class="title">重置密码</div>
         <el-form-item prop="usernameOrEmail" class="item-form">
-          <el-input v-model="ruleForm.usernameOrEmail" placeholder="请输入用户名或者邮箱"></el-input>
+          <el-input v-model="ruleForm.usernameOrEmail" placeholder="请输入用户名或邮箱"></el-input>
         </el-form-item>
 
         <el-row type="flex" class="row-bg">
@@ -41,7 +41,7 @@
         </el-form-item>
 
         <el-form-item>
-          <el-button type="primary" @click="submitForm('ruleForm', 2)" class="login-btn block">重置密码</el-button>
+          <el-button type="primary" @click="submitForm('ruleForm')" class="login-btn block">重置密码</el-button>
         </el-form-item>
 
         <p class="options">
@@ -54,7 +54,9 @@
 
 
 <script>
-import md5 from "js-md5"
+
+import {sendEmail, resetPassword} from "@/api/user";
+import errorCode from "@/const/errorCode";
 
 const MSGINIT = '发送验证码',
     MSGSCUCCESS = '${time}秒后重发',
@@ -74,9 +76,9 @@ export default {
         code:""
       },
       rules: {
-        usernameOrEmail: [{ required: true, message: '请输入用户名或者邮箱', trigger: 'change' }],
-        password: [{ required: true, message: "请输入新的密码", trigger: "change" }],
-        code: [{ required: true, message: "请输入邮箱验证码", trigger: "change" }]
+        usernameOrEmail: [{ required: true, message: '用户名或邮箱不能为空', trigger: 'blur'}],
+        password: [{ required: true, message: "请输入新的密码", trigger: "blur"  }, {min:6, max:20, trigger: "blur", message: "密码的长度必须为6到20"}],
+        code: [{ required: true, message: "请输入邮箱验证码", trigger: "change" }, {min:6, max:6, trigger: "blur", message: "请输入6位数验证码"}]
       }
     };
   },
@@ -95,20 +97,19 @@ export default {
       // 判断是否可以发送（时间限制）
       if (this.msgKey) return
       // 发送验证码
-      // this.$refs.smsForm.validateField('phone', (valid) => {
-      if (true) {
-        // this.smsForm.exist = this.exist
-        // sendSmsCode(this.smsForm).then((response) => {
-        //   if (response.data.data) {
-        this.$message.success('验证码发送成功')
-        // this.$emit('smsForm', this.smsForm)
-        this.timeCacl()
-        // } else {
-        //   this.$message.error(response.data.msg)
-        // }
-        // })
-      }
-      // })
+      this.$refs["ruleForm"].validateField("usernameOrEmail", callback => {
+        if (!callback) {
+          sendEmail(this.ruleForm.usernameOrEmail).then((response) => {
+            if (response.data.code === 0) {
+              this.$message.success('验证码发送成功')
+              this.timeCacl()
+            } else {
+              const message = errorCode[response.data.code] || errorCode['default']
+              this.$message.error(message)
+            }
+          })
+        }
+      })
     },
 
     timeCacl() {
@@ -127,37 +128,19 @@ export default {
       }, 1000)
     },
 
-    submitForm(formName, type) {
-      // 发送注册邮箱邮件
-      if (type === 1) {
-        this.$refs[formName].validateField('usernameOrEmail', (username) => {
-          if (username) return
-          sendForgetPasswordEmail(this.ruleForm.usernameOrEmail).then(res => {
-            this.$message.success('Send verify email success.')
-          })
-
-        });
-      } else {
+    submitForm(formName) {
         this.$refs[formName].validate(valid => {
           if (!valid) return
-          this.ruleForm.password = md5(this.ruleForm.password);
-          resetPassword(this.ruleForm).then(res => {
+          resetPassword(this.ruleForm.usernameOrEmail, this.ruleForm.password, this.ruleForm.code).then(res => {
             if (res.data.code === 0) {
-              this.$message.success('Reset password success.')
-              setTimeout(() => {
-                this.$router.push("/login")
-              }, 1000)
+              this.$message.success('修改密码成功')
+              window.location.reload()
             } else {
-              this.$message({
-                type: 'warning',
-                message: res.data.message,
-                offset: 60
-              })
+              const message = errorCode[res.data.code] || errorCode['default']
+              this.$message.error(message)
             }
-
           })
         });
-      }
     },
 
   }
