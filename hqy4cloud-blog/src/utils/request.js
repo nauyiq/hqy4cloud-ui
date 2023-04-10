@@ -51,8 +51,15 @@ ins.interceptors.response.use(resp => {
 
     if (resp.request.responseURL.includes("/oauth2/token")) {
         if (status === 200 && resultCode && resultCode !== 0) {
-            Message.warning(errorCode[resultCode])
-            return Promise.reject(new Error(message))
+            const msg = errorCode[resultCode];
+            if (msg) {
+                Message.warning(msg);
+                return Promise.reject(new Error(msg))
+            } else {
+                Message.warning(message);
+                return Promise.reject(new Error(message))
+            }
+
         }
         if (status !== 200) {
             Message.error(errorCode[resultCode])

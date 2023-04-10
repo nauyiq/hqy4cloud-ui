@@ -96,7 +96,7 @@ export const getUserInfo = () => {
 
 export const logout = () => {
   return request({
-    url: '/token/logout',
+    url: '/auth/logout',
     method: 'delete'
   })
 }

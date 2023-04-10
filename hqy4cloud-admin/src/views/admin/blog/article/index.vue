@@ -46,7 +46,7 @@
 
         <template #type="scope">
           <span >
-            <el-tag :value="scope.row.type">{{ scope.row.typeName}} </el-tag>
+            <el-tag :value="scope.row.id">{{ scope.row.typeName}} </el-tag>
           </span>
         </template>
 
@@ -100,7 +100,6 @@ import { mapGetters } from 'vuex'
 
 export default {
   name: 'TableArticle',
-  // components: { MdEditor },
   data() {
     return {
       searchForm: {},
@@ -213,7 +212,7 @@ export default {
       })
       // 若是编辑、查看回显角色名称
       if (['edit', 'views'].includes(type)) {
-        this.type = this.form.typeName
+        this.type = this.form.type
       } else if (type === 'add') {
         // 若是添加角色列表设置为空
         this.type = ''

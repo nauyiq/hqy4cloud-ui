@@ -75,7 +75,6 @@ export const tableOption = {
         formslot: true,
         slot: true,
         overHidden: true,
-        // span: 24,
         width: 200,
 
     }, {

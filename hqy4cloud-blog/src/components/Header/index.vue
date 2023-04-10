@@ -97,8 +97,10 @@ export default {
      isToken() {
        return this.$store.getters.access_token;
      },
+    ...mapState({
+      userInfo: state => state.user.userInfo
+    })
   },
-
   activated () {
     this.listenScroll()
   },
@@ -150,9 +152,10 @@ export default {
       this.$router.push({path: '/login'})
     },
     toLogout() {
-      this.$store.dispatch("LogOut");
-      this.$message.success("退出登录成功");
-      window.location.reload()
+      this.$store.dispatch("LogOut").then(() => {
+        this.$message.success("退出登录成功");
+        window.location.reload()
+      })
     },
     toUserInfo() {
       this.$router.push({path: '/account'})
@@ -169,14 +172,10 @@ export default {
       scrollTop >= 60 ? this.musicIcon = 'show' : this.musicIcon = 'exit'
     },
     loadAvatar(avatar) {
-      const userInfo = localStorage.getItem("userInfo")
-      if (userInfo) {
-        const userAvatar = JSON.parse(userInfo).avatar;
-        if (userAvatar) {
-          avatar = userAvatar
-        }
+      if (this.userInfo.avatar) {
+        return this.userInfo.avatar
       }
-      return avatar;
+      return avatar
     },
     onerrorAvatar() {
       return "https://file.hongqy1024.cn/files/avatar/default_avatar.png"
