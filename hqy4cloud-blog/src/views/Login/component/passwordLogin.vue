@@ -29,7 +29,7 @@
         </el-form-item>
 
         <p class="options">
-          <span @click="getActiveName('emailLogin')">- 验证码登录</span>
+          <span @click="getActiveName('emailLogin')">- 邮箱登录</span>
           |
           <span @click="getActiveName('forgetPassword')"> 忘记密码</span>
           |
