@@ -110,7 +110,7 @@ export const registry = (username, email, password, code) => {
 
 
 //修改密码
-export const updatePassword = (oldPassword, newPassword) => axios.put('/blog/account/password', qs.stringify({
+export const updatePassword = (oldPassword, newPassword) => axios.put('/blog/user/password', qs.stringify({
     oldPassword: md5(oldPassword),
     newPassword: md5(newPassword)
 }))
@@ -129,7 +129,7 @@ export const uploadAvatar = (formData) => {
 
 
 // 获取个人信息
-export const getUserInfo = () => axios.get('/blog/account')
+export const getUserInfo = () => axios.get('/blog/user/profile')
 
 // 修改用户信息
 export const updateUserInfo = data => axios.put('/blog/user/profile', data)

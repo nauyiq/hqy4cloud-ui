@@ -11,7 +11,7 @@
           size="medium"
           @submit.native.prevent>
         <img class="login_image" src="@/assets/login-0.png"/>
-        <div class="title">登录博客</div>
+        <div class="title">登录.</div>
         <el-form-item prop="username" class="item-form">
           <el-input v-model="ruleForm.username" auto-complete="off" placeholder="用户名"></el-input>
         </el-form-item>

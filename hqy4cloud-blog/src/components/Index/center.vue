@@ -88,11 +88,11 @@ export default {
   },
   created () {
 
-    if (this.isToken) {
-      this.navgation.push({name:'Setting', icon: 'iconfont  el-icon-s-tools', path: '/account'});
-    } else {
+    if (!this.isToken) {
       this.navgation.push({name:'Login', icon: 'iconfont  el-icon-user-solid', path: '/login'});
-    }
+    } /*else {
+      this.navgation.push({name:'Setting', icon: 'iconfont  el-icon-s-tools', path: '/account'});
+    }*/
 
 
   },

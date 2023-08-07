@@ -9,15 +9,16 @@
     <div class="right flex align-center">
       <i class="iconfont" :class="isLike ? 'icon-xinheart118 liked' : 'icon-xinheart118'" v-if="showLike" @click="$emit('like', isLike)"></i>
       <el-dropdown >
-<!--      <router-link :to="{name: 'Self'}">-->
         <img width="30px" height="30px" style="cursor: pointer" :src="loadAvatar(avatar)"  @error="e => { e.target.src = onerrorAvatar() }" alt />
-<!--      </router-link>-->
         <el-dropdown-menu slot="dropdown" class="dropdownPop" style="width: 110px;">
-          <el-dropdown-item @click.native="toUserInfo" v-if="isToken">
-            <i class="el-icon-s-custom dropdown-item" ></i>设置
+          <el-dropdown-item @click.native= "showConfig"   v-if="isToken">
+            <i class="el-icon-s-tools dropdown-item" ></i>设置
+          </el-dropdown-item>
+          <el-dropdown-item @click.native= "showPassword"   v-if="isToken">
+            <i class="el-icon-s-custom dropdown-item" ></i>修改密码
           </el-dropdown-item>
           <el-dropdown-item @click.native="toLogout" v-if="isToken">
-            <i class="el-icon-s-release dropdown-item"></i>退出登录
+            <i class="el-icon-error dropdown-item"></i>退出登录
           </el-dropdown-item>
           <el-dropdown-item @click.native="toLogin" v-else>
             <i  class="el-icon-s-custom dropdown-item"></i>登录
@@ -48,14 +49,29 @@
       <span class="iconfont" :class="isPlay ? 'icon-zanting' : 'icon-bofang'"></span>
     </div>
     <audio loop id="music" :src="music"> </audio>
+
+    <configDialog v-if="isToken" v-show="showConfigDialog" :showDia="showConfigDialog" :userInfo="userInfo"
+                   @hide="showConfigDialog = false"
+                   @updateUser="updateUser"/>
+    <passwordDialog v-if="isToken" v-show="showPasswordDialog" :showDia="showPasswordDialog"
+                  @hide="showPasswordDialog = false"/>
   </div>
+
+
+
 </template>
 
 <script>
 import { throttle } from '@/utils'
 import { mapState } from "vuex";
+import configDialog from '@/components/ConfigDialog.vue'
+import passwordDialog from '@/components/PasswordDialog.vue'
+
+
+
 export default {
   name: 'HeaderComp',
+  components: { configDialog, passwordDialog },
   props: {
     music: {
       type: String,
@@ -87,7 +103,9 @@ export default {
       musicIcon: "",
       audioDom: '', 
       mid: '',
-      timer: ''
+      timer: '',
+      showConfigDialog: false,
+      showPasswordDialog: false,
     };
   },
   computed: {
@@ -133,6 +151,16 @@ export default {
         const currentTime = ( this.audioDom.currentTime / this.audioDom.duration * 100 ).toFixed(0)
         this.progressBarWidth = currentTime
       }
+    },
+    showConfig() {
+      this.showConfigDialog = true
+    },
+    showPassword() {
+      this.showPasswordDialog = true
+    },
+    updateUser(data) {
+      this.userInfo.avatar = data.avatar
+      this.userInfo.nickname = data.nickname
     },
     // 初始化音乐
     initMusic () {

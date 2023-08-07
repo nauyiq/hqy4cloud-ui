@@ -1,18 +1,18 @@
 export default [
   {
-    path: "/index",
-    name: "Index",
-    component: () => import(/* webpackChunkName: "main" */ "../views/Index"),
+    path: "/",
+    name: "HOME",
+    component: () => import(/* webpackChunkName: "main" */ "../views/Home"),
     meta: {
-      title: 'HONGQY'
+      title: 'HOME'
     }
   },
   {
-    path: "/",
-    name: "HOME",
-    component: () => import(/* webpackChunkName: "exhibit" */ "../views/Home"),
+    path: "/index",
+    name: "Index",
+    component: () => import(/* webpackChunkName: "exhibit" */ "../views/Index"),
     meta: {
-      title: 'HOME'
+      title: 'HONGQY'
     }
   },
   {
@@ -39,11 +39,11 @@ export default [
       title: 'ABOUT Me | HONGQY'
     }
   },
-  {
+  /*{
     path: "/chat",
     name: "Chat",
-    component: () => import(/* webpackChunkName: "article" */ "../views/Chat")
-  },
+    component: () => import(/!* webpackChunkName: "article" *!/ "../views/Chat")
+  },*/
 
   {
     path: "/login",
@@ -53,13 +53,13 @@ export default [
       title: 'LOGIN'
     }
   },
-  {
+ /* {
     path: "/account",
     name: "Account",
-    component: () => import(/* webpackChunkName: "other" */ "../views/UserInfo"),
+    component: () => import(/!* webpackChunkName: "other" *!/ "../views/UserInfo"),
     meta: {
       title: 'YOURSELF',
       requireAuth: true
     }
-  },
+  },*/
 ]

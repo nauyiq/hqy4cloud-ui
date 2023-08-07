@@ -103,9 +103,9 @@
 import Vue from 'vue'
 import Loader from "@c/Loading"
 import Button from "@c/Button"
-import {getLoginInfo} from "../../../utils/request";
-import {valiFunc} from "../../../utils";
-import {articleComment, deleteComment} from "../../../api/comment";
+import {valiFunc} from "@/utils";
+import {articleComment, deleteComment} from "@/api/comment";
+import {mapState} from "vuex";
 
 
 export default {
@@ -140,7 +140,11 @@ export default {
       ownerId:'',
     }
   },
-  computed: {},
+  computed: {
+    ...mapState({
+      loginUser: state => state.user.userInfo
+    })
+  },
   methods: {
     /**
      * 点赞
@@ -276,10 +280,10 @@ export default {
     }
   },
   created() {
-    const userInfo = getLoginInfo();
-    if (userInfo) {
-      this.ownerAvatar = userInfo.avatar
-      this.ownerId = userInfo.id
+    console.log(this.loginUser)
+    if (this.loginUser) {
+      this.ownerAvatar = this.loginUser.avatar
+      this.ownerId = this.loginUser.id
     }
 
   }
@@ -572,24 +576,6 @@ $content-bg-color: #fff;
         .gray-bg-input, .el-input__inner {
           /*background-color: #67C23A;*/
         }
-        /*.btn-control {
-          display: flex;
-          justify-content: flex-end;
-          align-items: center;
-          padding-top: 10px;
-          .cancel {
-            font-size: 16px;
-            color: $text-normal;
-            margin-right: 20px;
-            cursor: pointer;
-            &:hover {
-              color: $text-333;
-            }
-          }
-          .confirm {
-            font-size: 16px;
-          }
-        }*/
       }
     }
   }

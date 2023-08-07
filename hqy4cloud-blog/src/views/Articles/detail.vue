@@ -36,8 +36,8 @@ import scrollBar  from './components/scrollBar'
 import Comment from './components/comment'
 import { list } from "@/api/comment"
 import { bottomHandle } from '@/utils'
-import { getStatus, setStatus } from "../../utils/request";
-import { readArticle } from "../../api/article";
+import { getStatus, setStatus } from "@/utils/request";
+import { readArticle } from "@/api/article";
 import $ from 'jquery'
 import {mapState} from "vuex";
 

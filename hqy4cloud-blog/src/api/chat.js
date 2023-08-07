@@ -11,7 +11,7 @@ export const loadUserRoles = () => {
 //加载chatgpt配置
 export const loadChatgptConfig = () => {
     return ins.request({
-        url: '/blog/chatgpt/config',
+        url: '/blog/chatgpt/system/config',
         method: 'get'
     })
 }
@@ -19,7 +19,7 @@ export const loadChatgptConfig = () => {
 //加载chatgpt 聊天列表
 export const loadChatgptList = () => {
     return ins.request({
-        url: '/blog/chatgpt',
+        url: '/blog/chatgpt/conversations',
         method: 'get'
     })
 }
@@ -67,7 +67,7 @@ export const uploadChat = (chatId, title) => {
 //删除聊天
 export const deleteChat = (chatId) => {
     return ins.request({
-        url: '/blog/chatgpt/' + chatId,
+        url: '/blog/chatgpt/conversation/' + chatId,
         method: 'get'
     })
 }
@@ -75,7 +75,7 @@ export const deleteChat = (chatId) => {
 //清除聊天记录
 export const clearChatgpt = () => {
     return ins.request({
-        url: '/blog/chatgpt/clear',
+        url: '/blog/chatgpt/conversation/clear',
         method: 'delete'
     })
 }

@@ -44,7 +44,7 @@
 import Loader from "@c/Loading"
 import { WOW } from 'wowjs'
 import { bottomHandle, clearBottomHandle } from '@/utils'
-import {articleTypes} from "../../api/article";
+import { articleTypes } from "@/api/article";
 
 export default {
   name: 'articleList',
