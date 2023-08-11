@@ -1,12 +1,5 @@
-import ins from "../utils/request";
+import ins from "@/utils/request";
 
-//获取socket.io 连接
-export const getSocketIoConnection = () => {
-    return ins.request({
-        url: '/chat/connection',
-        method: 'get'
-    })
-}
 
 //添加群聊用户
 export const addGroupUser = (data) => {
@@ -95,69 +88,6 @@ export const groupRole = (data) => {
     })
 }
 
-
-//获取聊天记录
-export const getChatMessages = (params) => {
-    return ins.request({
-        url: '/chat/messages',
-        method: 'get',
-        params: params
-    })
-}
-
-//发送聊天消息
-export const sendChatMessage = (data) => {
-    return ins.request({
-        url: '/chat/message',
-        method: 'post',
-        data: data
-    })
-}
-
-export const sendWebrtcMessage = (data) => {
-    return ins.request({
-        url: '/chat/webrtc',
-        method: 'post',
-        data: data
-    })
-}
-
-//设置消息为已读
-export const readMessage = (data) => {
-    return ins.request({
-        url: '/chat/message/read',
-        method: 'put',
-        data: data
-    })
-}
-
-//撤回消息
-export const undoChatMessage = (id) => {
-    return ins.request({
-        url: '/chat/message/undo/' + id,
-        method: 'delete'
-    })
-}
-
-//设置消息置顶
-export const setChatConfig = (data) => {
-    return ins.request({
-        url: '/chat/top',
-        data: data,
-        method: 'put'
-    })
-}
-
-//设置消息免打扰
-export const setChatNotice = (data)  =>{
-    return ins.request({
-        url: '/chat/notice',
-        method: 'put',
-        data: data
-    })
-}
-
-
 //发布群公告
 export const publishNotice = (data) => {
     return ins.request({
@@ -166,10 +96,4 @@ export const publishNotice = (data) => {
         data: data
     })
 }
-
-
-
-
-
-
 

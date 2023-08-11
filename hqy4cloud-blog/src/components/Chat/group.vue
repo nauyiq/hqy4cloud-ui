@@ -27,7 +27,7 @@
 </template>
 <script>
 
-import { getGroupUsers } from "@/api/chat";
+import { getGroupUsers } from "@/api/im/chat";
 export default {
   name: "manageGroup",
   props: {

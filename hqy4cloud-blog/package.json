@@ -19,6 +19,7 @@
     "css-loader": "^3.6.0",
     "element-ui": "^2.13.2",
     "lockr": "^0.8.5",
+    "js-web-screen-shot": "^1.9.8-rc.3",
     "github-markdown-css": "^4.0.0",
     "highlight.js": "^10.1.2",
     "js-base64": "^3.7.2",

@@ -144,7 +144,7 @@ import ChatItem from "./chatItem";
 import ChatImage from "./chatImage";
 import { arrayToString, date } from "@/utils";
 import { getFileSize, getFileExtImg, download } from "@/utils/file";
-import { getChatMessages } from "@/api/chat";
+import { getChatMessages } from "@/api/im/chat";
 export default {
   name: "chatRecord",
   components: {

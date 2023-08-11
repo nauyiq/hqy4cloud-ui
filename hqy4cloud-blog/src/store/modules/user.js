@@ -1,8 +1,6 @@
 import {setToken, setRefreshToken} from '@/utils/auth'
 import {getStore, setStore} from '@/utils/store'
 import {loginByUsername, loginByEmail, getUserInfo, logout, refreshToken} from '@/api/user'
-
-
 const user = {
     state: {
         userInfo: getStore({
@@ -26,17 +24,19 @@ const user = {
             name: 'use_refresh_token'
         }) || '',
         socketAction: '',
-        toUserId: 0,
+        contactId: 0,
+        unread: 0,
         contactSync: '',
         setting: {
             sendKey: "1",
             theme: "default",
-            isVoice: true,
+            isVoice: false,
             avatarCricle: false,
             hideMessageName: false,
             hideMessageTime: false,
         },
         globalConfig:[], // 全局配置
+        allContacts: [], // 联系人
     },
     actions: {
         // 根据用户名登录
@@ -217,7 +217,7 @@ const user = {
             state.socketAction = data
         },
         SET_CHAT: (state, data) => {
-            state.toUserId = data
+            state.contactId = data
             state.contactSync = Math.random().toString(36).substr(-8);
         },
         SET_GLOBAL_CONFIG(state, data) {
@@ -225,7 +225,13 @@ const user = {
         },
         SET_SETTING(state, data) {
             state.setting = data;
-        }
+        },
+        init_CONTACTS: (state, data) => {
+            state.allContacts = data;
+        },
+        UPDATE_UNREAD: (state, data) => {
+            state.unread = parseInt(data);
+        },
     }
 
 }

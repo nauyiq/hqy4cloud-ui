@@ -90,6 +90,17 @@ export function arrayToString(arr, field, isTrans) {
   }
 }
 
+/** 修改二位数组某个值*/
+export function editArrValue(arr, field, value) {
+  for (var i = 0; i < arr.length; i++) {
+    arr[i]['disabled'] = false;
+    if (arr[i][field] === value) {
+      arr[i]['disabled'] = true;
+    }
+  }
+  return arr;
+}
+
 export function timeFormat(timestamp) {
   const now = new Date();
   const datetime = new Date(timestamp);

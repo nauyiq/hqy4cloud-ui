@@ -3,7 +3,7 @@
 
 <script>
 import { Manager } from "socket.io-client";
-import { getSocketIoConnection } from "@/api/chat";
+import { getSocketIoConnection } from "@/api/im/chat";
 import {mapState} from "vuex";
 import Vue from 'vue'
 

@@ -32,6 +32,11 @@ const getters = {
   menuAll: state => state.user.menuAll,
   logsList: state => state.logs.logsList,
   logsLen: state => state.logs.logsList.length || 0,
-  logsFlag: (state, getters) => getters.logsLen === 0
+  logsFlag: (state, getters) => getters.logsLen === 0,
+  socketAction: state => state.user.socketAction,
+  contactId: state => state.user.contactId,
+  contactSync: state => state.user.contactSync,
+  userSetting: state => state.user.setting,
+  globalConfig: state => state.user.globalConfig,
 }
 export default getters
