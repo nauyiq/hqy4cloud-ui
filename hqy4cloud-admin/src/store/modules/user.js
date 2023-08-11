@@ -1,6 +1,6 @@
 import { setToken, setRefreshToken } from '@/util/auth'
 import { getStore, setStore } from '@/util/store'
-import { loginByMobile, loginByUsername, getUserInfo, logout, refreshToken } from '@/api/login'
+import { loginByMobile, loginByUsername, getUserInfo, refreshToken } from '@/api/login'
 import { deepClone, encryption } from '@/util'
 import { formatPath } from '@/router/avue-router'
 import { getMenu } from '@/api/admin/menu'

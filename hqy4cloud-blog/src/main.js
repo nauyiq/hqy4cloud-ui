@@ -1,30 +1,27 @@
 
 import Vue from "vue";
-// if (process.env.NODE_ENV !== 'production') {
-  
-  import('element-ui').then(ele => {
-    Vue.use(ele)
-  })
-  import('element-ui/lib/theme-chalk/index.css')
-  
-// }
 
+  
+import('element-ui').then(ele => {
+  Vue.use(ele)
+})
+import('element-ui/lib/theme-chalk/index.css')
 import App from "./App.vue";
-
 import router from "./router/handler";
-
 import store from "./store";
-
-// 引入全局组件Header
 import Header from "@c/Header"
 Vue.component('Header', Header)
-// 引入全局组件Header
-
-// 引入 iconfont
 import '@/assets/font/iconfont.css';
-// 引入 iconfont
 
-// 高亮富文本
+import Preview from '@/components/preview/index'
+Vue.use(Preview)
+
+import Clipboard from 'v-clipboard'
+Vue.use(Clipboard)
+
+import UserCard from '@/components/user/index'
+Vue.use(UserCard)
+
 import hljs from 'highlight.js/lib/core';
 import javascript from 'highlight.js/lib/languages/javascript';
 hljs.registerLanguage('javascript', javascript);
@@ -34,11 +31,9 @@ Vue.directive('highlight',function (el) {
     hljs.highlightBlock(block)
   })
 })
-// 高亮富文本
 
 // 引入markdown-css
 import 'github-markdown-css/github-markdown.css'
-// 引入markdown-css
 
 Vue.config.productionTip = false;
 

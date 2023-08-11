@@ -1,7 +1,6 @@
 import axios from '../utils/request'
 import qs from "qs"
 import md5 from "js-md5"
-import ins from "../utils/request";
 import auth from '@/const/auth'
 
 
@@ -11,7 +10,7 @@ const scope = 'all'
 export const loginByUsername = (username, password) => {
     const grant_type = 'password'
     password = md5(password)
-    return ins.request({
+    return axios.request({
         url: '/oauth2/token',
         headers: {
             isToken: false,
@@ -25,7 +24,7 @@ export const loginByUsername = (username, password) => {
 // 登录邮箱
 export const loginByEmail = (email, code) => {
     const grant_type = 'email'
-    return ins.request({
+    return axios.request({
         url: '/oauth2/token',
         headers: {
             isToken: false,
@@ -40,7 +39,7 @@ export const loginByEmail = (email, code) => {
 //刷新token
 export const refreshToken = (refresh_token) => {
     const grant_type = 'refresh_token'
-    return ins.request({
+    return axios.request({
         url: '/oauth2/token',
         headers: {
             isToken: false,
@@ -52,7 +51,7 @@ export const refreshToken = (refresh_token) => {
 }
 
 export const logout = () => {
-    return ins.request({
+    return axios.request({
         url: '/auth/logout',
         method: 'delete'
     })
@@ -61,7 +60,7 @@ export const logout = () => {
 
 // 发送邮件
 export const sendEmail = (email) => {
-    return ins.request({
+    return axios.request({
         url: 'blog/email/' + email,
         method: 'post',
         headers: {
@@ -74,7 +73,7 @@ export const sendEmail = (email) => {
 // 忘记密码
 export const resetPassword = (usernameOrEmail, password, code) => {
     password = md5(password)
-    return ins.request({
+    return axios.request({
         url: '/blog/account/password/forget',
         method: 'post',
         headers: {
@@ -86,7 +85,7 @@ export const resetPassword = (usernameOrEmail, password, code) => {
 
 // 发送注册邮件
 export const sendRegistryEmail = (email) => {
-    return ins.request({
+    return axios.request({
         url: 'blog/email/registry/' + email,
         method: 'post',
         headers: {
@@ -98,7 +97,7 @@ export const sendRegistryEmail = (email) => {
 // 注册
 export const registry = (username, email, password, code) => {
     password = md5(password)
-    return ins.request({
+    return axios.request({
         url: '/blog/account/registry',
         method: 'post',
         headers: {
@@ -117,7 +116,7 @@ export const updatePassword = (oldPassword, newPassword) => axios.put('/blog/use
 
 //上传头像
 export const uploadAvatar = (formData) => {
-    return ins.request({
+    return axios.request({
         url: '/blog/upload/avatar',
         method: 'post',
         headers: {
@@ -130,6 +129,41 @@ export const uploadAvatar = (formData) => {
 
 // 获取个人信息
 export const getUserInfo = () => axios.get('/blog/user/profile')
+
+//获取用户信息
+export const getUserInfoById = (userId) => {
+    return axios.request({
+        url: '/chat/user/' + userId,
+        method: 'get'
+    })
+}
+
+//添加好友
+export const addFriend = (data) => {
+    return axios.request({
+        url: '/chat/friend',
+        method: 'post',
+        data: data
+    })
+}
+
+//删除好友
+export const deleteFriend = (data) => {
+    return axios.request({
+        url: '/chat/friend/' + data,
+        method: 'delete'
+    })
+}
+
+//修改好友备注
+export const setFriendMark = (data) => {
+    return axios.request({
+        url: '/chat/friend/mark',
+        method: 'post',
+        data: data
+    })
+}
+
 
 // 修改用户信息
 export const updateUserInfo = data => axios.put('/blog/user/profile', data)

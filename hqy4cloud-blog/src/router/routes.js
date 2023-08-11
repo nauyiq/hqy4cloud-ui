@@ -53,13 +53,15 @@ export default [
       title: 'LOGIN'
     }
   },
- /* {
-    path: "/account",
-    name: "Account",
-    component: () => import(/!* webpackChunkName: "other" *!/ "../views/UserInfo"),
-    meta: {
-      title: 'YOURSELF',
-      requireAuth: true
-    }
-  },*/
+  {
+    path: '*',
+    redirect: '/404',
+    hidden: true
+  },
+  {
+    path: '/404',
+    component: () =>
+        import ('@/views/404'),
+    hidden: true
+  }
 ]
