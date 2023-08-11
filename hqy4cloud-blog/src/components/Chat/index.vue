@@ -218,7 +218,7 @@
                   <div>
                     <span
                         class="el-icon-circle-plus-outline f-18 cur-handle"
-                        v-if="contact.role < 3"
+                        v-if="contact.role < 3 || contact.invite"
                         @click="openAddGroupUser"
                     ></span>
                   </div>
