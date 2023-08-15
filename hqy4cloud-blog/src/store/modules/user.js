@@ -226,7 +226,7 @@ const user = {
         SET_SETTING(state, data) {
             state.setting = data;
         },
-        init_CONTACTS: (state, data) => {
+        INIT_CONTACTS: (state, data) => {
             state.allContacts = data;
         },
         UPDATE_UNREAD: (state, data) => {

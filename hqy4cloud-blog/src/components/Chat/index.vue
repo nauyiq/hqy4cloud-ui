@@ -1310,7 +1310,7 @@ export default {
             this.unread += res.count;
             data.push({...sysContact});
           }*/
-          this.$store.commit('init_CONTACTS', data);
+          this.$store.commit('INIT_CONTACTS', data);
           // 设置置顶人
           this.getChatTop(data);
           IMUI.initContacts(data);
@@ -1683,21 +1683,21 @@ export default {
     // 发送聊天消息
     handleSend(message, next, file) {
       const {IMUI} = this.$refs;
-      message.is_group = this.is_group;
+      message.isGroup = this.isGroup;
       this.curFile = file;
       // 如果开启了群聊禁言或者关闭了单聊权限，就不允许发送消息 TODO
-      if ((this.globalConfig.chatInfo.simpleChat != 1 && this.isGroup === false) || !this.nospeak()) {
+      /*if ((this.globalConfig.chatInfo.simpleChat != 1 && this.isGroup === false) || !this.nospeak()) {
         IMUI.removeMessage(message.id);
         this.$message.error(this.noSimpleTips);
         return false;
-      }
+      }*/
       let formdata = new FormData();
       // 如果是文件选择文件上传接口
       if (file) {
         // 判断文件如果大于5M就删除该聊天消息
-        if (file.size > (this.globalConfig.fileUpload.size * 1024 * 1024)) {
+        if (file.size > (5 * 1024 * 1024)) {
           IMUI.removeMessage(message.id);
-          return this.$message.error("上传的内容不等大于" + this.globalConfig.fileUpload.size + "MB！");
+          return this.$message.error("上传的内容不等大于5MB！");
         }
         formdata.append("file", file);
         formdata.append("message", JSON.stringify(message));
@@ -1719,7 +1719,8 @@ export default {
             .then(res => {
               if (res.data.code === 0) {
                 IMUI.setEditorValue("");
-                IMUI.updateMessage(res.data);
+                message.id = res.data.data
+                IMUI.updateMessage(res.data.data);
                 next();
               } else {
                 next({status: "failed"});
