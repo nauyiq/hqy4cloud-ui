@@ -1,0 +1,43 @@
+diff --git a/node_modules/lemon-imui/packages/components/index.vue b/node_modules/lemon-imui/packages/components/index.vue
+index 7ee94bc..6c7b00f 100644
+--- a/node_modules/lemon-imui/packages/components/index.vue
++++ b/node_modules/lemon-imui/packages/components/index.vue
+@@ -105,6 +105,8 @@ export default {
+       currentMessages: [],
+       activeSidebar: DEFAULT_MENU_LASTMESSAGES,
+       contacts: [],
++      //修改源码 新增侧边栏联系人
++      sidebarContacts: [],
+       menus: [],
+       editorTools: [
+         { name: "emoji" },
+@@ -411,7 +413,8 @@ export default {
+       return this._renderSidebar(
+         [
+           useScopedSlot(this.$scopedSlots["sidebar-contact-top"], null, this),
+-          this.contacts.map(contact => {
++          //修改源码 改用侧边栏联系人
++          this.sidebarContacts.map(contact => {
+             if (!contact.index) return;
+             contact.index = contact.index.replace(/\[[0-9]*\]/, "");
+             const node = [
+@@ -908,9 +911,19 @@ export default {
+       );
+       return true;
+     },
++
++
++
++    /**
++     * 移除联系人
++     * @param id
++     * @returns {boolean}
++     */
+     removeContact(id) {
+       const index = this.findContactIndexById(id);
+       if (index === -1) return false;
++      //修改源码 移除侧边栏联系人
++      this.sidebarContacts.splice(index, 1);
+       this.contacts.splice(index, 1);
+       this.CacheDraft.remove(id);
+       this.CacheMessageLoaded.remove(id);
