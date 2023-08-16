@@ -21,7 +21,7 @@ export const getChatMessages = (params) => {
 //发送聊天消息
 export const sendChatMessage = (data) => {
     return ins.request({
-        url: '/chat/message',
+        url: '/im/message',
         method: 'post',
         data: data
     })

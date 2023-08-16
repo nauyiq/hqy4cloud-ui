@@ -31,7 +31,7 @@ export const getGroupUsers = (data) => {
 //创建群聊
 export const createGroup = (data) => {
     return ins.request({
-        url: '/chat/group',
+        url: '/im/group',
         method: 'post',
         data: data
     })

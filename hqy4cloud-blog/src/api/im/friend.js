@@ -1,6 +1,14 @@
 //添加好友
 import axios from "@/utils/request";
 
+export const allFriend = (data) => {
+    return axios.request({
+        url: '/im/user/friends',
+        method: 'get',
+        params: data
+    })
+}
+
 export const addFriend = (data) => {
     return axios.request({
         url: '/chat/friend',

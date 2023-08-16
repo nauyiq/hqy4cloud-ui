@@ -27,7 +27,7 @@
 </template>
 <script>
 
-import { getGroupUsers } from "@/api/im/chat";
+import { allFriend } from "@/api/im/friend";
 export default {
   name: "manageGroup",
   props: {
@@ -59,9 +59,9 @@ export default {
       allUser: [],
       groupName: "",
       defaultProps: {
-        key: "userId",
+        key: "id",
         label: "username",
-        pinyin: "name"
+        pinyin: "displayName"
       },
     };
   },
@@ -103,7 +103,7 @@ export default {
     },
     // 获取所有人员列表
     getAllUser(data) {
-      getGroupUsers(data).then(res => {
+      allFriend(data).then(res => {
         this.allUser = res.data.data;
       });
     },

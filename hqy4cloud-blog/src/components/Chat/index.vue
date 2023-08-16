@@ -372,7 +372,7 @@ import {
   uploadFile
 } from "@/api/im/chat"
 import {deleteFriend} from "@/api/im/friend"
-import {addGroupUser, getGroupUsers, deleteGroup, groupRole, publishNotice, removeGroupUser, updateGroupName} from "@/api/im/group"
+import {createGroup, addGroupUser, getGroupUsers, deleteGroup, groupRole, publishNotice, removeGroupUser, updateGroupName} from "@/api/im/group"
 
 // import webrtc from "./webrtc";
 // import VoiceRecorder from "./messageBox/voiceRecorder";
@@ -1038,11 +1038,7 @@ export default {
           break;
           // 新增加了群聊
         case "addGroup":
-          if (message.creator !== this.user.id) {
             IMUI.appendContact(message);
-          }
-          //TODO
-          // this.$api.commonApi.bindGroupAPI({client_id: client_id, group_id: message.id});
           break;
           // 设置群管理员
         case "setManager":
@@ -1792,7 +1788,7 @@ export default {
         if ((selectUid.length + this.groupUser.length) > num && num > 0) {
           return this.$message.error("群成员不能大于" + num + "人！");
         }
-        this.$api.imApi.addGroupUserAPI({user_ids: selectUid, id: this.group_id});
+        createGroup({userIds: selectUid, id: this.groupId});
       } else {
         if (selectUid.length > num && num > 0) {
           return this.$message.error("群成员不能大于" + num + "人！");
@@ -1803,6 +1799,8 @@ export default {
           if (res.data.code === 0) {
             // 添加联系人
             IMUI.appendContact(data);
+            // 添加到通讯录
+            IMUI.appendsidebarContact(data);
             // 切换到该联系人
             IMUI.changeContact(data.id);
           }

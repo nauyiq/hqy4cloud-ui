@@ -1,5 +1,5 @@
 diff --git a/node_modules/lemon-imui/packages/components/index.vue b/node_modules/lemon-imui/packages/components/index.vue
-index 7ee94bc..6c7b00f 100644
+index 7ee94bc..56b6d8c 100644
 --- a/node_modules/lemon-imui/packages/components/index.vue
 +++ b/node_modules/lemon-imui/packages/components/index.vue
 @@ -105,6 +105,8 @@ export default {
@@ -21,7 +21,36 @@ index 7ee94bc..6c7b00f 100644
              if (!contact.index) return;
              contact.index = contact.index.replace(/\[[0-9]*\]/, "");
              const node = [
-@@ -908,9 +911,19 @@ export default {
+@@ -886,6 +889,28 @@ export default {
+         return a.index.localeCompare(b.index);
+       });
+     },
++    appendsidebarContact(contact) {
++      if (isEmpty(contact.id) || isEmpty(contact.displayName)) {
++        console.error("id | displayName cant be empty");
++        return false;
++      }
++      if (this.hasContact(contact.id)) return true;
++      this.sidebarContacts.push(
++          Object.assign(
++              {
++                id: "",
++                displayName: "",
++                avatar: "",
++                index: "",
++                unread: 0,
++                lastSendTime: "",
++                lastContent: "",
++              },
++              contact,
++          ),
++      );
++      return true;
++    },
+     appendContact(contact) {
+       if (isEmpty(contact.id) || isEmpty(contact.displayName)) {
+         console.error("id | displayName cant be empty");
+@@ -908,9 +933,19 @@ export default {
        );
        return true;
      },
