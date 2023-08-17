@@ -130,13 +130,7 @@ export const uploadAvatar = (formData) => {
 // 获取个人信息
 export const getUserInfo = () => axios.get('/blog/user/profile')
 
-//获取用户信息
-export const getUserInfoById = (userId) => {
-    return axios.request({
-        url: '/chat/user/' + userId,
-        method: 'get'
-    })
-}
+
 
 
 // 修改用户信息

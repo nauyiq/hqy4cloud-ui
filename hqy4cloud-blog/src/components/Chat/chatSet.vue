@@ -44,7 +44,7 @@
 </template>
 
 <script>
-import { groupSetting, getGroupInfo } from "@/api/im/chat";
+import { groupSetting, getGroupInfo } from "@/api/im/group";
 
 export default {
   name: "chatSet",

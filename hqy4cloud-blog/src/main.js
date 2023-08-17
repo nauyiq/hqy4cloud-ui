@@ -1,6 +1,5 @@
 
 import Vue from "vue";
-
   
 import('element-ui').then(ele => {
   Vue.use(ele)

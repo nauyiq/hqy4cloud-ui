@@ -69,7 +69,7 @@
 </template>
 
 <script>
-import ChooseDialog from '@/components/message/chooseDialog/index';
+import ChooseDialog from '@/components/Chat/chooseDialog';
 import * as FileUtils from '@/utils/file';
 import * as utils from '@/utils/index';
   export default {

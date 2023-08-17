@@ -8,7 +8,7 @@
           :height="curHeight"
           :contextmenu="contextmenu"
           :contact-contextmenu="contactContextmenu"
-          :theme="setting.theme"
+          :theme="'default'"
           :hide-message-name="false"
           :hide-message-time="false"
           :avatarCricle="true"
@@ -88,7 +88,7 @@
                 </span>
                 <span class="displayName" v-if="isGroup === 0">
                   <OnlineStatus :type="contact.isOnline ? 'success' : 'info'" :pulse="contact.isOnline "
-                                v-if="globalConfig.chatInfo.online"></OnlineStatus> {{ contact.displayName }}</span>
+                                v-if="globalConfig.online"></OnlineStatus> {{ contact.displayName }}</span>
               </span>
 
               <input
@@ -319,7 +319,6 @@
         width="800px"
         append-to-body
     >
-
       <ChatRecord :contact="currentChat" :key="componentKey"></ChatRecord>
     </el-dialog>
     <!-- 消息管理器 -->
@@ -356,7 +355,7 @@ import ChatTop from "./chatTop";
 import Group from "./group";
 import ChooseDialog from "./chooseDialog";
 import Files from "./files/index";
-import Setting from "./setting";
+// import Setting from "./setting";
 import addFriend from "./friend";
 import OnlineStatus from "./onlineStatus";
 import Apply from "./apply";
@@ -394,7 +393,6 @@ export default {
     Group,
     Files,
     addFriend,
-    Setting,
     ChooseDialog,
     OnlineStatus,
     Apply
@@ -1188,7 +1186,7 @@ export default {
       });
     }
     // 初始化联系人
-    this.getSimpleChat();
+    // this.getSimpleChat();
   },
   methods: {
     called(is_video) {
@@ -1395,7 +1393,7 @@ export default {
             );
           },
         },
-        {
+        /*{
           name: "setting",
           title: "设置",
           unread: 0,
@@ -1408,7 +1406,7 @@ export default {
             );
           },
           isBottom: true
-        },
+        },*/
       ];
       if (this.fullScreen) {
         menus.push({

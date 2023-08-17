@@ -3,7 +3,7 @@ import ins from "@/utils/request";
 //获取socket.io 连接
 export const getSocketIoConnection = () => {
     return ins.request({
-        url: '/chat/connection',
+        url: '/im/connection',
         method: 'get'
     })
 }

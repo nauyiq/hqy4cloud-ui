@@ -58,7 +58,7 @@
         <el-button type="primary" v-if="userInfo.id !== detail.id" round @click="openChat()" style="width:150px">发消息
         </el-button>
         <el-button type="primary" v-if="!detail.friend" round @click="addFriend()" style="width:150px">加好友</el-button>
-        <el-button round v-if="options.isManage || userInfo.id === detail.id" style="width:150px" @click="editUser">
+        <el-button round v-if="userInfo.id === detail.id" style="width:150px" @click="editUser">
           编辑资料
         </el-button>
       </el-footer>
@@ -69,7 +69,7 @@
 
 <script>
 import {mapState} from 'vuex';
-import { setFriendMark, getUserInfoById, addFriend } from "@/api/user";
+import { setFriendMark, getUserInfoById, addFriend } from "@/api/im/friend";
 
 export default {
   name: 'UserCard',
@@ -89,8 +89,7 @@ export default {
   },
   computed: {
     ...mapState({
-      userInfo: state => state.user.userInfo,
-      globalConfig: state => state.user.globalConfig,
+      userInfo: state => state.user.userInfo
     }),
   },
   filters: {

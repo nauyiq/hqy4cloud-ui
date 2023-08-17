@@ -37,6 +37,6 @@ const getters = {
   contactId: state => state.user.contactId,
   contactSync: state => state.user.contactSync,
   userSetting: state => state.user.setting,
-  globalConfig: state => state.user.globalConfig,
+  globalConfig: state => state.user.globalConfig
 }
 export default getters

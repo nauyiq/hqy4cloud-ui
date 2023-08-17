@@ -9,19 +9,25 @@
     <div class="right flex align-center">
       <i class="iconfont" :class="isLike ? 'icon-xinheart118 liked' : 'icon-xinheart118'" v-if="showLike" @click="$emit('like', isLike)"></i>
       <el-dropdown >
-        <img width="30px" height="30px" style="cursor: pointer" :src="loadAvatar(avatar)"  @error="e => { e.target.src = onerrorAvatar() }" alt />
-        <el-dropdown-menu slot="dropdown" class="dropdownPop" style="width: 110px;">
+        <img width="31px" height="31px" style="cursor: pointer" :src="loadAvatar(avatar)"  @error="e => { e.target.src = onerrorAvatar() }" alt />
+        <el-dropdown-menu slot="dropdown" class="dropdownPop" style="width: 120px;">
           <el-dropdown-item @click.native= "showConfig"   v-if="isToken">
-            <i class="el-icon-s-tools dropdown-item" ></i>设置
+            <i class="el-icon-setting dropdown-item" ></i>设置
           </el-dropdown-item>
           <el-dropdown-item @click.native= "showPassword"   v-if="isToken">
-            <i class="el-icon-s-custom dropdown-item" ></i>修改密码
+            <i class="el-icon-edit-outline dropdown-item" ></i>修改密码
           </el-dropdown-item>
+          <el-dropdown-item @click.native= "showMessageBox"   v-if="isToken">
+            <el-badge :value="unread" :max="99" :hidden="unread === 0" class="item">
+              <i class="el-icon-message dropdown-item" ></i>未读消息
+            </el-badge>
+          </el-dropdown-item>
+
           <el-dropdown-item @click.native="toLogout" v-if="isToken">
-            <i class="el-icon-error dropdown-item"></i>退出登录
+            <i class="el-icon-circle-close dropdown-item"></i>退出登录
           </el-dropdown-item>
           <el-dropdown-item @click.native="toLogin" v-else>
-            <i  class="el-icon-s-custom dropdown-item"></i>登录
+            <i  class="el-icon-user dropdown-item"></i>登录
           </el-dropdown-item>
         </el-dropdown-menu>
         </el-dropdown>
@@ -55,6 +61,7 @@
                    @updateUser="updateUser"/>
     <passwordDialog v-if="isToken" v-show="showPasswordDialog" :showDia="showPasswordDialog"
                   @hide="showPasswordDialog = false"/>
+    <Message ref="Message" :dialogTableVisible.sync="dialogTableVisible"></Message>
   </div>
 
 
@@ -66,12 +73,12 @@ import { throttle } from '@/utils'
 import { mapState } from "vuex";
 import configDialog from '@/components/ConfigDialog.vue'
 import passwordDialog from '@/components/PasswordDialog.vue'
-
+import Message from "@c/Chat/dialog.vue";
 
 
 export default {
   name: 'HeaderComp',
-  components: { configDialog, passwordDialog },
+  components: { configDialog, passwordDialog,Message },
   props: {
     music: {
       type: String,
@@ -96,6 +103,7 @@ export default {
   },
   data() {
     return {
+      unread: 0,
       isPlay: false,
       startListen: false,
       dashArray: Math.PI * 100,
@@ -106,6 +114,7 @@ export default {
       timer: '',
       showConfigDialog: false,
       showPasswordDialog: false,
+      dialogTableVisible: false, //消息弹窗是否显示
     };
   },
   computed: {
@@ -137,6 +146,11 @@ export default {
     this.mid = this.midText
   },
   methods: {
+    showMessageBox() {
+      this.dialogTableVisible
+          ? (this.dialogTableVisible = false)
+          : (this.dialogTableVisible = true);
+    },
     // 音乐播放处理
     changeMusic() {
       this.listenPlay()
@@ -219,6 +233,9 @@ export default {
   margin-left: 12px;
   margin-right: 7px;
   font-size: 16px;
+  i {
+    font-size: 14px;
+  }
 }
 .header {
   position: fixed;

@@ -44,26 +44,30 @@ export default {
         return
       }
 
-      this.getWsConnection();
-      if (!this.socketConnection) {
-        this.$message.error("连接服务器失败, 请稍后再试")
-        return
-      }
-      let host = this.socketConnection.connectUrl;
-      let contentPath = this.socketConnection.context;
-      let authorization = this.socketConnection.authorization;
-      const manager = new Manager(host, {
-        reconnectionDelayMax: 10000,
-        autoConnect: false,
-      })
-      this.websocket = manager.socket(contentPath, {
-        auth: {
-          Authorization: authorization
+      getSocketIoConnection().then((res) => {
+        if (res.data.code === 0) {
+          let connection =  res.data.data
+          let host = connection.connectUrl;
+          let contentPath = connection.context;
+          let authorization = connection.authorization;
+          const manager = new Manager(host, {
+            reconnectionDelayMax: 10000,
+            autoConnect: false,
+          })
+          this.websocket = manager.socket(contentPath, {
+            auth: {
+              Authorization: authorization
+            }
+          })
+          //连接
+          this.websocket.connect();
+          Vue.prototype.$websocket = this.websocket;
+        } else {
+          this.$message.warning("连接服务器失败, 请稍后再试")
+          console.log(res.data)
         }
       })
-      //连接
-      this.websocket.connect();
-      Vue.prototype.$websocket = this.websocket;
+
     },
   },
   created() {
