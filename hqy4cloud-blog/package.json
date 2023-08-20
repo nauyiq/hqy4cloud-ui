@@ -42,7 +42,7 @@
     "postcss-px2rem": "^0.3.0",
     "sequelize": "^6.3.3",
     "showdown-toc": "^1.0.1",
-    "socket.io-client": "^4.7.1",
+    "socket.io-client": "^2.5.0",
     "compressorjs": "^1.2.1",
     "svg-captcha": "^1.4.0",
     "markdown-it": "^13.0.1",

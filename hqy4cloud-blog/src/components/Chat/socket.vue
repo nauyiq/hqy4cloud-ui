@@ -2,7 +2,6 @@
 </template>
 
 <script>
-import { Manager } from "socket.io-client";
 import { getSocketIoConnection } from "@/api/im/chat";
 import {mapState} from "vuex";
 import Vue from 'vue'
@@ -21,17 +20,6 @@ export default {
     })
   },
   methods: {
-    //获取长连接连接.
-    getWsConnection() {
-      getSocketIoConnection().then((res) => {
-          if (res.data.code === 0) {
-            this.socketConnection = res.data.data
-          } else {
-            this.$message.warning("连接服务器失败, 请稍后再试")
-            console.log(res.data)
-          }
-      })
-    },
     //初始化长连接
     initWebSocket() {
       if (!this.loginUser) {
@@ -50,15 +38,16 @@ export default {
           let host = connection.connectUrl;
           let contentPath = connection.context;
           let authorization = connection.authorization;
-          const manager = new Manager(host, {
-            reconnectionDelayMax: 10000,
+          const io = require("socket.io-client");
+
+          this.websocket = io(host ,{
+            reconnectionDelayMax: 50000,
+            path: contentPath,
             autoConnect: false,
-          })
-          this.websocket = manager.socket(contentPath, {
-            auth: {
-              Authorization: authorization
+            query: {
+              "Authorization": authorization
             }
-          })
+          });
           //连接
           this.websocket.connect();
           Vue.prototype.$websocket = this.websocket;
