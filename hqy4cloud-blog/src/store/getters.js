@@ -3,7 +3,6 @@ const getters = {
   tag: state => state.tags.tag,
   website: state => state.common.website,
   language: state => state.common.language,
-  setting: state => state.common.setting,
   userInfo: state => state.user.userInfo,
   themeName: state => state.common.themeName,
   isMacOs: (state, getters) => getters.themeName === 'mac-os',
@@ -36,7 +35,8 @@ const getters = {
   socketAction: state => state.user.socketAction,
   contactId: state => state.user.contactId,
   contactSync: state => state.user.contactSync,
-  userSetting: state => state.user.setting,
-  globalConfig: state => state.user.globalConfig
+  setting: state => state.user.setting,
+  globalConfig: state => state.user.globalConfig,
+  unread: state => state.user.unread
 }
 export default getters

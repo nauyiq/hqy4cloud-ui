@@ -417,7 +417,7 @@ export default {
       socketAction: state => state.user.socketAction,
       contactId: state => state.user.contactId,
       contactSync: state => state.user.contactSync,
-      setting: state => state.user.userSetting,
+      setting: state => state.user.setting,
       userInfo: state => state.user.userInfo,
       globalConfig: state => state.user.globalConfig,
     }),
@@ -473,9 +473,10 @@ export default {
       isEdit: false,
       // 当前登录用户
       user: {
-        id: this.userInfo.id,
-        displayName: this.userInfo.nickname,
-        avatar: this.userInfo.avatar,
+        id: '',
+        displayName: '',
+        avatar: '',
+        username: ''
       },
       params: {
         page: 1,
@@ -1151,15 +1152,15 @@ export default {
   },
   created() {
     // 初始化用户
-    /*let userInfo = this.$store.state.userInfo;
+    let userInfo = this.$store.state.userInfo;
     if (userInfo) {
       this.user = {
-        id: userInfo.user_id,
-        displayName: userInfo.realname,
+        id: userInfo.id,
+        displayName: userInfo.nickname,
         avatar: userInfo.avatar,
-        account: userInfo.account
+        username: userInfo.username
       }
-    }*/
+    }
     if (window.Notification) {
       // 浏览器通知--window.Notification
       if (Notification.permission === "granted") {

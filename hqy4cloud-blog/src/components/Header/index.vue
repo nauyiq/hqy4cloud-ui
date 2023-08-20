@@ -103,7 +103,6 @@ export default {
   },
   data() {
     return {
-      unread: 0,
       isPlay: false,
       startListen: false,
       dashArray: Math.PI * 100,
@@ -125,8 +124,14 @@ export default {
        return this.$store.getters.access_token;
      },
     ...mapState({
-      userInfo: state => state.user.userInfo
+      userInfo: state => state.user.userInfo,
+      unread:  state => state.user.unread
     })
+  },
+  watch: {
+    unread(val) {
+      this.unread = val
+    }
   },
   activated () {
     this.listenScroll()

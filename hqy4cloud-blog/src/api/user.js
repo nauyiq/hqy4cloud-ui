@@ -130,8 +130,8 @@ export const uploadAvatar = (formData) => {
 // 获取个人信息
 export const getUserInfo = () => axios.get('/blog/user/profile')
 
-
-
+//获取im用户配置
+export const getImUserSetting = () =>  axios.get('/im/user/setting')
 
 // 修改用户信息
 export const updateUserInfo = data => axios.put('/blog/user/profile', data)

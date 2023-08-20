@@ -5,6 +5,7 @@
 import { getSocketIoConnection } from "@/api/im/chat";
 import {mapState} from "vuex";
 import Vue from 'vue'
+import io from "socket.io-client";
 
 export default {
   name: "socket",
@@ -16,47 +17,39 @@ export default {
   },
   computed: {
     ...mapState({
-      loginUser: state => state.user.userInfo
+      isToken() {
+        return this.$store.getters.access_token;
+      }
     })
   },
   methods: {
     //初始化长连接
     initWebSocket() {
-      if (!this.loginUser) {
-        this.$message({
-          type: 'warning',
-          message: '登录过期或未登录，请先登录',
-          offset: 60
+      if (this.isToken) {
+        getSocketIoConnection().then((res) => {
+          if (res.data.code === 0) {
+            let connection =  res.data.data
+            let host = connection.connectUrl;
+            let contentPath = connection.context;
+            let authorization = connection.authorization;
+            const io = require("socket.io-client");
+
+            this.websocket = io(host ,{
+              reconnectionDelayMax: 50000,
+              path: contentPath,
+              autoConnect: false,
+              query: {
+                "Authorization": authorization
+              }
+            });
+            this.websocket.connect();
+            Vue.prototype.$websocket = this.websocket;
+          } else {
+            this.$message.warning("连接服务器失败, 请稍后再试")
+            console.log(res.data)
+          }
         })
-        this.$router.push("/login")
-        return
       }
-
-      getSocketIoConnection().then((res) => {
-        if (res.data.code === 0) {
-          let connection =  res.data.data
-          let host = connection.connectUrl;
-          let contentPath = connection.context;
-          let authorization = connection.authorization;
-          const io = require("socket.io-client");
-
-          this.websocket = io(host ,{
-            reconnectionDelayMax: 50000,
-            path: contentPath,
-            autoConnect: false,
-            query: {
-              "Authorization": authorization
-            }
-          });
-          //连接
-          this.websocket.connect();
-          Vue.prototype.$websocket = this.websocket;
-        } else {
-          this.$message.warning("连接服务器失败, 请稍后再试")
-          console.log(res.data)
-        }
-      })
-
     },
   },
   created() {

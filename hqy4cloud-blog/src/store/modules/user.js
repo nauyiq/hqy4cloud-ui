@@ -1,6 +1,6 @@
 import {setToken, setRefreshToken} from '@/utils/auth'
 import {getStore, setStore} from '@/utils/store'
-import {loginByUsername, loginByEmail, getUserInfo, logout, refreshToken} from '@/api/user'
+import {loginByUsername, loginByEmail, getUserInfo, logout, refreshToken, getImUserSetting} from '@/api/user'
 const user = {
     state: {
         userInfo: getStore({
@@ -27,14 +27,9 @@ const user = {
         contactId: 0,
         unread: 0,
         contactSync: '',
-        setting: {
-            sendKey: "1",
-            theme: "default",
-            isVoice: false,
-            avatarCricle: false,
-            hideMessageName: false,
-            hideMessageTime: false,
-        },
+        setting: getStore({
+            name: 'setting'
+        }) || {},
         globalConfig:[], // 全局配置
         allContacts: [], // 联系人
     },
@@ -109,6 +104,22 @@ const user = {
                 })
             })
         },
+        //获取用户设置
+        GetUserSetting({commit}) {
+            return new Promise((resolve, reject) => {
+                getImUserSetting().then((res) => {
+                    const data = res.data.data || {}
+                    if (!data.sendKey) {
+                        data["sendKey"] = 1
+                    }
+                    commit('SET_SETTING', data)
+                    resolve(data)
+                }).catch(() => {
+                    reject()
+                })
+            })
+        },
+
         // 登出
         LogOut({commit}) {
             return new Promise((resolve, reject) => {
@@ -117,6 +128,7 @@ const user = {
                     commit('SET_MENU', [])
                     commit('SET_PERMISSIONS', [])
                     commit('SET_USER_INFO', {})
+                    commit('SET_SETTING', {})
                     commit('SET_ACCESS_TOKEN', '')
                     commit('SET_REFRESH_TOKEN', '')
                     commit('SET_ROLES', [])
@@ -179,39 +191,8 @@ const user = {
                 type: 'session'
             })
         },
-        SET_MENUALL: (state, menuAll) => {
-            const menu = state.menuAll
-            menuAll.forEach(ele => {
-                if (!menu.find(item => item.label === ele.label && item.path === ele.path)) {
-                    menu.push(ele)
-                }
-            })
-            state.menuAll = menu
-            setStore({name: 'menuAll', content: state.menuAll})
-        },
-        SET_MENUALL_NULL: (state) => {
-            state.menuAll = []
-            setStore({name: 'menuAll', content: state.menuAll})
-        },
-        SET_MENU: (state, menu) => {
-            state.menu = menu
-            setStore({name: 'menu', content: state.menu})
-        },
         SET_ROLES: (state, roles) => {
             state.roles = roles
-        },
-        SET_PERMISSIONS: (state, permissions) => {
-            const list = {}
-            for (let i = 0; i < permissions.length; i++) {
-                list[permissions[i]] = true
-            }
-
-            state.permissions = list
-            setStore({
-                name: 'permissions',
-                content: list,
-                type: 'session'
-            })
         },
         SET_SOCKET_ACTION: (state, data) => {
             state.socketAction = data
@@ -224,7 +205,12 @@ const user = {
             state.globalConfig = data;
         },
         SET_SETTING(state, data) {
-            state.setting = data;
+            state.setting = data
+            setStore({
+                name: 'setting',
+                content: data,
+                type: 'session'
+            })
         },
         INIT_CONTACTS: (state, data) => {
             state.allContacts = data;

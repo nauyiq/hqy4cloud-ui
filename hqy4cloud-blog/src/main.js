@@ -21,6 +21,11 @@ Vue.use(Clipboard)
 import UserCard from '@/components/user/index'
 Vue.use(UserCard)
 
+import LemonIMUI from 'lemon-imui';
+import 'lemon-imui/dist/index.css';
+Vue.use(LemonIMUI);
+
+
 import hljs from 'highlight.js/lib/core';
 import javascript from 'highlight.js/lib/languages/javascript';
 hljs.registerLanguage('javascript', javascript);
