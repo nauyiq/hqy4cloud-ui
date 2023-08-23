@@ -31,7 +31,14 @@ const user = {
             name: 'setting'
         }) || {},
         globalConfig:[], // 全局配置
-        allContacts: [], // 联系人
+        //好友列表 通讯录列表
+        friends: getStore({
+            name: 'friends'
+        }) || [],
+        // 联系人
+        allContacts: getStore({
+            name: 'contacts'
+        }) || [],
     },
     actions: {
         // 根据用户名登录
@@ -214,6 +221,19 @@ const user = {
         },
         INIT_CONTACTS: (state, data) => {
             state.allContacts = data;
+            setStore({
+                name: 'contacts',
+                content: data,
+                type: 'session'
+            })
+        },
+        INIT_FRIENDS: (state, data) => {
+            state.friends = data;
+            setStore({
+                name: 'friends',
+                content: data,
+                type: 'session'
+            })
         },
         UPDATE_UNREAD: (state, data) => {
             state.unread = parseInt(data);

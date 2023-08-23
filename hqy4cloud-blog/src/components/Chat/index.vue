@@ -25,7 +25,7 @@
           <div>
             <div class="cover">
               <i class="lemon-icon-message"></i>
-              <p><b>在线聊天-hongqy</b> IM</p>
+              <p><b>在线聊天</b> IM</p>
             </div>
           </div>
         </template>
@@ -136,14 +136,14 @@
               </el-dropdown>
 
             </div>
-            <div style="margin-left:10px">
+<!--            <div style="margin-left:10px">
               <el-button
                   title="创建群聊"
                   icon="el-icon-plus"
                   @click="openCreateGroup"
                   circle
               ></el-button>
-            </div>
+            </div>-->
             <div class="search-list" v-show="searchResult">
               <div
                   v-for="(item, index) in searchList"
@@ -362,7 +362,8 @@ import Apply from "./apply";
 import ScreenShot from "js-web-screen-shot";
 import {
   getChatMessages,
-  getContacts,
+  getConversations,
+  getFriendContacts,
   readMessage,
   sendChatMessage,
   setChatNotice,
@@ -372,7 +373,7 @@ import {
 } from "@/api/im/chat"
 import {deleteFriend} from "@/api/im/friend"
 import {createGroup, addGroupUser, getGroupUsers, deleteGroup, groupRole, publishNotice, removeGroupUser, updateGroupName} from "@/api/im/group"
-
+import InviteImg from '@/assets/img/invite.png'
 // import webrtc from "./webrtc";
 // import VoiceRecorder from "./messageBox/voiceRecorder";
 
@@ -380,7 +381,6 @@ const getTime = () => {
   return new Date().getTime();
 };
 
-const user = Lockr.get("UserInfo");
 export default {
   name: "app",
   components: {
@@ -420,6 +420,9 @@ export default {
       setting: state => state.user.setting,
       userInfo: state => state.user.userInfo,
       globalConfig: state => state.user.globalConfig,
+      isToken() {
+        return this.$store.getters.access_token;
+      }
     }),
     formatTime() {
       return function (val) {
@@ -433,8 +436,8 @@ export default {
     return {
       noSimpleTips: '当前聊天处于禁言中，无法发送消息',
       isFullscreen: false,
-      curWidth: this.width,
-      curHeight: this.height,
+      curWidth: '1000px',
+      curHeight: '640px',
       unread: 0,
       // webrtcConfig:{
       //     config: { 'iceServers':[{
@@ -484,7 +487,10 @@ export default {
       },
       isGroup: false,
       groupId: 0,
+      //联系人, 会话列表
       contacts: [],
+      //通讯录好友
+      friends:[],
       allUser: [],
       groupUser: [],
       // 当前聊天
@@ -909,11 +915,11 @@ export default {
     };
   },
   watch: {
-    isFullscreen(val) {
+    /*isFullscreen(val) {
       Lockr.set('isFullscreen', val);
       this.curWidth = val ? '100vw' : this.width;
       this.curHeight = val ? '100vh' : this.height;
-    },
+    },*/
     playAudio(val) {
       if (val && this.currentMessage) {
         let message = this.currentMessage;
@@ -951,7 +957,6 @@ export default {
     socketAction(val) {
       let message = val.data;
       const {IMUI} = this.$refs;
-      let client_id = Lockr.get('client_id');
       switch (val.type) {
           //上线、下线通知
         case "connect":
@@ -1152,14 +1157,11 @@ export default {
   },
   created() {
     // 初始化用户
-    let userInfo = this.$store.state.userInfo;
-    if (userInfo) {
-      this.user = {
-        id: userInfo.id,
-        displayName: userInfo.nickname,
-        avatar: userInfo.avatar,
-        username: userInfo.username
-      }
+    if (this.userInfo) {
+      this.user.id = this.userInfo.id;
+      this.user.displayName = this.userInfo.nickname;
+      this.user.avatar = this.userInfo.avatar;
+      this.user.username = this.userInfo.username;
     }
     if (window.Notification) {
       // 浏览器通知--window.Notification
@@ -1186,8 +1188,11 @@ export default {
         }
       });
     }
-    // 初始化联系人
-    // this.getSimpleChat();
+    if (this.isToken) {
+      // 初始化联系人
+      this.getSimpleChat();
+    }
+
   },
   methods: {
     called(is_video) {
@@ -1269,8 +1274,9 @@ export default {
         IMUI.initEditorTools(tools);
         // 初始化表情
         IMUI.initEmoji(EmojiData);
-        // 获取联系人列表
-        getContacts.then(res => {
+
+        // 获取聊天会话列表
+        getConversations().then(res => {
           const data = res.data.data;
           this.contacts = data;
           let msg = {};
@@ -1285,33 +1291,48 @@ export default {
               this.unread += item.unread;
             }
           })
-          /*if (this.globalConfig.sysInfo.runMode == 2) {
-            const sysContact = {
-              id: 'system',
-              displayName: "新邀请",
-              avatar: InviteImg,
-              index: "[1]系统消息",
-              click(next) {
-                next();
-              },
-              renderContainer: () => {
-                return <Apply></Apply>;
-              },
-              lastSendTime: res.page,
-              lastContent: res.page ? "新的申请" : '',
-              unread: parseInt(res.count),
-              is_notice: 1
-            };
-            this.unread += res.count;
-            data.push({...sysContact});
-          }*/
+          /*const sysContact = {
+            id: 'system',
+            displayName: "新邀请",
+            avatar: InviteImg,
+            index: "[1]系统消息",
+            click(next) {
+              next();
+            },
+            renderContainer: () => {
+              return <Apply></Apply>;
+            },
+            lastSendTime: res.page,
+            lastContent: res.page ? "新的申请" : '',
+            unread: parseInt(res.count),
+            is_notice: 1
+          };
+          this.unread += res.count;
+          data.push({...sysContact});*/
           this.$store.commit('INIT_CONTACTS', data);
           // 设置置顶人
-          this.getChatTop(data);
+          // this.getChatTop(data);
           IMUI.initContacts(data);
-          // 初始化左侧菜单栏
-          this.initMenus(IMUI);
+
+          //获取通讯录好友
+          getFriendContacts().then(res => {
+            if (res.data.code === 0) {
+              const data = res.data.data;
+              this.friends = data;
+              this.$store.commit('INIT_FRIENDS', data);
+              IMUI.initFriends(data)
+            } else {
+              this.$message.warning("获取通讯录失败");
+            }
+          })
+
+
         });
+
+
+        // 初始化左侧菜单栏
+        this.initMenus(IMUI);
+
       });
     },
     shotScreen() {
@@ -1923,7 +1944,7 @@ export default {
       if (this.keywords !== "") {
         this.searchList = utils.search_object(
             contacts,
-            ["displayName", "name_py"],
+            ["displayName"],
             this.keywords
         );
       }

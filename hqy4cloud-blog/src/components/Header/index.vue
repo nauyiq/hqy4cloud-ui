@@ -1,67 +1,70 @@
 <template>
-  <div class="header" ref="head">
-    <div class="left flex align-center">
-      <i @click="toHome" class="iconfont el-icon-s-home el-home"></i>
-      <i @click="toIndex" class="iconfont el-icon-menu el-home"></i>
-      <i class="iconfont" @click="changeMusic" :class="isPlay ? 'icon-zanting' : 'icon-bofang'"></i>
-    </div>
-    <div class="mid" :class="musicIcon==='show' ? 'show' : 'hid'">{{midText}}</div>
-    <div class="right flex align-center">
-      <i class="iconfont" :class="isLike ? 'icon-xinheart118 liked' : 'icon-xinheart118'" v-if="showLike" @click="$emit('like', isLike)"></i>
-      <el-dropdown >
-        <img width="31px" height="31px" style="cursor: pointer" :src="loadAvatar(avatar)"  @error="e => { e.target.src = onerrorAvatar() }" alt />
-        <el-dropdown-menu slot="dropdown" class="dropdownPop" style="width: 120px;">
-          <el-dropdown-item @click.native= "showConfig"   v-if="isToken">
-            <i class="el-icon-setting dropdown-item" ></i>设置
-          </el-dropdown-item>
-          <el-dropdown-item @click.native= "showPassword"   v-if="isToken">
-            <i class="el-icon-edit-outline dropdown-item" ></i>修改密码
-          </el-dropdown-item>
-          <el-dropdown-item @click.native= "showMessageBox"   v-if="isToken">
-            <el-badge :value="unread" :max="99" :hidden="unread === 0" class="item">
-              <i class="el-icon-message dropdown-item" ></i>未读消息
-            </el-badge>
-          </el-dropdown-item>
+  <div class="main-container">
+    <div class="header" ref="head">
+      <div class="left flex align-center">
+        <i @click="toHome" class="iconfont el-icon-s-home el-home"></i>
+        <i @click="toIndex" class="iconfont el-icon-menu el-home"></i>
+        <i class="iconfont" @click="changeMusic" :class="isPlay ? 'icon-zanting' : 'icon-bofang'"></i>
+      </div>
+      <div class="mid" :class="musicIcon==='show' ? 'show' : 'hid'">{{midText}}</div>
+      <div class="right flex align-center">
+        <i class="iconfont" :class="isLike ? 'icon-xinheart118 liked' : 'icon-xinheart118'" v-if="showLike" @click="$emit('like', isLike)"></i>
+        <el-dropdown >
+          <img width="31px" height="31px" style="cursor: pointer" :src="loadAvatar(avatar)"  @error="e => { e.target.src = onerrorAvatar() }" alt />
+          <el-dropdown-menu slot="dropdown" class="dropdownPop" style="width: 120px;">
+            <el-dropdown-item @click.native= "showConfig"   v-if="isToken">
+              <i class="el-icon-setting dropdown-item" ></i>设置
+            </el-dropdown-item>
+            <el-dropdown-item @click.native= "showPassword"   v-if="isToken">
+              <i class="el-icon-edit-outline dropdown-item" ></i>修改密码
+            </el-dropdown-item>
+            <el-dropdown-item @click.native= "showMessageBox"   v-if="isToken">
+              <el-badge :value="unread" :max="99" :hidden="unread === 0" class="item">
+                <i class="el-icon-message dropdown-item" ></i>未读消息
+              </el-badge>
+            </el-dropdown-item>
 
-          <el-dropdown-item @click.native="toLogout" v-if="isToken">
-            <i class="el-icon-circle-close dropdown-item"></i>退出登录
-          </el-dropdown-item>
-          <el-dropdown-item @click.native="toLogin" v-else>
-            <i  class="el-icon-user dropdown-item"></i>登录
-          </el-dropdown-item>
-        </el-dropdown-menu>
+            <el-dropdown-item @click.native="toLogout" v-if="isToken">
+              <i class="el-icon-circle-close dropdown-item"></i>退出登录
+            </el-dropdown-item>
+            <el-dropdown-item @click.native="toLogin" v-else>
+              <i  class="el-icon-user dropdown-item"></i>登录
+            </el-dropdown-item>
+          </el-dropdown-menu>
         </el-dropdown>
 
-    </div>
-    <div class="progressBar" :style="{width: progressBarWidth + '%'}"></div>
-    <div class="music-btn" @click="changeMusic" :class="[musicIcon]">
-      <svg
-        class="progress-circle"
-        viewBox="0 0 100 100"
-        version="1.1"
-        xmlns="http://www.w3.org/2000/svg"
-      >
-        <circle class="progress-background" r="50" cx="50" cy="50" fill="transparent" />
-        <circle
-          class="progress-bar"
-          r="50"
-          cx="50"
-          cy="50"
-          fill="transparent"
-          :stroke-dasharray="dashArray"
-          :stroke-dashoffset="dashOffset"
-        />
-      </svg>
-      <span class="iconfont" :class="isPlay ? 'icon-zanting' : 'icon-bofang'"></span>
-    </div>
-    <audio loop id="music" :src="music"> </audio>
+      </div>
+      <div class="progressBar" :style="{width: progressBarWidth + '%'}"></div>
+      <div class="music-btn" @click="changeMusic" :class="[musicIcon]">
+        <svg
+            class="progress-circle"
+            viewBox="0 0 100 100"
+            version="1.1"
+            xmlns="http://www.w3.org/2000/svg"
+        >
+          <circle class="progress-background" r="50" cx="50" cy="50" fill="transparent" />
+          <circle
+              class="progress-bar"
+              r="50"
+              cx="50"
+              cy="50"
+              fill="transparent"
+              :stroke-dasharray="dashArray"
+              :stroke-dashoffset="dashOffset"
+          />
+        </svg>
+        <span class="iconfont" :class="isPlay ? 'icon-zanting' : 'icon-bofang'"></span>
+      </div>
+      <audio loop id="music" :src="music"> </audio>
 
-    <configDialog v-if="isToken" v-show="showConfigDialog" :showDia="showConfigDialog" :userInfo="userInfo"
-                   @hide="showConfigDialog = false"
-                   @updateUser="updateUser"/>
-    <passwordDialog v-if="isToken" v-show="showPasswordDialog" :showDia="showPasswordDialog"
-                  @hide="showPasswordDialog = false"/>
-    <Message ref="Message" :dialogTableVisible.sync="dialogTableVisible"></Message>
+      <configDialog v-if="isToken" v-show="showConfigDialog" :showDia="showConfigDialog" :userInfo="userInfo"
+                    @hide="showConfigDialog = false"
+                    @updateUser="updateUser"/>
+      <passwordDialog v-if="isToken" v-show="showPasswordDialog" :showDia="showPasswordDialog"
+                      @hide="showPasswordDialog = false"/>
+
+    </div>
+    <Message class="messageDialog" ref="Message" :dialogTableVisible.sync="dialogTableVisible"></Message>
   </div>
 
 
@@ -242,6 +245,7 @@ export default {
     font-size: 14px;
   }
 }
+
 .header {
   position: fixed;
   top: 0;
@@ -375,7 +379,16 @@ export default {
   }
 }
 
-@media screen and (max-width: 600px) {
+.main-container {
+  padding: 50px 10%;
+
+}
+
+
+@media screen and (max-width: 768px) {
+  .main-container{
+    padding: 15px;
+  }
   .header {
     position: absolute;
   }

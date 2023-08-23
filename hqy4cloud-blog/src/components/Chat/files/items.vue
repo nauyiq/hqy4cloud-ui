@@ -16,7 +16,7 @@
         <el-container>
             <el-aside width="150px" class="lz-flex group-box">
                 <div class="group-box-list">
-                    <div v-for="items in fileType" :key="items.id" class="chat-item" @click="openFolder(items)" :class="params.cate==items.id ? 'active' : ''">
+                    <div v-for="items in fileType" :key="items.id" class="chat-item" @click="openFolder(items)" :class="params.cate===items.id ? 'active' : ''">
                             {{items.name}}
                     </div>
                 </div>
@@ -152,14 +152,14 @@ import * as utils from '@/utils/index';
             this.getFileList();
         },
         getFileList(){
-            this.$api.imApi.getFileList(this.params).then(res=>{
+            /*this.$api.imApi.getFileList(this.params).then(res=>{
                 if(res.code == 0){
                     this.fileList = res.data;
                     this.total = res.count;
                     this.singlePage = res.count <= this.params.limit ? true : false;
                     this.params.page = res.page;
                 }
-            })
+            })*/
         },
         handleChange(val) {
             this.params.limit = val;

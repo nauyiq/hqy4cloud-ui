@@ -12,7 +12,7 @@ export const getSocketIoConnection = () => {
 //获取聊天记录
 export const getChatMessages = (params) => {
     return ins.request({
-        url: '/chat/messages',
+        url: '/im/messages',
         method: 'get',
         params: params
     })
@@ -70,10 +70,18 @@ export const setChatNotice = (data)  =>{
     })
 }
 
-//获取联系人列表
-export const getContacts = () => {
+//获取聊天列表
+export const getConversations = () => {
     return ins.request({
-        url: '/chat/contacts',
+        url: '/im/conversations',
+        method: 'get'
+    })
+}
+
+//获取通讯录好友列表
+export const getFriendContacts = () => {
+    return ins.request({
+        url: '/im/user/contacts',
         method: 'get'
     })
 }

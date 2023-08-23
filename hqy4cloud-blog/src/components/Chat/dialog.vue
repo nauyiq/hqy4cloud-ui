@@ -1,8 +1,8 @@
 <template>
   <div class="messageBoxStyle" v-show="dialogTableVisible">
   <el-dialog :visible.sync="dialogIsShow" :modal="false" @close="closeDialog" custom-class="sideMenu-message"
-        :show-close="false" :width="'1000px'" :close-on-press-escape="true" >
-      <IM @newChat="contactSync" @close="closeDialog"></IM>
+        :show-close="false" :close-on-press-escape="true" >
+      <IM class="im-dialog" @newChat="contactSync" @close="closeDialog"></IM>
     </el-dialog>
   </div>
 </template>
@@ -72,6 +72,7 @@ export default {
 </script>
 <style scoped lang="scss">
 
+
 .messageBoxStyle {
   position: fixed;
   top: 0;
@@ -86,13 +87,17 @@ export default {
     align-items: center;
   }
 }
+
 .sideMenu-message {
   margin-top: 0 !important;
-  height: 580px;
   border-radius: 4px;
   .el-tab-pane {
     background: white;
   }
+}
+
+::v-deep .el-dialog {
+  margin-right: 40% !important;
 }
 
 ::v-deep .el-dialog__header {
@@ -100,7 +105,13 @@ export default {
   }
   
 ::v-deep .el-dialog__body {
+  left: 50% !important;
   padding: 0px;
+  border-radius: 4px;
+  height: 640px ;
+  min-width: 600px ;
+  width: 1000px ;
+  overflow-y: hidden ;
 }
 
 </style>
