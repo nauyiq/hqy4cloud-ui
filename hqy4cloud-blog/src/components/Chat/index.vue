@@ -955,7 +955,7 @@ export default {
     },
     // 监听接收socket消息
     socketAction(val) {
-      let message = val.data;
+      let message = val;
       const {IMUI} = this.$refs;
       switch (val.type) {
           //上线、下线通知
@@ -974,8 +974,8 @@ export default {
           }
           break;
           // 接收消息
-        case "simple":
-        case "group":
+        case "privateChat":
+        case "groupChat":
           // 如果是自己发送的消息则不需要提示
           if (message.fromUser.id !== this.user.id) {
             let contact = this.getContact(message.toContactId);
@@ -984,7 +984,7 @@ export default {
               this.popNotice(message);
             }
           }
-          this.recieveMsg(message);
+          this.receiveMsg(message);
           break;
           // 撤回消息
         case "undoMessage":
@@ -1750,12 +1750,13 @@ export default {
     // 拉取聊天记录
     handlePullMessages(contact, next, instance) {
       let params = this.params;
-      params.toContactId = contact.id;
       params.isGroup = contact.isGroup;
+      params.toContactId = contact.id;
+      params.conversationId = contact.conversationId;
       getChatMessages(params).then(res => {
             this.params.page++;
             let isEnd = false;
-            let messages = res.data.data;
+            let messages = res.data.data.resultList;
             if (messages.length < this.params.limit) {
               isEnd = true;
             }
@@ -1991,7 +1992,7 @@ export default {
       }
     },
     // 接收消息重新渲染
-    recieveMsg(message) {
+    receiveMsg(message) {
       const {IMUI} = this.$refs;
       const contact = IMUI.getCurrentContact();
       // 如果收到消息是当前窗口的聊天，需要将消息修改为已读
@@ -2088,7 +2089,7 @@ export default {
             if (e.event == 'calling') {
               this.wsData = res.data;
               Lockr.set('wsData', res.data);
-              this.recieveMsg(res.data);
+              this.receiveMsg(res.data);
             }
           }
           if (res.data.extends.code == '907') {
