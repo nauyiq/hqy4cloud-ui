@@ -44,9 +44,12 @@ export default {
             this.websocket.connect();
 
             this.websocket.on('privateChat', (eventData) => {
-              let data = JSON.parse(eventData)
-              data['type'] = 'privateChat'
-              this.$store.commit('SET_SOCKET_ACTION', data)
+              const data = JSON.parse(eventData)
+              const event = {
+                "event": 'privateChat',
+                "data": data
+              }
+              this.$store.commit('SET_SOCKET_ACTION', event)
             })
 
             Vue.prototype.$websocket = this.websocket;

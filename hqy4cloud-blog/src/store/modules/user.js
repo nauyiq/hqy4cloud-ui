@@ -23,7 +23,7 @@ const user = {
         use_refresh_token: getStore({
             name: 'use_refresh_token'
         }) || '',
-        socketAction: '',
+        socketAction: {},
         contactId: 0,
         unread: 0,
         contactSync: '',

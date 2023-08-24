@@ -944,9 +944,9 @@ export default {
       const {IMUI} = this.$refs;
       IMUI.changeContact(this.contactId);
     },
-    unread(val) {
+    /*unread(val) {
       this.$store.commit('UPDATE_UNREAD', val);
-    },
+    },*/
     // 监听联系人搜索
     keywords() {
       const {IMUI} = this.$refs;
@@ -955,9 +955,9 @@ export default {
     },
     // 监听接收socket消息
     socketAction(val) {
-      let message = val;
+      let message = val.data;
       const {IMUI} = this.$refs;
-      switch (val.type) {
+      switch (val.event) {
           //上线、下线通知
         case "connect":
           IMUI.updateContact({
@@ -977,13 +977,14 @@ export default {
         case "privateChat":
         case "groupChat":
           // 如果是自己发送的消息则不需要提示
+          /*let toContactId = message.toContactId;
           if (message.fromUser.id !== this.user.id) {
-            let contact = this.getContact(message.toContactId);
+            let contact = this.getContact(toContactId);
             // 如果开启了声音才播放
             if (this.setting.isVoice && contact.isNotice) {
               this.popNotice(message);
             }
-          }
+          }*/
           this.receiveMsg(message);
           break;
           // 撤回消息
@@ -2012,11 +2013,10 @@ export default {
           this.initMenus(IMUI);
         }
       }
-
-      if (this.user.id === message.toContactId) {
+      /*if (this.user.id === message.toContactId) {
         // 这里需要将原来的发送对象的id换回来，哈哈哈 TODO
         message.toContactId = message.toUser;
-      }
+      }*/
       IMUI.appendMessage(message, true);
 
     },
