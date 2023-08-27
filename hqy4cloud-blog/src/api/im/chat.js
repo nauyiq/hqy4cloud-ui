@@ -38,7 +38,7 @@ export const sendWebrtcMessage = (data) => {
 //设置消息为已读
 export const readMessage = (data) => {
     return ins.request({
-        url: '/chat/message/read',
+        url: '/im/messages/read',
         method: 'put',
         data: data
     })

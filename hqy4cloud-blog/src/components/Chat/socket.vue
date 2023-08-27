@@ -43,6 +43,7 @@ export default {
             });
             this.websocket.connect();
 
+            //listen socket.io privateChat event.
             this.websocket.on('privateChat', (eventData) => {
               const data = JSON.parse(eventData)
               const event = {
@@ -51,6 +52,17 @@ export default {
               }
               this.$store.commit('SET_SOCKET_ACTION', event)
             })
+
+            //listen socket.io readMessages event.
+            this.websocket.on('readMessages', (eventData) => {
+              const data = JSON.parse(eventData)
+              const event = {
+                "event": 'readMessages',
+                "data": data
+              }
+              this.$store.commit('SET_SOCKET_ACTION', event)
+            })
+
 
             Vue.prototype.$websocket = this.websocket;
           } else {

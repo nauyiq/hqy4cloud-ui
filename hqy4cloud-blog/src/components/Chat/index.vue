@@ -1038,7 +1038,7 @@ export default {
           IMUI.appendMessage(data, true);
           break;
           //处理消息已读,将本地的未读消息修改为已读状态
-        case "isRead":
+        case "readMessages":
           this.setLocalMsgIsRead(message);
           break;
           // 新增加了群聊
@@ -1599,13 +1599,23 @@ export default {
         readMessage({
           isGroup: contact.isGroup,
           toContactId: contact.id,
+          fromUser: contact.id
+        }).then(res => {
+          let messageIds = res.data.data;
+          if (res.data.code === 0) {
+            this.setLocalMsgIsRead(messageIds);
+          }
+        });
+        /*readMessage({
+          isGroup: contact.isGroup,
+          toContactId: contact.id,
           messages: data,
           fromUser: contact.id
         }).then(res => {
           if (res.data.code === 0) {
             this.setLocalMsgIsRead(data);
           }
-        });
+        });*/
       }
       instance.closeDrawer();
     },
@@ -1955,13 +1965,14 @@ export default {
     setLocalMsgIsRead(message) {
       const {IMUI} = this.$refs;
       for (let i = 0; message.length > i; i++) {
-        const data = {
+        /*const data = {
           id: message[i]["id"],
           isRead: 1,
           status: "succeed",
           content: message[i]["content"] + " "
         };
-        IMUI.updateMessage(data);
+        IMUI.updateMessage(data);*/
+        IMUI.updateMessageRead(message[i])
       }
     },
     // 播放消息声音
@@ -1997,26 +2008,25 @@ export default {
       const {IMUI} = this.$refs;
       const contact = IMUI.getCurrentContact();
       // 如果收到消息是当前窗口的聊天，需要将消息修改为已读
-      if (contact.id === message.toContactId && contact.id !== 'system') {
+      if (contact.id === message.fromUser.id && contact.id !== 'system') {
         let data = [];
         data.push(message);
         readMessage({
           toContactId: contact.id,
           isGroup: contact.isGroup,
-          messages: data,
           fromUser: message.fromUser.id
         });
       } else {
-        // 如果不是自己的消息，需要将未读数加1
-        if (this.user.id !== message.fromUser.id) {
+        // 如果当前窗口不是当前用户 并且开启了消息提示 未读数才需要++
+        if (this.user.id !== message.fromUser.id && contact.isNotice) {
           this.unread++;
           this.initMenus(IMUI);
         }
       }
-      /*if (this.user.id === message.toContactId) {
-        // 这里需要将原来的发送对象的id换回来，哈哈哈 TODO
-        message.toContactId = message.toUser;
-      }*/
+
+      if (this.user.id === message.toContactId) {
+        message.toContactId = message.fromUser.id;
+      }
       IMUI.appendMessage(message, true);
 
     },
