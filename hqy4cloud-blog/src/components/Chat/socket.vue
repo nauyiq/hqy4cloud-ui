@@ -50,7 +50,9 @@ export default {
                 "event": 'privateChat',
                 "data": data
               }
-              this.$store.commit('SET_SOCKET_ACTION', event)
+              setTimeout(() => {
+                this.$store.commit('SET_SOCKET_ACTION', event)
+              }, 200)
             })
 
             //listen socket.io readMessages event.

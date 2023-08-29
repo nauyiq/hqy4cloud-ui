@@ -942,11 +942,12 @@ export default {
     contactSync(val) {
       this.$emit('newChat', val);
       const {IMUI} = this.$refs;
+
       IMUI.changeContact(this.contactId);
     },
-    /*unread(val) {
+    unread(val) {
       this.$store.commit('UPDATE_UNREAD', val);
-    },*/
+    },
     // 监听联系人搜索
     keywords() {
       const {IMUI} = this.$refs;
@@ -1290,6 +1291,7 @@ export default {
             }
             if (item.unread && !update) {
               this.unread += item.unread;
+              console.log(this.unread)
             }
           })
           /*const sysContact = {
@@ -1591,19 +1593,16 @@ export default {
             messages[i].isRead === false &&
             messages[i].fromUser.id !== this.user.id
         ) {
-          data.push(messages[i]);
+          data.push(messages[i]['messageId']);
         }
       }
       // 如果有未读的消息，需要将消息修改为已读
       if (data.length > 0) {
         readMessage({
-          isGroup: contact.isGroup,
-          toContactId: contact.id,
-          fromUser: contact.id
+          conversationId: contact.conversationId
         }).then(res => {
-          let messageIds = res.data.data;
           if (res.data.code === 0) {
-            this.setLocalMsgIsRead(messageIds);
+            this.setLocalMsgIsRead(data);
           }
         });
         /*readMessage({
@@ -1746,7 +1745,6 @@ export default {
             .then(res => {
               if (res.data.code === 0) {
                 IMUI.setEditorValue("");
-                message.id = res.data.data
                 IMUI.updateMessage(res.data.data);
                 next();
               } else {
@@ -2012,9 +2010,9 @@ export default {
         let data = [];
         data.push(message);
         readMessage({
-          toContactId: contact.id,
+          to: this.user.id,
           isGroup: contact.isGroup,
-          fromUser: message.fromUser.id
+          from: message.fromUser.id
         });
       } else {
         // 如果当前窗口不是当前用户 并且开启了消息提示 未读数才需要++
