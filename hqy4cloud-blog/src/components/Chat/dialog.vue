@@ -1,8 +1,8 @@
 <template>
   <div class="messageBoxStyle" v-show="dialogTableVisible">
   <el-dialog :visible.sync="dialogIsShow" :modal="false" @close="closeDialog" custom-class="sideMenu-message"
-        :show-close="false" :close-on-press-escape="true" >
-      <IM class="im-dialog" @newChat="contactSync" @close="closeDialog"></IM>
+        :show-close="false" :width="'1000px'" :close-on-press-escape="true" >
+      <IM class="im-dialog" :dialog="dialogIsShow"  @newChat="contactSync" @close="closeDialog"></IM>
     </el-dialog>
   </div>
 </template>
@@ -107,11 +107,12 @@ export default {
 ::v-deep .el-dialog__body {
   left: 50% !important;
   padding: 0px;
-  border-radius: 4px;
+  border-radius: 2px 2px 2px 2px;
   height: 640px ;
   min-width: 600px ;
   width: 1000px ;
   overflow-y: hidden ;
 }
+
 
 </style>

@@ -13,6 +13,7 @@
           :hide-message-time="false"
           :avatarCricle="true"
           :sendKey="setSendKey"
+          :send-text="'发送'"
           :wrapKey="wrapKey"
           @menu-avatar-click="openSetting"
           @change-contact="handleChangeContact"
@@ -105,7 +106,7 @@
                 <i class="el-icon-video-camera mr-10" title="视频通话"
                    v-if="!contact.is_group && parseInt(globalConfig.chatInfo.webrtc)" @click="called(1)"></i>
               </template>-->
-              <i class="el-icon-time mr-10" @click="openMessageBox" title="消息管理器"></i>
+<!--              <i class="el-icon-time mr-10" @click="openMessageBox" title="消息管理器"></i>-->
               <i class="el-icon-more" @click="$user(contact.id)" title="基本资料" v-if="!contact.isGroup"></i>
 
             </div>
@@ -280,7 +281,7 @@
         </template>
         <!-- 发送按钮左边插槽 -->
         <template #editor-footer>
-          {{ setting.sendKey === 1 ? '使用 Enter 键发送消息' : '使用 Ctrl + Enter 键发送消息' }}
+          {{ setting.sendKey ==1 ? '使用 Enter 键发送消息' : '使用 Ctrl + Enter 键发送消息' }}
         </template>
       </lemon-imui>
     </div>
@@ -410,6 +411,10 @@ export default {
       type: Boolean,
       default: false
     },
+    dialog: {
+      type: Boolean,
+      default: true
+    }
   },
   computed: {
     // 监听全局socket消息状态
@@ -437,7 +442,7 @@ export default {
       noSimpleTips: '当前聊天处于禁言中，无法发送消息',
       isFullscreen: false,
       curWidth: '1000px',
-      curHeight: '640px',
+      curHeight: '600px',
       unread: 0,
       // webrtcConfig:{
       //     config: { 'iceServers':[{
@@ -915,11 +920,17 @@ export default {
     };
   },
   watch: {
-    /*isFullscreen(val) {
+    isFullscreen(val) {
       Lockr.set('isFullscreen', val);
       this.curWidth = val ? '100vw' : this.width;
       this.curHeight = val ? '100vh' : this.height;
-    },*/
+    },
+    dialog(val){
+      if (!val) {
+        const {IMUI} = this.$refs;
+        IMUI.changeContact("")
+      }
+    },
     playAudio(val) {
       if (val && this.currentMessage) {
         let message = this.currentMessage;
@@ -942,7 +953,6 @@ export default {
     contactSync(val) {
       this.$emit('newChat', val);
       const {IMUI} = this.$refs;
-
       IMUI.changeContact(this.contactId);
     },
     unread(val) {
@@ -1236,7 +1246,7 @@ export default {
               this.shotScreen()
             },
             render: () => {
-              return <i class="el-icon el-icon-scissors f-18" style="vertical-align: middle;font-weight: 600;"></i>
+              return <i class="el-icon el-icon-scissors f-18" style="font-size: 17px; vertical-align: middle;font-weight: 600;"></i>
             }
           },
           {
@@ -1270,6 +1280,16 @@ export default {
           {
             name: "uploadFile",
             title: "发送文件",
+          },
+          {
+            name: "messageManager",
+            title: "聊天记录",
+            click: () => {
+              this.openMessageBox()
+            },
+            render: () => {
+              return <i class="el-icon el-icon-time f-18" style="font-size: 17px; vertical-align: middle;font-weight: 600;"></i>
+            }
           }
         ];
         // 初始化工具栏
@@ -1291,7 +1311,6 @@ export default {
             }
             if (item.unread && !update) {
               this.unread += item.unread;
-              console.log(this.unread)
             }
           })
           /*const sysContact = {
@@ -1316,25 +1335,24 @@ export default {
           // 设置置顶人
           // this.getChatTop(data);
           IMUI.initContacts(data);
-
-          //获取通讯录好友
-          getFriendContacts().then(res => {
-            if (res.data.code === 0) {
-              const data = res.data.data;
-              this.friends = data;
-              this.$store.commit('INIT_FRIENDS', data);
-              IMUI.initFriends(data)
-            } else {
-              this.$message.warning("获取通讯录失败");
-            }
-          })
-
-
         });
 
+        //获取通讯录好友
+        getFriendContacts().then(res => {
+          if (res.data.code === 0) {
+            const data = res.data.data;
+            this.friends = data;
+            this.$store.commit('INIT_FRIENDS', data);
+            IMUI.initFriends(data)
+          } else {
+            this.$message.warning("获取通讯录失败");
+          }
+        })
 
-        // 初始化左侧菜单栏
-        this.initMenus(IMUI);
+        setTimeout(() => {
+          // 初始化左侧菜单栏
+          this.initMenus(IMUI);
+        }, 500)
 
       });
     },
@@ -1971,6 +1989,7 @@ export default {
         };
         IMUI.updateMessage(data);*/
         IMUI.updateMessageRead(message[i])
+        IMUI.forceUpdateMessageId(message[i])
       }
     },
     // 播放消息声音
@@ -2015,8 +2034,11 @@ export default {
           from: message.fromUser.id
         });
       } else {
-        // 如果当前窗口不是当前用户 并且开启了消息提示 未读数才需要++
-        if (this.user.id !== message.fromUser.id && contact.isNotice) {
+        //发送者id
+        const fromId = message.fromUser.id;
+        const fromContact = IMUI.findContact(fromId);
+        // 如果不是自己的消息 并且开启了消息提示 未读数才需要++
+        if (this.user.id !== message.fromUser.id && fromContact.isNotice) {
           this.unread++;
           this.initMenus(IMUI);
         }
@@ -2213,6 +2235,7 @@ export default {
 
   .lemon-contact {
     background: #fff;
+    padding:10px;
   }
 }
 
@@ -2331,4 +2354,18 @@ export default {
   min-height: 300px;
   overflow: auto;
 }
+
+//自定义emoji大小
+::v-deep .lemon-message__content {
+  img {
+    width: 24px !important;
+    height: 20px !important;
+  }
+}
+::v-deep .lemon-editor__emoji-item {
+  width: 30px !important;
+}
+
+
+
 </style>

@@ -25,11 +25,15 @@ const user = {
         }) || '',
         socketAction: {},
         contactId: 0,
-        unread: 0,
+        unread: getStore({
+            name: 'unread'
+        }) || 0,
         contactSync: '',
         setting: getStore({
             name: 'setting'
-        }) || {},
+        }) || {
+            "sendKey":1
+        },
         globalConfig:[], // 全局配置
         //好友列表 通讯录列表
         friends: getStore({
@@ -84,7 +88,6 @@ const user = {
             })
           })
         },*/
-
         // 刷新token
         RefreshToken({commit, state}) {
             return new Promise((resolve, reject) => {
@@ -126,7 +129,6 @@ const user = {
                 })
             })
         },
-
         // 登出
         LogOut({commit}) {
             return new Promise((resolve, reject) => {
@@ -236,7 +238,12 @@ const user = {
             })
         },
         UPDATE_UNREAD: (state, data) => {
-            state.unread = parseInt(data);
+            state.unread = data
+            setStore({
+                name: 'unread',
+                content: data,
+                type: 'session'
+            })
         },
     }
 

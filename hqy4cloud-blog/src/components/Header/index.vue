@@ -128,13 +128,11 @@ export default {
      },
     ...mapState({
       userInfo: state => state.user.userInfo,
-      unread:  state => state.user.unread
+      unread:  state => state.user.unread,
+      isToken() {
+        return this.$store.getters.access_token;
+      }
     })
-  },
-  watch: {
-    unread(val) {
-      this.unread = val
-    }
   },
   activated () {
     this.listenScroll()
@@ -207,9 +205,6 @@ export default {
         window.location.reload()
       })
     },
-    toUserInfo() {
-      this.$router.push({path: '/account'})
-    },
     // 监听页面滚动
     listenScroll () {
       if (this.timer) return
@@ -222,9 +217,15 @@ export default {
       scrollTop >= 60 ? this.musicIcon = 'show' : this.musicIcon = 'exit'
     },
     loadAvatar(avatar) {
-      if (this.userInfo.avatar) {
-        return this.userInfo.avatar
+      if (this.isToken) {
+        if (this.userInfo.avatar) {
+          return this.userInfo.avatar
+        } else {
+          this.$store.dispatch('GetUserSetting')
+          return this.userInfo.avatar
+        }
       }
+
       return avatar
     },
     onerrorAvatar() {

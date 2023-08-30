@@ -65,7 +65,6 @@ export default {
               this.$store.commit('SET_SOCKET_ACTION', event)
             })
 
-
             Vue.prototype.$websocket = this.websocket;
           } else {
             this.$message.warning("连接服务器失败, 请稍后再试")

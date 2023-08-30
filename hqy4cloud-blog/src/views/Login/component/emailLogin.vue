@@ -80,8 +80,11 @@ export default {
               .then(() => {
                 this.$message.success('登录成功.')
                 //获取登录信息
-                this.$store.dispatch('GetUserInfo').then(() => window.location.reload())
-                this.$store.dispatch('GetUserSetting').then(() => window.location.reload())
+                this.$store.dispatch('GetUserInfo')
+                this.$store.dispatch('GetUserSetting')
+                setTimeout(()=> {
+                  window.location.reload()
+                }, 300)
                 this.$router.go(-1)
               })
         }

@@ -39,11 +39,14 @@ export default [
       title: 'ABOUT Me | HONGQY'
     }
   },
-  /*{
+  {
     path: "/chat",
     name: "Chat",
-    component: () => import(/!* webpackChunkName: "article" *!/ "../views/Chat")
-  },*/
+    component: () => import(/* webpackChunkName: "chat" */ "../views/Chat"),
+    meta: {
+      title: 'IM'
+    }
+  },
 
   {
     path: "/login",
