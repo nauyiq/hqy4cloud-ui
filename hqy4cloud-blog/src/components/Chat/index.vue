@@ -617,7 +617,7 @@ export default {
           icon: "el-icon-tickets",
           text: "查看资料",
           visible: instance => {
-            return instance.contact.isGroup === false;
+            return instance.contact.isGroup === false && instance.contact.id !== 'system';
           }
         },
         {
@@ -645,7 +645,7 @@ export default {
             hide();
           },
           visible: instance => {
-            return instance.contact.isTop === false;
+            return instance.contact.isTop === false && instance.contact.id !== 'system';
           }
         },
         {
@@ -670,7 +670,7 @@ export default {
             hide();
           },
           visible: instance => {
-            return instance.contact.isTop === true;
+            return instance.contact.isTop === true && instance.contact.id !== 'system';
           }
         },
 
@@ -752,7 +752,40 @@ export default {
           text: "删除好友",
           visible: instance => {
             return (
-                instance.contact.isGroup === false
+                instance.contact.isGroup === false && instance.contact.id !== 'system' && instance.contact.index
+            );
+          }
+        },
+        {
+          click(e, instance, hide) {
+            const {IMUI, contact} = instance;
+            hide();
+            _this
+                .$confirm("确定删除该聊天记录吗？", "提示", {
+                  confirmButtonText: "确定",
+                  cancelButtonText: "取消",
+                  type: "warning"
+                })
+                .then(() => {
+                  //TODO
+                  deleteFriend({id: contact.id}).then(res => {
+                    if (res.data.code === 0) {
+                      _this.$message({
+                        type: "success",
+                        message: "删除成功!"
+                      });
+                      _this.removeContact(contact.id);
+                    }
+                  });
+                }).catch(() => {
+            });
+          },
+          icon: "el-icon-delete",
+          color: "red",
+          text: "删除聊天",
+          visible: instance => {
+            return (
+                instance.contact.isGroup === false && instance.contact.id !== 'system' && !instance.contact.index
             );
           }
         },
@@ -1313,36 +1346,37 @@ export default {
               this.unread += item.unread;
             }
           })
-          /*const sysContact = {
-            id: 'system',
-            displayName: "新邀请",
-            avatar: InviteImg,
-            index: "[1]系统消息",
-            click(next) {
-              next();
-            },
-            renderContainer: () => {
-              return <Apply></Apply>;
-            },
-            lastSendTime: res.page,
-            lastContent: res.page ? "新的申请" : '',
-            unread: parseInt(res.count),
-            is_notice: 1
-          };
-          this.unread += res.count;
-          data.push({...sysContact});*/
           this.$store.commit('INIT_CONTACTS', data);
           // 设置置顶人
-          // this.getChatTop(data);
+          this.getChatTop(data);
           IMUI.initContacts(data);
         });
 
         //获取通讯录好友
         getFriendContacts().then(res => {
           if (res.data.code === 0) {
-            const data = res.data.data;
+            const data = res.data.data.contacts;
+            const unread = res.data.data.unread;
             this.friends = data;
             this.$store.commit('INIT_FRIENDS', data);
+            // 添加系统联系人
+            const sysContact = {
+              id: 'system',
+              displayName: "新的朋友",
+              avatar: InviteImg,
+              index: "[1]系统",
+              isGroup: false,
+              isNotice: true,
+              isTop: true,
+              click(next) {
+                next();
+              },
+              renderContainer: () => {
+                return <Apply></Apply>;
+              },
+              unread: unread,
+            };
+            data.push(sysContact)
             IMUI.initFriends(data)
           } else {
             this.$message.warning("获取通讯录失败");
