@@ -1,11 +1,11 @@
 <template>
-  <div class="user-card-box">
-    <el-container class="container" v-outside="closeDialog">
-      <el-header class="no-padding header" height="180px">
+  <div class="user-card-box"  >
+<!--    <div v-if="bind" v-outside="closeDialog"></div>-->
+    <el-container class="container" v-if="bind" v-outside="closeDialog" >
+      <el-header class="no-padding header" height="80px">
         <i class="close el-icon-error cur-handle" @click="closeDialog"/>
-        <div class="img-banner">
-
-        </div>
+<!--        <div class="img-banner">
+        </div>-->
         <div class="user-header">
           <div class="avatar">
             <div class="avatar-box">
@@ -14,7 +14,10 @@
           </div>
           <div class="username">
             <i class="iconfont icon-qianming"/>
-            <span>{{ detail.nickname || '未设置昵称' }}</span>
+            <span v-if="detail.friend && detail.friend.remark">{{ detail.friend.remark  }}</span>
+            <span v-else>{{ detail.nickname || '未设置昵称' }}</span>
+<!--            <el-input v-model="displayName" :readonly="true" style="border: 0px"></el-input>-->
+            <i class="el-icon-edit ml-10" title="设置备注" @click="setMark"></i>
           </div>
         </div>
       </el-header>
@@ -26,27 +29,49 @@
         </div>
 
         <div class="card-rows no-select">
-          <!--                <div class="card-row">
-                            <div class="label">账号</div>
-                            <div>{{ detail.id}}</div>
-                          </div>-->
           <div class="card-row">
-            <div class="label">姓名</div>
+            <div class="label">账号</div>
             <div>{{ detail.username }}</div>
           </div>
           <div class="card-row" v-if="detail.friend">
-            <div class="label">备注</div>
-            <div>{{ detail.friend.mark || '未设置' }} <i class="el-icon-edit ml-10" title="设置备注" @click="setMark"></i>
+            <div class="label">昵称</div>
+            <div>{{ detail.nickname || '未设置' }}
             </div>
           </div>
-          <div class="card-row">
+
+          <div class="card-row" v-if="detail.friend">
+            <div class="label">消息免打扰</div>
+            <div>
+              <el-switch
+                  v-model="!detail.friend.isNotice"
+                  @change="changeChatNotice"
+                  active-color="#13ce66"
+                  :width="50"
+                  inactive-color="#e1dfdf">
+              </el-switch>
+            </div>
+          </div>
+          <div class="card-row" v-if="detail.friend">
+            <div class="label">置顶聊天</div>
+            <div>
+            <el-switch
+                v-model="detail.friend.isTop"
+                @change="changeChatTop"
+                active-color="#13ce66"
+                :width="50"
+                inactive-color="#e1dfdf">
+            </el-switch>
+            </div>
+          </div>
+
+<!--          <div class="card-row">
             <div class="label">性别</div>
             <div>{{ detail.sex | sex }}</div>
-          </div>
-          <div class="card-row">
+          </div>-->
+<!--          <div class="card-row">
             <div class="label">邮箱</div>
             <div>{{ detail.email || "未设置" }}</div>
-          </div>
+          </div>-->
           <!--                <div class="card-row">
                             <div class="label">IP</div>
                             <div v-if="detail.lastLoginIp">{{ detail.lastLoginIp || "未知"}} （{{detail.location || "未知"}}）</div>
@@ -68,9 +93,11 @@
 </template>
 
 <script>
-import {mapState} from 'vuex';
+import { mapState } from 'vuex';
 import { setFriendMark, getUserInfoById, addFriend } from "@/api/im/friend";
-
+import { setChatTop,setChatNotice } from "@/api/im/chat";
+import PopupManager from "element-ui/lib/utils/popup/popup-manager";
+PopupManager.zIndex = 19999
 export default {
   name: 'UserCard',
   props: {
@@ -101,6 +128,8 @@ export default {
   data() {
     return {
       detail: {},
+      displayName: '',
+      bind: true,
     };
   },
   mounted() {
@@ -113,8 +142,37 @@ export default {
     getUserInfo() {
       getUserInfoById(this.userId).then(res => {
         if (res.data.code === 0) {
-          this.detail = res.data;
+          this.detail = res.data.data;
+          this.displayName = (this.detail.friend && this.detail.friend.remark) ? this.detail.friend.remark : this.detail.nickname
         }
+      })
+    },
+    changeChatTop(val) {
+      setChatTop({contactId: this.userId, status: val, isGroup: false}).then(res => {
+        if (res.data.code !== 0) {
+          this.$message.warning("服务器异常，请稍后再试")
+          //修改回之前的状态.
+          this.detail.friend.isTop = !val
+        }
+      }).catch(e => {
+        console.log(e)
+        this.$message.warning("服务器异常，请稍后再试")
+        //修改回之前的状态.
+        this.detail.friend.isTop = !val
+      })
+    },
+    changeChatNotice(val) {
+      setChatNotice({contactId: this.userId, status: val, isGroup: false}).then(res => {
+        if (res.data.code !== 0) {
+          this.$message.warning("服务器异常，请稍后再试")
+          //修改回之前的状态.
+          this.detail.friend.isNotice = !val
+        }
+      }).catch(e => {
+        console.log(e)
+        this.$message.warning("服务器异常，请稍后再试")
+        //修改回之前的状态.
+        this.detail.friend.isNotice = !val
       })
     },
     openChat() {
@@ -157,28 +215,32 @@ export default {
         this.$message.error('该用户不是您的好友');
         return false;
       }
-      let friendId = this.detail.friend.id;
-      this.closeDialog();
-      let nickname = this.detail.friend.nickname ? this.detail.friend.nickname : this.detail.username;
+      let friendId = this.detail.id;
+      let nickname = this.detail.friend.remark ? this.detail.friend.remark : this.detail.nickname;
+      this.bind = false
       this.$prompt('请填写备注信息', '设置备注', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
-        inputValue: nickname
+        inputValue: nickname,
+        customClass: 'remarkPrompt',
+
       }).then(({value}) => {
+        this.bind = true
         if (!value) {
           this.$message.error('请输入备注信息');
           return false;
         }
         setFriendMark({
           id: friendId,
-          mark: value
+          remark: value
         }).then(res => {
           if (res.data.code === 0) {
             this.$message.success('设置成功');
-            this.detail.mark = value;
+            this.detail.friend.remark = value;
           }
         })
       }).catch(() => {
+        this.bind = true
       });
     }
   }
@@ -190,7 +252,7 @@ export default {
   position: fixed;
   top: 0;
   left: 0;
-  z-index: 19999;
+  z-index: 19998;
   width: 100%;
   height: 100%;
   background-color: rgba(0, 0, 0, 0.3);
@@ -200,6 +262,8 @@ export default {
   justify-content: center;
 }
 
+
+
 .container {
   position: absolute;
   left: 50%;
@@ -207,7 +271,7 @@ export default {
   transform: translate(-50%, -50%);
   background-color: white;
   width: 350px;
-  height: 600px;
+  height: 400px;
   overflow: hidden;
   border-radius: 3px;
 
@@ -363,10 +427,10 @@ export default {
     color: #736f6f;
 
     .label {
-      width: 30px;
+      width: 70px;
       margin-right: 20px;
       color: #cbc5c5;
-      text-align: right;
+      text-align: left;
     }
 
     .friend-remark {

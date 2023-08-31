@@ -25,6 +25,7 @@ import LemonIMUI from 'lemon-imui';
 import 'lemon-imui/dist/index.css';
 Vue.use(LemonIMUI);
 
+import './directive/index'
 
 import hljs from 'highlight.js/lib/core';
 import javascript from 'highlight.js/lib/languages/javascript';

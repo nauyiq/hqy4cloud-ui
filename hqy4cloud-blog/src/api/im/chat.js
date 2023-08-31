@@ -55,7 +55,7 @@ export const undoChatMessage = (id) => {
 //设置消息置顶
 export const setChatTop = (data) => {
     return ins.request({
-        url: '/chat/top',
+        url: '/im/chat/top',
         data: data,
         method: 'put'
     })
@@ -64,7 +64,7 @@ export const setChatTop = (data) => {
 //设置消息免打扰
 export const setChatNotice = (data)  =>{
     return ins.request({
-        url: '/chat/notice',
+        url: '/im/chat/notice',
         method: 'put',
         data: data
     })
