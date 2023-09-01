@@ -2,10 +2,10 @@
   <div class="chatTop">
     <el-tooltip :content="contact.displayName" placement="top-start" effect="light">
       <div class="top-item" :class="currentId === contact.id ? 'active' : ''">
-        <div class="avatar">
+        <div class="chatTop-avatar">
           <el-avatar :shape="avatarCricle?'circle':'square'" size="small" :src="contact.avatar"></el-avatar>
         </div>
-        <div class="username">
+        <div class="item-username">
           {{contact.displayName}}
         </div>
       </div>
@@ -35,6 +35,7 @@ export default {
   methods: {
   },
   created() {
+    console.log(this.contact)
   }
 
 };
@@ -58,10 +59,11 @@ export default {
   justify-content: space-between;
   align-items: center;
   cursor: pointer;
-  .avatar{
+
+  .chatTop-avatar{
     align-content: center;
   }
-  .username{
+  .item-username{
     overflow: hidden;
     font-size:12px;
     color: #8f959e;

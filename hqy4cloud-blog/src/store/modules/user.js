@@ -1,6 +1,14 @@
 import {setToken, setRefreshToken} from '@/utils/auth'
 import {getStore, setStore} from '@/utils/store'
-import {loginByUsername, loginByEmail, getUserInfo, logout, refreshToken, getImUserSetting} from '@/api/user'
+import {
+    loginByUsername,
+    loginByEmail,
+    getUserInfo,
+    logout,
+    refreshToken,
+    getImUserSetting,
+    updateImUserSetting
+} from '@/api/user'
 const user = {
     state: {
         userInfo: getStore({
@@ -129,6 +137,25 @@ const user = {
                 })
             })
         },
+        //修改用户设置
+        UpdateUserImSetting({commit}, data) {
+            return new Promise((resolve, reject) => {
+                updateImUserSetting(data).then(res => {
+                    let result;
+                    if (res.data.code === 0) {
+                        result = res.data.data
+                    } else {
+                        result = {}
+                    }
+                    result["sendKey"] = 1
+                    commit('SET_SETTING', result)
+                    resolve(result)
+                }).catch(() => {
+                    reject()
+                })
+            })
+        },
+
         // 登出
         LogOut({commit}) {
             return new Promise((resolve, reject) => {

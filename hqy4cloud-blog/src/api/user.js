@@ -133,6 +133,16 @@ export const getUserInfo = () => axios.get('/blog/user/profile')
 //获取im用户配置
 export const getImUserSetting = () =>  axios.get('/im/user/setting')
 
+//修改im用户配置
+export const updateImUserSetting = (data) => {
+    return axios.request({
+        url: '/im/user/setting',
+        method: 'put',
+        data: data
+    })
+
+}
+
 // 修改用户信息
 export const updateUserInfo = data => axios.put('/blog/user/profile', data)
 

@@ -4,8 +4,6 @@
     <el-container class="container" v-if="bind" v-outside="closeDialog" >
       <el-header class="no-padding header" height="80px">
         <i class="close el-icon-error cur-handle" @click="closeDialog"/>
-<!--        <div class="img-banner">
-        </div>-->
         <div class="user-header">
           <div class="avatar">
             <div class="avatar-box">
@@ -16,7 +14,6 @@
             <i class="iconfont icon-qianming"/>
             <span v-if="detail.friend && detail.friend.remark">{{ detail.friend.remark  }}</span>
             <span v-else>{{ detail.nickname || '未设置昵称' }}</span>
-<!--            <el-input v-model="displayName" :readonly="true" style="border: 0px"></el-input>-->
             <i class="el-icon-edit ml-10" title="设置备注" @click="setMark"></i>
           </div>
         </div>

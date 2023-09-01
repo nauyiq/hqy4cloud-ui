@@ -168,22 +168,21 @@
           </div>
         </template>
         <!-- 最近联系人列表顶部插槽，滚动 -->
-        <template #sidebar-message-top="instance">
+<!--        <template #sidebar-message-top="instance">
           <div class="chat-top-list" v-if="chatTopList.length > 0">
             <ChatTop
-                :contact="item"
                 v-for="(item, index) in chatTopList"
+                :contact="item"
                 :key="index"
                 :avatarCricle="setting.avatarCricle"
                 :currentId="currentChat.id"
                 @click.native="openChat(item.id, instance)"
             ></ChatTop>
           </div>
-        </template>
+        </template>-->
         <!-- 联系人列表顶部插槽 -->
         <template #sidebar-contact-fixedtop="instance">
           <div style="margin: 15px 10px">
-            联系人
           </div>
         </template>
         <!-- 群组聊天展示的抽屉 -->
@@ -356,7 +355,7 @@ import ChatTop from "./chatTop";
 import Group from "./group";
 import ChooseDialog from "./chooseDialog";
 import Files from "./files/index";
-// import Setting from "./setting";
+import Setting from "./setting";
 import addFriend from "./friend";
 import OnlineStatus from "./onlineStatus";
 import Apply from "./apply";
@@ -626,8 +625,8 @@ export default {
           click: (e, instance, hide) => {
             const {IMUI, contact} = instance;
             setChatTop({
-              id: contact.id,
-              isTop: true,
+              contactId: contact.id,
+              status: true,
               isGroup: contact.isGroup
             }).then(res => {
               if (res.data.code === 0) {
@@ -636,10 +635,10 @@ export default {
                   isTop: true
                 });
                 contact.isTop = true;
-                const hasContact = _this.chatTopList.filter(item => item.id === contact.id);
+                /*const hasContact = _this.chatTopList.filter(item => item.id === contact.id);
                 if (!hasContact.length) {
                   _this.chatTopList.push(contact);
-                }
+                }*/
               }
             });
             hide();
@@ -654,8 +653,8 @@ export default {
           click: (e, instance, hide) => {
             const {IMUI, contact} = instance;
             setChatTop({
-              id: contact.id,
-              isTop: false,
+              contactId: contact.id,
+              status: false,
               isGroup: contact.isGroup
             }).then(res => {
               if (res.data.code === 0) {
@@ -1348,7 +1347,7 @@ export default {
           })
           this.$store.commit('INIT_CONTACTS', data);
           // 设置置顶人
-          this.getChatTop(data);
+          // this.getChatTop(data);
           IMUI.initContacts(data);
         });
 
@@ -1470,7 +1469,7 @@ export default {
             );
           },
         },
-        /*{
+        {
           name: "setting",
           title: "设置",
           unread: 0,
@@ -1483,7 +1482,7 @@ export default {
             );
           },
           isBottom: true
-        },*/
+        },
       ];
       if (this.fullScreen) {
         menus.push({

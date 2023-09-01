@@ -72,8 +72,9 @@ export default {
                 this.$store.dispatch('GetUserSetting')
                 setTimeout(()=> {
                   window.location.reload()
-                }, 300)
-                this.$router.go(-1)
+                  this.$router.go(-1)
+                }, 1000)
+
               })
         }
       });

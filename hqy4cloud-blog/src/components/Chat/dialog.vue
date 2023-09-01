@@ -88,6 +88,10 @@ export default {
   }
 }
 
+::v-deep .el-avatar {
+  margin-right: 10px !important;;
+}
+
 .sideMenu-message {
   margin-top: 0 !important;
   border-radius: 4px;
@@ -112,6 +116,10 @@ export default {
   min-width: 600px ;
   width: 1000px ;
   overflow-y: hidden ;
+}
+
+::v-deep .el-tooltip__popper{
+  padding:0 !important;
 }
 
 
