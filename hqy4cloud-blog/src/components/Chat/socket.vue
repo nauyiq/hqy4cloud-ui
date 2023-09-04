@@ -65,6 +65,36 @@ export default {
               this.$store.commit('SET_SOCKET_ACTION', event)
             })
 
+            //listen socket.io setChatTop event.
+            this.websocket.on('setChatTop', (eventData) => {
+              const data = JSON.parse(eventData)
+              const event = {
+                "event": 'setChatTop',
+                "data": data
+              }
+              this.$store.commit('SET_SOCKET_ACTION', event)
+            })
+
+            //listen socket.io setChatTop event.
+            this.websocket.on('setChatNotice', (eventData) => {
+              const data = JSON.parse(eventData)
+              const event = {
+                "event": 'setChatNotice',
+                "data": data
+              }
+              this.$store.commit('SET_SOCKET_ACTION', event)
+            })
+
+            //listen socket.io appendChat event.
+            this.websocket.on('appendChat', (eventData) => {
+              const data = JSON.parse(eventData)
+              const event = {
+                "event": 'appendChat',
+                "data": data
+              }
+              this.$store.commit('SET_SOCKET_ACTION', event)
+            })
+
             Vue.prototype.$websocket = this.websocket;
           } else {
             this.$message.warning("连接服务器失败, 请稍后再试")

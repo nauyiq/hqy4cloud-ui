@@ -1040,7 +1040,8 @@ export default {
             id: message.id,
             isTop: message.isTop
           });
-          if (message.isTop) {
+          //TODO.
+          /*if (message.isTop) {
             const contact = this.getContact(message.id);
             const hasContact = this.chatTopList.filter(item => item.id === message.id);
             if (!hasContact.length) {
@@ -1048,10 +1049,10 @@ export default {
             }
           } else {
             utils.delArrValue(this.chatTopList, "id", message.id);
-          }
+          }*/
           break;
           // 设置消息免打扰
-        case "setIsNotice":
+        case "setChatNotice":
           IMUI.updateContact({
             id: message.id,
             isNotice: message.isNotice
@@ -1134,7 +1135,12 @@ export default {
           });
           break;
         case 'appendContact':
-          IMUI.appendContact(message);
+          if (message.conversation) {
+            IMUI.appendContact(message.conversation)
+          }
+          if(message.contact) {
+            IMUI.appendToContacts(message.contact)
+          }
           break;
         /*case 'webrtc':
           // 如果收到自己的消息，并且是其他端处理操作，则静默挂断
@@ -1762,15 +1768,15 @@ export default {
       const {IMUI} = this.$refs;
       message.isGroup = this.isGroup;
       this.curFile = file;
-      // 如果开启了群聊禁言或者关闭了单聊权限，就不允许发送消息 TODO
       /*if ((this.globalConfig.chatInfo.simpleChat != 1 && this.isGroup === false) || !this.nospeak()) {
         IMUI.removeMessage(message.id);
         this.$message.error(this.noSimpleTips);
         return false;
       }*/
-      let formdata = new FormData();
-      // 如果是文件选择文件上传接口
+
       if (file) {
+        // 如果是文件选择文件上传接口
+        let formdata = new FormData();
         // 判断文件如果大于5M就删除该聊天消息
         if (file.size > (5 * 1024 * 1024)) {
           IMUI.removeMessage(message.id);
