@@ -21,12 +21,12 @@
       <div  class="member-list">
         <div v-for="member in list" :key="member.id" class="member-item" @click="$user(member.id)">
           <div class="member-avatar">
-            <img :src="member.avatar" alt="avatar">
+            <img :src="member.avatar " @error="e => {e.target.src = onError}">
           </div>
           <div class="member-content">
             <div class="member-header">
-              <span class="member-name">{{ member.realname }}</span>
-              <span class="member-account">{{ member.account }}</span>
+              <span class="member-name">{{ member.nickname }}</span>
+              <span class="member-account">{{ member.username }}</span>
             </div>
             <div class="member-actions">
               <el-button type="primary" size="mini">查看</el-button>
@@ -34,14 +34,19 @@
           </div>
         </div>
       </div>
-      <el-empty v-if="list.length==0" ></el-empty>
+      <el-empty v-if="list.length === 0" ></el-empty>
     </div>
-
   </el-dialog>
+
 </template>
 <script>
+
+import { searchImUsers } from "@/api/im/friend"
+import defaultAvatar from '@/assets/img/default_avatar.png'
+import UserCard from "@c/user/userCard";
 export default {
   name: "friend",
+  components: {UserCard},
   props: {
     visible: {
       type: Boolean,
@@ -63,13 +68,19 @@ export default {
   },
   methods: {
     closeDialog() {
+      console.log(111111)
       this.$emit("update:visible", false);
       this.selectUid = [];
     },
+    onError() {
+      return  defaultAvatar
+    },
     handleChange(){
       if(this.keywords){
-        this.$api.imApi.searchUser({keywords:this.keywords}).then(res=>{
-          this.list = res.data;
+        searchImUsers(this.keywords).then(res => {
+          if (res.data.code === 0) {
+            this.list = res.data.data;
+          }
         })
       }
     }

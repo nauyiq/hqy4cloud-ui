@@ -42,4 +42,5 @@ export default {
   transform: translateX(20px);
 }
 
+
 </style>

@@ -95,6 +95,16 @@ export default {
               this.$store.commit('SET_SOCKET_ACTION', event)
             })
 
+            //listen socket.io appendChat event.
+            this.websocket.on('contactNameChange', (eventData) => {
+              const data = JSON.parse(eventData)
+              const event = {
+                "event": 'contactNameChange',
+                "data": data
+              }
+              this.$store.commit('SET_SOCKET_ACTION', event)
+            })
+
             Vue.prototype.$websocket = this.websocket;
           } else {
             this.$message.warning("连接服务器失败, 请稍后再试")

@@ -65,7 +65,7 @@
               </span>
               <span
                   class="el-icon-close-notification f-16"
-                  v-if="Contact.isNotice === false"
+                  v-if="!Contact.isNotice"
               ></span>
             </p>
           </div>
@@ -280,7 +280,7 @@
         </template>
         <!-- 发送按钮左边插槽 -->
         <template #editor-footer>
-          {{ setting.sendKey ==1 ? '使用 Enter 键发送消息' : '使用 Ctrl + Enter 键发送消息' }}
+          {{ setting.sendKey ===1 ? '使用 Enter 键发送消息' : '使用 Ctrl + Enter 键发送消息' }}
         </template>
       </lemon-imui>
     </div>
@@ -371,7 +371,7 @@ import {
   undoChatMessage,
   uploadFile
 } from "@/api/im/chat"
-import {deleteFriend} from "@/api/im/friend"
+import {addConversation, deleteFriend} from "@/api/im/friend"
 import {createGroup, addGroupUser, getGroupUsers, deleteGroup, groupRole, publishNotice, removeGroupUser, updateGroupName} from "@/api/im/group"
 import InviteImg from '@/assets/img/invite.png'
 // import webrtc from "./webrtc";
@@ -985,7 +985,19 @@ export default {
     contactSync(val) {
       this.$emit('newChat', val);
       const {IMUI} = this.$refs;
-      IMUI.changeContact(this.contactId);
+      let contact = IMUI.findConversation(this.contactId);
+      if (contact) {
+        IMUI.changeContact(this.contactId);
+      } else {
+        addConversation(this.contactId).then(res => {
+          if (res.data.code === 0) {
+            IMUI.appendContact(res.data.data)
+            IMUI.changeContact(this.contactId);
+          }
+        })
+      }
+
+
     },
     unread(val) {
       this.$store.commit('UPDATE_UNREAD', val);
@@ -1058,28 +1070,30 @@ export default {
             isNotice: message.isNotice
           });
           break;
-          // 修改群组名称
-        case "editGroupName":
+          // 修改联系人名称
+        case "contactNameChange":
           IMUI.updateContact({
-            id: message.id,
+            id: message.contactId,
             displayName: message.displayName
           });
-          // 更新群名
-          const data = {
-            id: utils.generateRandId(),
-            type: "event",
-            //使用 jsx 时 click必须使用箭头函数（使上下文停留在vue内）
-            content: (
-                <div>
+          if (message.isGroup) {
+            // 更新群名
+            const data = {
+              id: utils.generateRandId(),
+              type: "event",
+              //使用 jsx 时 click必须使用箭头函数（使上下文停留在vue内）
+              content: (
+                  <div>
                 <span>
-                  {message.editUserName} 修改了群名为 {message.displayName}
+                  {message.editor} 修改了群名为 {message.displayName}
                 </span>
-                </div>
-            ),
-            toContactId: message.id,
-            sendTime: getTime()
-          };
-          IMUI.appendMessage(data, true);
+                  </div>
+              ),
+              toContactId: message.id,
+              sendTime: getTime()
+            };
+            IMUI.appendMessage(data, true);
+          }
           break;
           //处理消息已读,将本地的未读消息修改为已读状态
         case "readMessages":
@@ -1352,24 +1366,43 @@ export default {
             }
           })
           this.$store.commit('INIT_CONTACTS', data);
+          //添加系统联系人
+          const sysContact = {
+            id: 'system',
+            displayName: "新的朋友",
+            avatar: InviteImg,
+            index: "[1]新的朋友",
+            isGroup: false,
+            isNotice: true,
+            isTop: true,
+            click(next) {
+              next();
+            },
+            renderContainer: () => {
+              return <Apply></Apply>;
+            },
+          };
+          data.push(sysContact)
           // 设置置顶人
           // this.getChatTop(data);
           IMUI.initContacts(data);
         });
 
+
+
+
         //获取通讯录好友
         getFriendContacts().then(res => {
           if (res.data.code === 0) {
             const data = res.data.data.contacts;
-            const unread = res.data.data.unread;
+            // const count = res.data.data.unread;
             this.friends = data;
             this.$store.commit('INIT_FRIENDS', data);
-            // 添加系统联系人
             const sysContact = {
               id: 'system',
               displayName: "新的朋友",
               avatar: InviteImg,
-              index: "[1]系统",
+              index: "[1]新的朋友",
               isGroup: false,
               isNotice: true,
               isTop: true,
@@ -1379,7 +1412,6 @@ export default {
               renderContainer: () => {
                 return <Apply></Apply>;
               },
-              unread: unread,
             };
             data.push(sysContact)
             IMUI.initFriends(data)
@@ -1617,6 +1649,9 @@ export default {
     },
     // 切换聊天窗口时要检测那些消息未读
     handleChangeContact(contact, instance) {
+      if (contact || contact.id === 'system') {
+        return
+      }
       instance.updateContact({
         id: contact.id,
         unread: 0

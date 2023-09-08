@@ -1,52 +1,34 @@
 <template>
   <el-container>
     <el-header class="slider-aside">
-      <el-tabs v-model="activeName" tab-position="bottom" @tab-click="handleClick" class="tab-diy">
-        <el-tab-pane label="我收到的" name="receive"></el-tab-pane>
-        <el-tab-pane label="我发送的" name="send"></el-tab-pane>
-      </el-tabs>
+      <span>新的朋友</span>
     </el-header>
     <el-main class="no-padding">
       <div class="apply-list">
         <div class="apply-list-main">
           <el-scrollbar>
-            <el-alert
-                show-icon
-                class="mt-10 mb-10"
-                title="未处理的邀请消息会在每次初始化或者页面刷新时会重新提示！"
-                type="warning">
-            </el-alert>
-            <div class="apply-list-item" v-for="(x,index) in list" :key="index" >
-              <div class="avatar">
-                <el-avatar v-if="!params.is_mine" :src="x.create_user_info.avatar"></el-avatar>
-                <el-avatar v-if="params.is_mine" :src="x.user_id_info.avatar"></el-avatar>
-              </div>
+            <div class="apply-list-item" v-for="(item, index) in list" :key="index" >
               <div class="main">
-                <div v-if="!params.is_mine" @click="$user(x.create_user_info.user_id)"> <span class="fc-primary cur-handle">{{x.create_user_info.realname}}</span> 申请添加为好友
-                  <el-tag type="success" v-if="x.status==1">已同意</el-tag>
+                <el-avatar :src="item.info.avatar"></el-avatar>
+                <div @click="$user(item.info.id)"> <span class="nickname fc-primary cur-handle">{{item.info.nickname}}</span>
+                  <div class="remark f-12 c-999">{{item.remark}}</div>
                 </div>
-                <div v-if="params.is_mine" @click="$user(x.user_id_info.user_id)"> 请求添加 <span class="fc-primary cur-handle">{{x.user_id_info.realname}}</span> 为好友
-                  <el-tag type="success" v-if="x.status==1">已同意</el-tag>
+                <div class="apply-status">
+
                 </div>
-                <div class="f-12 c-999">{{x.remark}}</div>
               </div>
-              <div class="option" v-if="!params.is_mine">
-                <el-popconfirm title="您确定接受该好友的申请吗？" v-if="x.status==2" @confirm="acceptApply(x.friend_id,true)">
-                  <el-button slot="reference" type="success" circle plain icon="el-icon-check"></el-button>
+              <div class="option">
+                <el-tag type="success" v-if="item.status === 1">已添加</el-tag>
+                <el-tag type="danger" v-if="item.status === 2">已拒绝</el-tag>
+                <el-popconfirm title="您确定接受该好友的申请吗？" v-if="item.status === 0" @confirm="acceptApply(item.info.id,true)">
+                  <el-button slot="reference" :size="'small'" type="success">接受</el-button>
                 </el-popconfirm>
-                <el-popconfirm class="ml-15" title="您确定拒绝该好友的申请吗？" v-if="x.status==2" @confirm="acceptApply(x.friend_id,false)">
-                  <el-button slot="reference" type="danger"  circle plain icon="el-icon-close"></el-button>
+                <el-popconfirm class="ml-15" title="您确定拒绝该好友的申请吗？" v-if="item.status=== 0" @confirm="acceptApply(item.info.id,false)">
+                  <el-button slot="reference" :size="'small'" type="danger" >拒绝</el-button>
                 </el-popconfirm>
-                <span class="fc-primary cur-handle" v-if="x.status==1" @click="$store.commit('openChat',x.create_user_info.user_id)">发消息</span>
-                <el-tag type="danger" v-if="x.status==0">已拒绝</el-tag>
-              </div>
-              <div class="option" v-else>
-                <span class="fc-primary cur-handle" v-if="x.status==1" @click="$store.commit('openChat',x.user_id_info.user_id)">发消息</span>
-                <el-tag type="warning" v-if="x.status==2">待同意</el-tag>
-                <el-tag type="danger" v-if="x.status==0">已拒绝</el-tag>
               </div>
             </div>
-            <div v-if="list.length==0">
+            <div v-if="list.length === 0">
               <el-empty description="暂无数据"></el-empty>
             </div>
           </el-scrollbar>
@@ -69,6 +51,11 @@
   </el-container>
 </template>
 <script>
+
+import { getFriendApplications } from "@/api/im/friend"
+import { mapState } from "vuex";
+import defaultAvatar from '@/assets/img/default_avatar.png'
+
 export default {
   name: "apply",
   data() {
@@ -87,13 +74,13 @@ export default {
   mounted() {
     this.getList();
   },
+  computed: {
+    ...mapState({
+      user: state => state.user.userInfo,
+    }),
+  },
   methods: {
-    handleClick(tab) {
-      if(tab.name=="send"){
-        this.params.is_mine = 1;
-      }else if(tab.name=="receive"){
-        this.params.is_mine = 0;
-      }
+    handleClick() {
       this.params.page = 1;
       this.getList();
     },
@@ -105,10 +92,14 @@ export default {
       })
     },
     getList(){
-      this.$api.friendApi.getApplyList(this.params).then(res=>{
-        this.list = res.data;
-        this.total = res.count;
-        this.singlePage = this.total<=this.params.limit;
+      getFriendApplications(this.params).then(res => {
+        if (res.data.code === 0) {
+          let result =  res.data.data
+          this.list = result.resultList
+          this.total = result.total
+          console.log(this.list)
+          this.singlePage = this.total <=this.params.limit;
+        }
       })
     },
     handleChange(val) {
@@ -119,9 +110,14 @@ export default {
 }
 </script>
 <style lang="scss" scoped>
+@import "../../assets/scss/style";
+
 .slider-aside {
   height:50px !important;
   background-color: #f9f9f9;
+  line-height: 46px;
+  font-size: 18px;
+  font-weight: 600;
 }
 .tab-diy{
   width:160px;
@@ -149,14 +145,26 @@ export default {
         background-color: #f6f6f6;
       }
       .avatar{
-        width: 40px;
+        width: 50px;
         margin-right: 10px;
       }
       .main{
+        padding-left: 20px;
         flex:1;
+        display: flex;
       }
       .option{
-        width: 90px;
+        width: auto;
+        display: flex;
+        overflow-x: hidden;
+        padding-right: 10px;
+      }
+      .nickname {
+        font-size: 14px;
+        font-weight: 400;
+      }
+      .remark {
+        margin-top: 5px;
       }
     }
   }

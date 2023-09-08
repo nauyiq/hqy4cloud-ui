@@ -33,10 +33,10 @@ const user = {
         }) || '',
         socketAction: {},
         contactId: 0,
+        contactSync: '',
         unread: getStore({
             name: 'unread'
         }) || 0,
-        contactSync: '',
         setting: getStore({
             name: 'setting'
         }) || {
@@ -272,6 +272,10 @@ const user = {
                 type: 'session'
             })
         },
+        OPEN_CHAT:(state, data) => {
+            state.contactId = data
+            state.contactSync = Math.random().toString(36).substr(-8);
+        }
     }
 
 }

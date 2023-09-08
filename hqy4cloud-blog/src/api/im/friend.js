@@ -37,7 +37,35 @@ export const deleteFriend = (data) => {
 export const setFriendMark = (data) => {
     return axios.request({
         url: '/im/user/friend/mark',
-        method: 'post',
+        method: 'put',
         data: data
+    })
+}
+
+//获取好友申请列表
+export const getFriendApplications = (params) => {
+    return axios.request({
+        url: '/im/user/applications',
+        method: 'get',
+        params: params
+    })
+}
+
+//查询用户
+export const searchImUsers = (name) => {
+    return axios.request({
+        url: '/im/user/search',
+        method: 'get',
+        params: {
+            name: name
+        }
+    })
+}
+
+//新增聊天会话
+export const addConversation = (userId) => {
+    return axios.request({
+        url: '/im/conversation/' + userId,
+        method: "post",
     })
 }

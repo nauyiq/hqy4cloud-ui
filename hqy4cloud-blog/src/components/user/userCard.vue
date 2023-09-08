@@ -1,9 +1,8 @@
 <template>
   <div class="user-card-box"  >
-<!--    <div v-if="bind" v-outside="closeDialog"></div>-->
-    <el-container class="container" v-if="bind" v-outside="closeDialog" >
+    <el-container class="container" v-outside="closeDialog">
       <el-header class="no-padding header" height="80px">
-        <i class="close el-icon-error cur-handle" @click="closeDialog"/>
+        <i class="close el-icon-error" @click="closeDialog"/>
         <div class="user-header">
           <div class="avatar">
             <div class="avatar-box">
@@ -11,10 +10,8 @@
             </div>
           </div>
           <div class="username">
-            <i class="iconfont icon-qianming"/>
-            <span v-if="detail.friend && detail.friend.remark">{{ detail.friend.remark  }}</span>
-            <span v-else>{{ detail.nickname || '未设置昵称' }}</span>
-            <i class="el-icon-edit ml-10" title="设置备注" @click="setMark"></i>
+            <span class="displayName-span">{{displayName}}</span>
+              <i class="el-icon-edit icon-edit"  v-if="detail.friend"  @click="setMark"></i>
           </div>
         </div>
       </el-header>
@@ -30,7 +27,7 @@
             <div class="label">账号</div>
             <div>{{ detail.username }}</div>
           </div>
-          <div class="card-row" v-if="detail.friend">
+          <div class="card-row">
             <div class="label">昵称</div>
             <div>{{ detail.nickname || '未设置' }}
             </div>
@@ -40,7 +37,7 @@
             <div class="label">消息免打扰</div>
             <div>
               <el-switch
-                  v-model="!detail.friend.isNotice"
+                  v-model="isMute"
                   @change="changeChatNotice"
                   active-color="#13ce66"
                   :width="50"
@@ -52,7 +49,7 @@
             <div class="label">置顶聊天</div>
             <div>
             <el-switch
-                v-model="detail.friend.isTop"
+                v-model="isTop"
                 @change="changeChatTop"
                 active-color="#13ce66"
                 :width="50"
@@ -76,13 +73,15 @@
                           </div>-->
         </div>
       </el-main>
+
+
       <el-footer class="footer">
-        <el-button type="primary" v-if="userInfo.id !== detail.id" round @click="openChat()" style="width:150px">发消息
+        <el-button v-if="userInfo.id !== detail.id && (detail.friend || detail.setting.isPrivateChat)" round @click="openChat()" style="width:150px">发消息
         </el-button>
-        <el-button type="primary" v-if="!detail.friend" round @click="addFriend()" style="width:150px">加好友</el-button>
-        <el-button round v-if="userInfo.id === detail.id" style="width:150px" @click="editUser">
+        <el-button v-if="!detail.friend && detail.id !== userInfo.id"  round @click="addFriend()" style="width:150px">加好友</el-button>
+<!--        <el-button round v-if="userInfo.id === detail.id" style="width:150px" @click="editUser">
           编辑资料
-        </el-button>
+        </el-button>-->
       </el-footer>
     </el-container>
   </div>
@@ -93,8 +92,6 @@
 import { mapState } from 'vuex';
 import { setFriendMark, getUserInfoById, addFriend } from "@/api/im/friend";
 import { setChatTop,setChatNotice } from "@/api/im/chat";
-import PopupManager from "element-ui/lib/utils/popup/popup-manager";
-PopupManager.zIndex = 19999
 export default {
   name: 'UserCard',
   props: {
@@ -124,23 +121,48 @@ export default {
   },
   data() {
     return {
-      detail: {},
+      detail: {
+        setting: {
+          isPrivateChat: true
+        }
+      },
+      isMute: false,
+      isTop: false,
       displayName: '',
-      bind: true,
+      id: '',
+      bind: false
     };
   },
   mounted() {
     this.getUserInfo();
   },
   methods: {
+    handleClose(done) {
+      this.$confirm('确认关闭？')
+          .then(_ => {
+            done();
+          })
+          .catch(_ => {});
+    },
     closeDialog() {
+      if (this.bind) {
+        return
+      }
       this.$emit('close')
     },
     getUserInfo() {
+      if (this.detail && this.userId === this.id) {
+        return
+      }
       getUserInfoById(this.userId).then(res => {
         if (res.data.code === 0) {
+          this.id = this.userId
           this.detail = res.data.data;
           this.displayName = (this.detail.friend && this.detail.friend.remark) ? this.detail.friend.remark : this.detail.nickname
+          if (this.detail.friend) {
+            this.isMute = !this.detail.friend.isNotice
+            this.isTop = !this.detail.friend.isTop
+          }
         }
       })
     },
@@ -150,6 +172,8 @@ export default {
           this.$message.warning("服务器异常，请稍后再试")
           //修改回之前的状态.
           this.detail.friend.isTop = !val
+        } else {
+          this.detail.friend.isTop = val
         }
       }).catch(e => {
         console.log(e)
@@ -159,14 +183,13 @@ export default {
       })
     },
     changeChatNotice(val) {
-      setChatNotice({contactId: this.userId, status: val, isGroup: false}).then(res => {
+      setChatNotice({contactId: this.userId, status: !val, isGroup: false}).then(res => {
         if (res.data.code !== 0) {
           this.$message.warning("服务器异常，请稍后再试")
-          //修改回之前的状态.
+        } else {
           this.detail.friend.isNotice = !val
         }
       }).catch(e => {
-        console.log(e)
         this.$message.warning("服务器异常，请稍后再试")
         //修改回之前的状态.
         this.detail.friend.isNotice = !val
@@ -174,7 +197,8 @@ export default {
     },
     openChat() {
       this.closeDialog();
-      this.$store.commit('openChat', this.detail.userId)
+      this.$store.commit('OPEN_CHAT', this.detail.id)
+      this.$emit('close')
     },
     editUser() {
       this.$emit('editUser', this.detail)
@@ -214,42 +238,58 @@ export default {
       }
       let friendId = this.detail.id;
       let nickname = this.detail.friend.remark ? this.detail.friend.remark : this.detail.nickname;
-      this.bind = false
+      this.bind = true
       this.$prompt('请填写备注信息', '设置备注', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         inputValue: nickname,
-        customClass: 'remarkPrompt',
-
+        customClass: 'remark-prompt',
       }).then(({value}) => {
-        this.bind = true
+        this.bind = false
         if (!value) {
           this.$message.error('请输入备注信息');
           return false;
         }
+        if (value.length > 16) {
+          this.$message.error('输入的备注太长');
+          return false;
+        }
         setFriendMark({
-          id: friendId,
+          userId: friendId,
           remark: value
         }).then(res => {
+          this.bind = false
           if (res.data.code === 0) {
             this.$message.success('设置成功');
             this.detail.friend.remark = value;
+            this.displayName = value
           }
         })
       }).catch(() => {
-        this.bind = true
+        this.bind = false
       });
     }
   }
 }
 </script>
 
+<style>
+.el-message-box__wrapper   {
+  z-index: 100000000 !important;
+}
+.el-message {
+  z-index: 100000001 !important;
+}
+</style>
+
 <style lang="scss" scoped>
+
+
 .user-card-box {
   position: fixed;
   top: 0;
   left: 0;
-  z-index: 19998;
+  z-index: 29998 !important;
   width: 100%;
   height: 100%;
   background-color: rgba(0, 0, 0, 0.3);
@@ -258,8 +298,6 @@ export default {
   align-items: center;
   justify-content: center;
 }
-
-
 
 .container {
   position: absolute;
@@ -274,12 +312,12 @@ export default {
 
   .header {
     position: relative;
-
     .close {
       position: absolute;
       right: 10px;
       top: 10px;
-      color: white;
+      color: rgba(28, 24, 24, 0.73);
+      cursor: pointer;
       transition: all 1s;
       z-index: 1;
       font-size: 20px;
@@ -304,7 +342,7 @@ export default {
   }
 
   .main {
-    padding: 45px 16px 0 !important;
+    padding: 32px 16px 0 !important;
   }
 
   .footer {
@@ -323,10 +361,9 @@ export default {
   width: 100%;
   height: 80px;
   position: absolute;
-  bottom: -40px;
+  bottom: -24px;
   display: flex;
   flex-direction: row;
-
   .avatar {
     width: 100px;
     flex-shrink: 0;
@@ -337,7 +374,7 @@ export default {
       width: 80px;
       height: 80px;
       background-color: white;
-      border-radius: 50%;
+      border-radius: 40%;
       display: flex;
       justify-content: center;
       align-items: center;
@@ -351,13 +388,22 @@ export default {
   }
 
   .username {
-    flex: auto;
-    padding-top: 45px;
-    font-size: 16px;
-    font-weight: 400;
+    display: flex;
+    justify-content: flex-start;
+    height: 35px;
+    margin-top: 45px;
+    font-size: 18px;
 
-    span {
-      margin-left: 5px;
+    .nickname-edit {
+      display: flex;
+      cursor: pointer;
+    }
+
+    .label {
+      width: 70px;
+      margin-right: -15px;
+      color: #cbc5c5;
+      text-align: left;
     }
 
     .share {
@@ -398,7 +444,6 @@ export default {
   display: -webkit-box;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 3;
-  position: relative;
 
   .sign-arrow {
     position: absolute;
@@ -441,8 +486,13 @@ export default {
     .el-icon-edit-outline {
       margin-left: 3px !important;
     }
+
+    .icon-edit {
+      margin-left: 5px;
+    }
   }
 }
+
 
 .footer {
   display: flex;
