@@ -21,6 +21,8 @@ import passwordLogin from './component/passwordLogin.vue'
 import emailLogin from './component/emailLogin.vue'
 import registry from './component/registry.vue'
 import forgetPassword from './component/forgetPassword.vue'
+import {mapState} from "vuex";
+import { checkTokenEnable } from "@/api/user";
 
 export default {
   name: 'Login',
@@ -30,12 +32,30 @@ export default {
     registry,
     forgetPassword
   },
+  computed: {
+    // 监听全局socket消息状态
+    ...mapState({
+      isToken() {
+        return this.$store.getters.access_token;
+      }
+    }),
+  },
   data() {
     return {
       activeName: "passwordLogin",
     };
   },
+  created() {
+    if (this.isToken) {
+      //校验token是否有效
+      checkTokenEnable(this.$store.getters.access_token).then(res => {
+        this.$message.info("你已经登录了。")
+        this.toIndex()
+      }).catch(e => {
 
+      })
+    }
+  },
   methods: {
     getActiveName(value) {
       this.activeName = value

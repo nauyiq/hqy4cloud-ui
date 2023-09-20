@@ -8,24 +8,31 @@
         <div class="apply-list-main">
           <el-scrollbar>
             <div class="apply-list-item" v-for="(item, index) in list" :key="index" >
-              <div class="main">
-                <el-avatar :src="item.info.avatar"></el-avatar>
-                <div @click="$user(item.info.id)"> <span class="nickname fc-primary cur-handle">{{item.info.nickname}}</span>
-                  <div class="remark f-12 c-999">{{item.remark}}</div>
-                </div>
-                <div class="apply-status">
-
-                </div>
+              <div class="main" style="margin-left: 5px">
+                  <el-avatar :src="item.info.avatar"></el-avatar>
+                  <div style="margin-left: 5px">
+                    <div @click="$user(item.info.id)"> <span class="nickname fc-primary cur-handle">{{item.info.nickname}}</span>
+                      <div class="remark f-12 c-999">{{item.remark}}</div>
+                    </div>
+                  </div>
               </div>
               <div class="option">
                 <el-tag type="success" v-if="item.status === 1">已添加</el-tag>
-                <el-tag type="danger" v-if="item.status === 2">已拒绝</el-tag>
-                <el-popconfirm title="您确定接受该好友的申请吗？" v-if="item.status === 0" @confirm="acceptApply(item.info.id,true)">
-                  <el-button slot="reference" :size="'small'" type="success">接受</el-button>
-                </el-popconfirm>
-                <el-popconfirm class="ml-15" title="您确定拒绝该好友的申请吗？" v-if="item.status=== 0" @confirm="acceptApply(item.info.id,false)">
-                  <el-button slot="reference" :size="'small'" type="danger" >拒绝</el-button>
-                </el-popconfirm>
+                <div v-if="item.status === 2">
+                  <el-tag type="info" v-if="item.send === user.id">已申请</el-tag>
+                  <el-tag type="info" v-else>已拒绝</el-tag>
+                </div>
+                <div v-if="item.status === 0">
+                  <div v-if="item.send !== user.id">
+                    <el-button slot="reference" :size="'small'" type="primary"  @click="acceptApply(item.id,true)">接受</el-button>
+                    <el-button slot="reference" :size="'small'" type="info"  @click="acceptApply(item.id,false)">拒绝</el-button>
+                  </div>
+                  <el-tag type="info" v-else>已申请</el-tag>
+                </div>
+
+<!--                <el-tag type="info" v-if="item.status === 2">已拒绝</el-tag>-->
+<!--                <el-button slot="reference" :size="'small'" type="primary" v-if="item.status === 0 && item.info.send !== user.id" @click="acceptApply(item.info.id,true)">接受</el-button>-->
+<!--                <el-button slot="reference" :size="'small'" type="info" v-if=" item.status === 0 && item.info.send !== user.id" @click="acceptApply(item.info.id,false)">拒绝</el-button>-->
               </div>
             </div>
             <div v-if="list.length === 0">
@@ -33,28 +40,14 @@
             </div>
           </el-scrollbar>
         </div>
-        <div class="apply-list-page" align="center" v-if="!singlePage">
-          <el-pagination
-              background
-              :hide-on-single-page="singlePage"
-              @size-change="handleChange"
-              @current-change="getList"
-              :current-page.sync="params.page"
-              :page-sizes="[20, 50 ,100 , 200, 300, 400,500]"
-              :page-size.sync="params.limit"
-              layout="total, sizes, prev, pager, next, jumper"
-              :total="total">
-          </el-pagination>
-        </div>
       </div>
     </el-main>
   </el-container>
 </template>
 <script>
 
-import { getFriendApplications } from "@/api/im/friend"
+import { getFriendApplications, acceptOrRejectImFriend } from "@/api/im/friend"
 import { mapState } from "vuex";
-import defaultAvatar from '@/assets/img/default_avatar.png'
 
 export default {
   name: "apply",
@@ -67,7 +60,6 @@ export default {
       params: {
         page: 1,
         limit: 20,
-        is_mine:0
       }
     };
   },
@@ -77,28 +69,33 @@ export default {
   computed: {
     ...mapState({
       user: state => state.user.userInfo,
+      refreshApplication: state => state.user.refreshApplication,
+
     }),
+  },
+  watch: {
+    refreshApplication() {
+      this.getList()
+    }
   },
   methods: {
     handleClick() {
-      this.params.page = 1;
       this.getList();
     },
     acceptApply(id,flag){
-      let status = flag ? 1 : 0;
-      this.$api.friendApi.acceptFriend({friend_id:id,status:status}).then(res=>{
-        this.$message.success("操作成功");
-        this.getList();
+      acceptOrRejectImFriend({
+        applicationId:id,
+        status: flag
+      }).then( res => {
+        if (res.data.code === 0) {
+          this.getList()
+        }
       })
     },
     getList(){
-      getFriendApplications(this.params).then(res => {
+      getFriendApplications().then(res => {
         if (res.data.code === 0) {
-          let result =  res.data.data
-          this.list = result.resultList
-          this.total = result.total
-          console.log(this.list)
-          this.singlePage = this.total <=this.params.limit;
+          this.list = res.data.data
         }
       })
     },

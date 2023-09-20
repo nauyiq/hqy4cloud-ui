@@ -35,6 +35,18 @@ export const loginByEmail = (email, code) => {
     })
 }
 
+//校验token是否有效
+export const checkTokenEnable = (access_token) => {
+    return axios.request({
+        url: '/auth/' + access_token,
+        method: 'get',
+        headers: {
+            isToken: false,
+            Authorization: auth['password']
+        }
+    })
+}
+
 
 //刷新token
 export const refreshToken = (refresh_token) => {
@@ -98,7 +110,7 @@ export const sendRegistryEmail = (email) => {
 export const registry = (username, email, password, code) => {
     password = md5(password)
     return axios.request({
-        url: '/blog/account/registry',
+        url: '/blog/user/registry',
         method: 'post',
         headers: {
             isToken: false,
@@ -142,6 +154,8 @@ export const updateImUserSetting = (data) => {
     })
 
 }
+
+
 
 // 修改用户信息
 export const updateUserInfo = data => axios.put('/blog/user/profile', data)

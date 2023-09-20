@@ -127,7 +127,7 @@ export default {
   },
   watch: {
     // 监听设置发送变化需要进行设置更改
-    setting: {
+    /*setting: {
       handler(newValue, oldValue) {
         this.$api.imApi.settingAPI(newValue);
         let user = Lockr.get("UserInfo");
@@ -135,7 +135,7 @@ export default {
         Lockr.set("UserInfo", user);
       },
       deep: true,
-    },
+    },*/
   },
   methods: {
     logout() {

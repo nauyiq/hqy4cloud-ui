@@ -221,7 +221,7 @@ export default {
         if (this.userInfo.avatar) {
           return this.userInfo.avatar
         } else {
-          this.$store.dispatch('GetUserSetting')
+          this.$store.dispatch('GetUserInfo')
           return this.userInfo.avatar
         }
       }

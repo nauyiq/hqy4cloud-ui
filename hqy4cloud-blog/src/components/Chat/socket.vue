@@ -95,7 +95,9 @@ export default {
               this.$store.commit('SET_SOCKET_ACTION', event)
             })
 
-            //listen socket.io appendChat event.
+
+
+            //listen socket.io contactNameChange event.
             this.websocket.on('contactNameChange', (eventData) => {
               const data = JSON.parse(eventData)
               const event = {
@@ -104,6 +106,18 @@ export default {
               }
               this.$store.commit('SET_SOCKET_ACTION', event)
             })
+
+
+            //listen socket.io friendApplication event.
+            this.websocket.on('friendApplication', (eventData) => {
+              const data = JSON.parse(eventData)
+              const event = {
+                "event": 'friendApplication',
+                "data": data
+              }
+              this.$store.commit('SET_SOCKET_ACTION', event)
+            })
+
 
             Vue.prototype.$websocket = this.websocket;
           } else {

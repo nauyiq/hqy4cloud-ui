@@ -37,6 +37,9 @@ const getters = {
   contactSync: state => state.user.contactSync,
   setting: state => state.user.setting,
   globalConfig: state => state.user.globalConfig,
-  unread: state => state.user.unread
+  unread: state => state.user.unread,
+  systemUnread: state => state.user.systemUnread,
+  showFriendDialog: state => state.user.showFriendDialog,
+  refreshApplication: state => state.user.refreshApplication
 }
 export default getters

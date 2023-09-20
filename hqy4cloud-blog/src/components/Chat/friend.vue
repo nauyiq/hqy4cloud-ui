@@ -44,6 +44,7 @@
 import { searchImUsers } from "@/api/im/friend"
 import defaultAvatar from '@/assets/img/default_avatar.png'
 import UserCard from "@c/user/userCard";
+import {mapState} from "vuex";
 export default {
   name: "friend",
   components: {UserCard},
@@ -57,6 +58,11 @@ export default {
       default: '612px',
     },
   },
+  computed: {
+    ...mapState({
+      showFriendDialog: state => state.user.showFriendDialog
+    })
+  },
   data() {
     return {
       keywords: "",
@@ -66,9 +72,13 @@ export default {
   mounted() {
 
   },
+  watch: {
+    showFriendDialog() {
+        this.closeDialog()
+    }
+  },
   methods: {
     closeDialog() {
-      console.log(111111)
       this.$emit("update:visible", false);
       this.selectUid = [];
     },

@@ -37,6 +37,9 @@ const user = {
         unread: getStore({
             name: 'unread'
         }) || 0,
+        systemUnread: 0,
+        showFriendDialog: '',
+        refreshApplication: '',
         setting: getStore({
             name: 'setting'
         }) || {
@@ -272,9 +275,18 @@ const user = {
                 type: 'session'
             })
         },
+        UPDATE_SYSTEM_UNREAD: (state, data) => {
+            state.systemUnread = data
+        },
         OPEN_CHAT:(state, data) => {
             state.contactId = data
             state.contactSync = Math.random().toString(36).substr(-8);
+        },
+        SET_FRIEND_DIALOG: (state, data) => {
+            state.showFriendDialog = data
+        },
+        REFRESH_APPLICATIONS: (state, data) => {
+            state.refreshApplication = data
         }
     }
 

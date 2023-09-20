@@ -110,7 +110,7 @@ export default {
   },
   computed: {
     ...mapState({
-      userInfo: state => state.user.userInfo
+      userInfo: state => state.user.userInfo,
     }),
   },
   filters: {
@@ -198,35 +198,42 @@ export default {
     openChat() {
       this.closeDialog();
       this.$store.commit('OPEN_CHAT', this.detail.id)
-      this.$emit('close')
+      this.$store.commit('SET_FRIEND_DIALOG', Math.random().toString(8))
     },
     editUser() {
       this.$emit('editUser', this.detail)
     },
     // 添加好友
     addFriend() {
-      this.closeDialog();
+      this.$store.commit('SET_FRIEND_DIALOG', Math.random().toString(8))
+      this.bind = true
       this.$prompt('请填写验证信息，让朋友知道你！', '添加好友', {
+        inputValue: '我是' + this.userInfo.nickname,
         confirmButtonText: '确定',
         cancelButtonText: '取消',
       }).then(({value}) => {
+        this.bind = false
         if (!value) {
           this.$message.error('请输入验证信息');
           return false;
         }
         addFriend({
-          id: this.detail.userId,
+          userId: this.detail.id,
           remark: value
         }).then(res => {
           if (res.data.code === 0) {
+            this.closeDialog();
             this.$message.success('已发送好友申请');
+          } else {
+            this.$message.warn('添加好友失败，请稍后再试');
           }
         })
       }).catch((error) => {
-        this.$message({
+        this.bind = false
+        /*this.$message({
           type: 'warning',
           message: error
-        });
+        });*/
       });
 
     },

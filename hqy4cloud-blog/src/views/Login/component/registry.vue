@@ -80,7 +80,7 @@ export default {
       },
       rules: {
         username: [{ required: true, message: '请输入用户名', trigger: 'blur' }],
-        password: [{ required: true, message: "请输入新的密码", trigger: "blur"  }, {min:6, max:20, trigger: "blur", message: "密码的长度必须为6到20"}],
+        password: [{ required: true, message: "请输入账号密码", trigger: "blur"  }, {min:6, max:20, trigger: "blur", message: "密码的长度必须为6到20"}],
         email: [{ required: true, message: '邮箱不能为空', trigger: 'blur'},
           { pattern: /^([0-9A-Za-z\-_\.]+)@([0-9a-z]+\.[a-z]{2,3}(\.[a-z]{2})?)$/g,  message: "请输入正确的邮箱"}
         ],

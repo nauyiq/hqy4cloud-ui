@@ -39,9 +39,7 @@
                 style="width: 40px; height: 40px; line-height: 40px; font-size: 20px;"><img :src="Contact.avatar"/></span>
             <span
                 class="lemon-badge__label"
-                v-if="Contact.unread > 0 && Contact.isNotice"
-            >{{ Contact.unread }}</span
-            >
+                v-if="Contact.unread > 0 && Contact.isNotice">{{ Contact.unread }}</span>
           </span>
           <div class="lemon-contact__inner">
             <p class="lemon-contact__label">
@@ -125,12 +123,10 @@
                 class="input-with-select"
             >
             </el-input>
-            <div style="margin-left:10px">
-              <el-dropdown @command="handleCommand">
-                <el-button
-                    icon="el-icon-plus"
-                    circle></el-button>
-                <el-dropdown-menu slot="dropdown">
+            <div  style="margin-left:10px">
+              <el-dropdown  @command="handleCommand">
+                <el-button icon="el-icon-plus"  circle></el-button>
+                <el-dropdown-menu class="operations" slot="dropdown">
                   <el-dropdown-item command="addFriend">添加朋友</el-dropdown-item>
                   <el-dropdown-item command="addGroup">创建群聊</el-dropdown-item>
                 </el-dropdown-menu>
@@ -443,6 +439,7 @@ export default {
       curWidth: '1000px',
       curHeight: '600px',
       unread: 0,
+      systemUnread:0,
       // webrtcConfig:{
       //     config: { 'iceServers':[{
       //     'urls': stun,
@@ -960,7 +957,7 @@ export default {
     dialog(val){
       if (!val) {
         const {IMUI} = this.$refs;
-        IMUI.changeContact("")
+        IMUI.changeContact("SET_FRIEND_DIALOG", false)
       }
     },
     playAudio(val) {
@@ -996,11 +993,12 @@ export default {
           }
         })
       }
-
-
     },
     unread(val) {
       this.$store.commit('UPDATE_UNREAD', val);
+    },
+    systemUnread(val) {
+      this.$store.commit('UPDATE_SYSTEM_UNREAD', val);
     },
     // 监听联系人搜索
     keywords() {
@@ -1148,12 +1146,30 @@ export default {
             setting: message.setting
           });
           break;
-        case 'appendContact':
-          if (message.conversation) {
-            IMUI.appendContact(message.conversation)
+        case 'appendChat':
+          let item = message.conversation
+          if (item) {
+            if (item.type === 'system') {
+              item.lastContent =  "你已添加了" + item.lastContent + "，现在可以开始聊天了。"
+            }
+            if (item.unread !== 0) {
+              this.unread += item.unread
+              this.initMenus(IMUI);
+            }
+            IMUI.appendContact(item)
           }
           if(message.contact) {
             IMUI.appendToContacts(message.contact)
+          }
+          break;
+        case "friendApplication":
+          let contact = IMUI.getCurrentContact();
+          if (contact.id === 'system') {
+            this.$store.commit('REFRESH_APPLICATIONS', Math.random().toString(8))
+          } else {
+            this.systemUnread = message.unread
+            IMUI.updateSimpleContact({ id: 'system', unread: this.systemUnread});
+            this.initMenus(IMUI);
           }
           break;
         /*case 'webrtc':
@@ -1221,12 +1237,21 @@ export default {
   },
   created() {
     // 初始化用户
-    if (this.userInfo) {
-      this.user.id = this.userInfo.id;
-      this.user.displayName = this.userInfo.nickname;
-      this.user.avatar = this.userInfo.avatar;
-      this.user.username = this.userInfo.username;
+    if (this.isToken) {
+      if (!this.userInfo.id) {
+        this.$store.dispatch('GetUserInfo')
+      }
+      if (this.userInfo.id) {
+        this.user.id = this.userInfo.id;
+        this.user.displayName = this.userInfo.nickname;
+        this.user.avatar = this.userInfo.avatar;
+        this.user.username = this.userInfo.username;
+      }
+    } else {
+      this.$message.info("请先登录，再进入聊天室")
+      this.$router.push({path: '/login'})
     }
+
     if (window.Notification) {
       // 浏览器通知--window.Notification
       if (Notification.permission === "granted") {
@@ -1358,14 +1383,17 @@ export default {
           data.forEach((item, index) => {
             if (item.type) {
               msg.type = item.type;
+              if (item.type === 'system') {
+                item.lastContent =  "你已添加了" + item.lastContent + "，现在可以开始聊天了。"
+              }
               msg.content = item.lastContent;
               data[index]['lastContent'] = IMUI.lastContentRender(msg);
             }
             if (item.unread && !update) {
               this.unread += item.unread;
+              this.initMenus(IMUI);
             }
           })
-          this.$store.commit('INIT_CONTACTS', data);
           //添加系统联系人
           const sysContact = {
             id: 'system',
@@ -1374,7 +1402,7 @@ export default {
             index: "[1]新的朋友",
             isGroup: false,
             isNotice: true,
-            isTop: true,
+            isTop: false,
             click(next) {
               next();
             },
@@ -1383,19 +1411,17 @@ export default {
             },
           };
           data.push(sysContact)
+          this.$store.commit('INIT_CONTACTS', data);
           // 设置置顶人
           // this.getChatTop(data);
           IMUI.initContacts(data);
         });
 
-
-
-
         //获取通讯录好友
         getFriendContacts().then(res => {
           if (res.data.code === 0) {
             const data = res.data.data.contacts;
-            // const count = res.data.data.unread;
+            this.systemUnread = res.data.data.unread;
             this.friends = data;
             this.$store.commit('INIT_FRIENDS', data);
             const sysContact = {
@@ -1405,7 +1431,8 @@ export default {
               index: "[1]新的朋友",
               isGroup: false,
               isNotice: true,
-              isTop: true,
+              isTop: false,
+              unread: this.systemUnread,
               click(next) {
                 next();
               },
@@ -1492,7 +1519,8 @@ export default {
           unread: this.unread,
         },
         {
-          name: "contacts"
+          name: "contacts",
+          unread: this.systemUnread
         },
         {
           name: "files",
@@ -1649,7 +1677,16 @@ export default {
     },
     // 切换聊天窗口时要检测那些消息未读
     handleChangeContact(contact, instance) {
-      if (contact || contact.id === 'system') {
+      if (!contact.id) {
+        this.currentChat = {}
+        return;
+      }
+      if (contact.id === 'system') {
+        instance.updateSimpleContact({ id: 'system',
+          unread: 0})
+        this.systemUnread = 0;
+        const {IMUI} = this.$refs;
+        this.initMenus(IMUI);
         return
       }
       instance.updateContact({
@@ -1689,7 +1726,7 @@ export default {
         }
       }
       // 如果有未读的消息，需要将消息修改为已读
-      if (data.length > 0) {
+      if (data.length > 0 || contact.unread > 0) {
         readMessage({
           conversationId: contact.conversationId
         }).then(res => {
@@ -1855,14 +1892,21 @@ export default {
       params.toContactId = contact.id;
       params.conversationId = contact.conversationId;
       getChatMessages(params).then(res => {
-            this.params.page++;
-            let isEnd = false;
-            let messages = res.data.data.resultList;
-            if (messages.length < this.params.limit) {
-              isEnd = true;
+        this.params.page++;
+        let isEnd = false;
+        let messages = res.data.data.resultList;
+        if (messages.length > 0 ) {
+          messages.forEach((message, index) => {
+            if (message.type === 'system') {
+              messages[index]['type'] = 'text'
             }
-            next(messages, isEnd);
           })
+        }
+        if (messages.length < this.params.limit) {
+          isEnd = true;
+        }
+        next(messages, isEnd);
+      })
           .catch(error => {
             next([], true);
           });
@@ -1910,12 +1954,7 @@ export default {
         if ((selectUid.length + this.groupUser.length) > num && num > 0) {
           return this.$message.error("群成员不能大于" + num + "人！");
         }
-        createGroup({userIds: selectUid, id: this.groupId});
-      } else {
-        if (selectUid.length > num && num > 0) {
-          return this.$message.error("群成员不能大于" + num + "人！");
-        }
-        addGroupUser({userIds: selectUid, name: groupName}).then(res => {
+        createGroup({userIds: selectUid, id: this.groupId, name: groupName}).then((res => {
           const data = res.data;
           const {IMUI} = this.$refs;
           if (res.data.code === 0) {
@@ -1926,6 +1965,13 @@ export default {
             // 切换到该联系人
             IMUI.changeContact(data.id);
           }
+        }))
+      } else {
+        if (selectUid.length > num && num > 0) {
+          return this.$message.error("群成员不能大于" + num + "人！");
+        }
+        addGroupUser({userIds: selectUid}).then(res => {
+
         });
       }
     },
@@ -2439,6 +2485,27 @@ export default {
 ::v-deep .lemon-editor__emoji-item {
   width: 30px !important;
 }
+
+/deep/  .contact-fixedtop-box .el-input__inner:focus {
+    border: 1px solid #888;
+
+}
+/deep/  .contact-fixedtop-box .el-button--default {
+  background: #fffefe;
+}
+
+/deep/  .contact-fixedtop-box .el-button--default:focus,
+.contact-fixedtop-box .el-button--default:hover{
+  border-color: #888;
+  color: #888;
+}
+
+
+/deep/ .el-dropdown-menu__item:focus, .el-dropdown-menu__item:not(.is-disabled):hover {
+  background-color: rgba(136, 136, 136, 0.25);
+  color: #fffefe;
+}
+
 
 
 

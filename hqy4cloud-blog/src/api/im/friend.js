@@ -43,11 +43,19 @@ export const setFriendMark = (data) => {
 }
 
 //获取好友申请列表
-export const getFriendApplications = (params) => {
+export const getFriendApplications = () => {
     return axios.request({
         url: '/im/user/applications',
-        method: 'get',
-        params: params
+        method: 'get'
+    })
+}
+
+// 接收或者拒绝好友申请
+export const acceptOrRejectImFriend = (data) => {
+    return axios.request({
+        url: '/im/user/friend',
+        method: 'put',
+        data: data
     })
 }
 
