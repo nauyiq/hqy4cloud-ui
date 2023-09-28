@@ -20,11 +20,10 @@ export const removeGroupUser = (data) => {
 }
 
 //获取群聊所有用户
-export const getGroupUsers = (data) => {
+export const getGroupUsers = (id) => {
     return ins.request({
-        url: '/chat/group/users',
+        url: '/im/group/members/' + id,
         method: 'get',
-        params: data
     })
 }
 
@@ -73,7 +72,7 @@ export const groupSetting = (data) => {
 //修改群名
 export const updateGroupName = (data) => {
     return ins.request({
-        url: '/chat/group',
+        url: '/im/group',
         method: 'put',
         data: data
     })
@@ -91,8 +90,8 @@ export const groupRole = (data) => {
 //发布群公告
 export const publishNotice = (data) => {
     return ins.request({
-        url: '/chat/group/notice',
-        method: 'post',
+        url: '/im/group',
+        method: 'put',
         data: data
     })
 }

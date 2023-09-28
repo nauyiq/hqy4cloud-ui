@@ -23,7 +23,7 @@
                 <el-checkbox class="checkBox" v-for="friend in user.friends" :label="friend" :key="friend.id" >
                   <div>
                     <el-avatar :src="friend.avatar"></el-avatar>
-                    <span style="margin-left: 6px" class="nickname">{{friend.displayName}}</span>
+                    <span style="margin-left: 6px; width: 100px;" class="nickname">{{friend.displayName}}</span>
                   </div>
                 </el-checkbox>
               </div>
@@ -32,7 +32,7 @@
               <el-checkbox class="checkBox" v-for="friend in allUser" :label="friend" :key="friend.id" >
                 <div>
                   <el-avatar :src="friend.avatar"></el-avatar>
-                  <span style="margin-left: 6px" class="nickname">{{friend.displayName}}</span>
+                  <span style="margin-left: 6px;" class="nickname">{{friend.displayName}}</span>
                 </div>
               </el-checkbox>
             </div>
@@ -43,18 +43,17 @@
         <div>
           <el-divider direction="vertical" class="divider"></el-divider>
         </div>
-        <div class="right" style="position: relative">
+        <div class="right" style="position: relative;">
           <el-checkbox-group
               v-model="selectUid">
             <el-checkbox v-for="user in selectUid" :label="user" :key="user.id">
-              <el-avatar :src="user.avatar"></el-avatar>
-<!--              <span class="nickname fc-primary cur-handle">{{user.displayName}}</span>-->
+              <el-avatar style="margin-left: 10px" :src="user.avatar"></el-avatar>
             </el-checkbox>
           </el-checkbox-group>
 
-          <div style="margin-left: 35px; position: absolute; bottom: 0" class="dialog-footer">
-            <el-button style="width: 100px" size="small" @click="closeDialog">取 消</el-button>
-            <el-button style="width: 100px" size="small" type="primary" @click="manageGroup">确 定</el-button>
+          <div style="margin-left: 35px; position: absolute; bottom: 0" >
+            <el-button style="width: 75px" size="small" @click="closeDialog">取 消</el-button>
+            <el-button style="width: 75px" size="small" type="primary" @click="manageGroup">确 定</el-button>
           </div>
         </div>
       </div>
@@ -152,7 +151,13 @@ export default {
           this.groupName += user.displayName + "、"
         })*/
       }
-      this.$emit("manageGroup", this.selectUid, this.isAdd, this.groupName);
+
+      let selectUid = []
+      this.selectUid.forEach(e => {
+        console.log(e)
+        selectUid.push(e.id)
+      })
+      this.$emit("manageGroup", selectUid, this.isAdd, this.groupName);
     },
     // 获取所有人员列表
     getAllUser(data) {
@@ -185,22 +190,39 @@ export default {
   }
 }
 
+
 ::v-deep .lemon-sidebar__label {
   padding: 12px 8px 0px 0px;
 }
 
-::v-deep .el-checkbox__label   {
+::v-deep .left .el-checkbox__label   {
   margin-top: 5px;
   font-size: 14px;
   margin-bottom: 5px;
-  width: 100%;
+  //width: 100%;
+  width: 250px;
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
   vertical-align: middle;//可以实现复选框和文字垂直方向居中
   span{
-    vertical-align: middle
+    word-break: normal;
+    white-space: nowrap;
+    word-wrap: break-word;
+    overflow: hidden;
   }
+}
+
+::v-deep .el-checkbox__label   {
+  margin-top: 10px;
+  font-size: 14px;
+  margin-bottom: 5px;
+  width: 100%;
+  //width: 250px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  vertical-align: middle;//可以实现复选框和文字垂直方向居中
 }
 
 .divider{

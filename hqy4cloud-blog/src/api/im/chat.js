@@ -78,6 +78,14 @@ export const getConversations = () => {
     })
 }
 
+//获取聊天列表
+export const getChats = () => {
+    return ins.request({
+        url: '/im/chats',
+        method: 'get'
+    })
+}
+
 //获取通讯录好友列表
 export const getFriendContacts = () => {
     return ins.request({

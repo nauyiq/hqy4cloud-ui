@@ -29,7 +29,7 @@
           </div>
           <div class="card-row">
             <div class="label">昵称</div>
-            <div>{{ detail.nickname || '未设置' }}
+            <div class="div-nickname">{{ detail.nickname || '未设置' }}
             </div>
           </div>
 
@@ -161,7 +161,7 @@ export default {
           this.displayName = (this.detail.friend && this.detail.friend.remark) ? this.detail.friend.remark : this.detail.nickname
           if (this.detail.friend) {
             this.isMute = !this.detail.friend.isNotice
-            this.isTop = !this.detail.friend.isTop
+            this.isTop = this.detail.friend.isTop
           }
         }
       })
@@ -291,6 +291,18 @@ export default {
 
 <style lang="scss" scoped>
 
+span {
+  width: 150px !important;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+}
+.div-nickname{
+  width: 150px !important;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+}
 
 .user-card-box {
   position: fixed;

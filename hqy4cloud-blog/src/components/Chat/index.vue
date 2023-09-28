@@ -56,7 +56,7 @@
             </p>
             <p class="lemon-contact__content lemon-last-content">
               <span class="lastContent">
-                <span v-if="Contact.isNotice === false && Contact.unread > 0"
+                <span v-if="Contact.isNotice === true && Contact.unread > 0"
                 >[{{ Contact.unread }}条未读]</span
                 >
                 <span v-html="Contact.lastContent"></span>
@@ -77,15 +77,14 @@
                 <span
                     class="displayName"
                     v-if="isGroup"
-                    @click="isEdit = true"
-                >
-                  <el-tag size="mini">群聊</el-tag> {{ contact.displayName }}<span class="mr-5">({{
+                    @click="isEdit = true">
+                  <el-tag size="mini">群聊</el-tag> {{ contact.displayName.length > 20 ? contact.creatorName + "创建的群聊" : contact.displayName }}<span class="mr-5">({{
                     groupUserCount
                   }})</span>
-                  <el-tag size="mini" v-if="contact.setting.nospeak === 1" type="warning">仅群管理员可发言</el-tag>
-                  <el-tag size="mini" v-if="contact.setting.nospeak === 2" type="danger">全员禁言中</el-tag>
+<!--                  <el-tag size="mini" v-if="contact.setting.nospeak === 1" type="warning">仅群管理员可发言</el-tag>-->
+<!--                  <el-tag size="mini" v-if="contact.setting.nospeak === 2" type="danger">全员禁言中</el-tag>-->
                 </span>
-                <span class="displayName" v-if="isGroup === 0">
+                <span class="displayName" v-if="isGroup === false">
                   <OnlineStatus :type="contact.isOnline ? 'success' : 'info'" :pulse="contact.isOnline "
                                 v-if="globalConfig.online"></OnlineStatus> {{ contact.displayName }}</span>
               </span>
@@ -111,6 +110,7 @@
           </div>
         </template>
 
+
         <!-- 最近联系人列表顶部插槽 不滚动-->
         <template #sidebar-message-fixedtop="instance">
           <div class="contact-fixedtop-box">
@@ -133,14 +133,6 @@
               </el-dropdown>
 
             </div>
-<!--            <div style="margin-left:10px">
-              <el-button
-                  title="创建群聊"
-                  icon="el-icon-plus"
-                  @click="openCreateGroup"
-                  circle
-              ></el-button>
-            </div>-->
             <div class="search-list" v-show="searchResult">
               <div
                   v-for="(item, index) in searchList"
@@ -239,10 +231,10 @@
                         <span
                             v-if="item.userInfo.id === user.id"
                             class="fc-danger"
-                        >{{ item.userInfo.displayName }}（我）</span
+                        >{{ item.userInfo.nickname }}（我）</span
                         >
                         <span v-if="item.userInfo.id !== user.id">{{
-                            item.userInfo.displayName
+                            item.userInfo.nickname
                           }}</span>
                       </div>
                       <div class="user-role">
@@ -357,7 +349,7 @@ import OnlineStatus from "./onlineStatus";
 import Apply from "./apply";
 import ScreenShot from "js-web-screen-shot";
 import {
-  getChatMessages,
+  getChatMessages, getChats,
   getConversations,
   getFriendContacts,
   readMessage,
@@ -674,7 +666,7 @@ export default {
           click(e, instance, hide) {
             const {IMUI, contact} = instance;
             hide();
-            setChatNotice({id: contact.id, isNotice: false, isGroup: contact.isGroup});
+            setChatNotice({contactId: contact.id, status: false, isGroup: contact.isGroup});
             IMUI.updateContact({
               id: contact.id,
               isNotice: false
@@ -692,7 +684,7 @@ export default {
           click(e, instance, hide) {
             const {IMUI, contact} = instance;
             hide();
-            setChatNotice({id: contact.id, isNotice: true, isGroup: contact.isGroup});
+            setChatNotice({contactId: contact.id, status: true, isGroup: contact.isGroup});
             IMUI.updateContact({
               id: contact.id,
               isNotice: true
@@ -706,7 +698,7 @@ export default {
             );
           }
         },
-        {
+        /*{
           click(e, instance, hide) {
             const {IMUI, contact} = instance;
             hide();
@@ -719,7 +711,7 @@ export default {
           visible: instance => {
             return instance.contact.role === 1 && instance.contact.isGroup === true;
           }
-        },
+        },*/
         {
           click(e, instance, hide) {
             const {IMUI, contact} = instance;
@@ -1074,7 +1066,7 @@ export default {
             id: message.contactId,
             displayName: message.displayName
           });
-          if (message.isGroup) {
+            if (message.isGroup) {
             // 更新群名
             const data = {
               id: utils.generateRandId(),
@@ -1083,11 +1075,11 @@ export default {
               content: (
                   <div>
                 <span>
-                  {message.editor} 修改了群名为 {message.displayName}
+                  {message.editor}修改了群名为{message.displayName}
                 </span>
                   </div>
               ),
-              toContactId: message.id,
+              toContactId: message.contactId,
               sendTime: getTime()
             };
             IMUI.appendMessage(data, true);
@@ -1117,7 +1109,7 @@ export default {
           this.removeContact(message.groupId);
           break;
           // 发布公告
-        case "setNotice":
+        case "groupNoticeChange":
           IMUI.updateContact({
             id: message.groupId,
             notice: message.notice
@@ -1130,7 +1122,7 @@ export default {
                 //使用 jsx 时 click必须使用箭头函数（使上下文停留在vue内）
                 content: (
                     <div>
-                      <span>管理员 发布了公告： {message.notice}</span>
+                      <span>{message.editor}发布了新的公告。</span>
                     </div>
                 ),
                 toContactId: message.groupId,
@@ -1375,7 +1367,77 @@ export default {
         IMUI.initEmoji(EmojiData);
 
         // 获取聊天会话列表
-        getConversations().then(res => {
+        getChats().then(res => {
+          if (res.data.code === 0 ){
+            const data = res.data.data;
+            //会话列表
+            let conversations = data.conversations
+            let contacts = data.contacts
+            //添加系统联系人
+            const sysContact = {
+              id: 'system',
+              displayName: "新的朋友",
+              avatar: InviteImg,
+              index: "[0]新的朋友",
+              isGroup: false,
+              isNotice: true,
+              isTop: false,
+              unread: this.systemUnread,
+              click(next) {
+                next();
+              },
+              renderContainer: () => {
+                return <Apply></Apply>;
+              },
+            };
+
+            if(conversations) {
+              this.contacts = conversations
+              let msg = {};
+              // 重新渲染消息
+              conversations.forEach((item, index) => {
+                if (item.type) {
+                  msg.type = item.type;
+                  if (item.type === 'system') {
+                    item.lastContent =  "你已添加了" + item.lastContent + "，现在可以开始聊天了。"
+                  }
+                  msg.content = item.lastContent;
+                  conversations[index]['lastContent'] = IMUI.lastContentRender(msg);
+                }
+                if (item.unread && !update) {
+                  this.unread += item.unread;
+                  this.initMenus(IMUI);
+                }
+              })
+              conversations.push(sysContact)
+              this.$store.commit('INIT_CONTACTS', conversations);
+              // 设置置顶人
+              // this.getChatTop(data);
+              IMUI.initContacts(conversations);
+            }
+
+            if (contacts) {
+              let contactList = contacts.contacts
+              this.systemUnread = contacts.unread
+              this.friends = contactList
+              this.$store.commit('INIT_FRIENDS', contactList);
+              contactList.push(sysContact)
+              IMUI.initFriends(contactList)
+            }
+          }
+        }).catch(error => {
+          console.log(error)
+          this.$message.error("获取通讯录失败, 请稍后再试");
+        })
+
+        setTimeout(() => {
+          // 初始化左侧菜单栏
+          this.initMenus(IMUI);
+        }, 500)
+
+
+        // 获取聊天会话列表
+        /*getConversations().then(res => {
           const data = res.data.data;
           this.contacts = data;
           let msg = {};
@@ -1415,10 +1477,10 @@ export default {
           // 设置置顶人
           // this.getChatTop(data);
           IMUI.initContacts(data);
-        });
+        });*/
 
         //获取通讯录好友
-        getFriendContacts().then(res => {
+        /*getFriendContacts().then(res => {
           if (res.data.code === 0) {
             const data = res.data.data.contacts;
             this.systemUnread = res.data.data.unread;
@@ -1445,12 +1507,9 @@ export default {
           } else {
             this.$message.warning("获取通讯录失败");
           }
-        })
+        })*/
 
-        setTimeout(() => {
-          // 初始化左侧菜单栏
-          this.initMenus(IMUI);
-        }, 500)
+
 
       });
     },
@@ -1694,7 +1753,8 @@ export default {
         unread: 0
       });
       // 将未读的总数减去当前选择的聊天
-      this.unread -= contact.unread;
+      let count = this.unread - contact.unread
+      this.unread = count < 0 ? 0 : count;
       const {IMUI} = this.$refs;
       this.initMenus(IMUI);
       // 聊天记录列表恢复到最初第一页
@@ -1915,8 +1975,28 @@ export default {
     // 发布公告
     publishNotice() {
       this.noticeBox = false;
-      publishNotice({id: this.groupId, notice: this.notice}).then(res => {
+      publishNotice({groupId: this.groupId, notice: this.notice}).then(res => {
         if (res.data.code === 0) {
+          const {IMUI} = this.$refs;
+          IMUI.appendMessage(
+              {
+                id: utils.generateRandId(),
+                type: "event",
+                //使用 jsx 时 click必须使用箭头函数（使上下文停留在vue内）
+                content: (
+                    <div>
+                      <span>你发布了新的公告。</span>
+                    </div>
+                ),
+                toContactId: this.groupId,
+                sendTime: getTime()
+              },
+              true
+          );
+          IMUI.updateContact({
+            id: this.groupId,
+            notice: this.notice
+          });
           this.$message({
             type: "success",
             message: "发布成功!"
@@ -1950,7 +2030,7 @@ export default {
     manageGroup(selectUid, isAdd, groupName) {
       this.createChatBox = false;
       let num = 500;
-      if (!isAdd) {
+      if (isAdd) {
         if ((selectUid.length + this.groupUser.length) > num && num > 0) {
           return this.$message.error("群成员不能大于" + num + "人！");
         }
@@ -2042,9 +2122,7 @@ export default {
     },
     // 获取群聊成员列表
     getGroupUserList(group_id) {
-      getGroupUsers({
-        id: group_id
-      }).then(res => {
+      getGroupUsers(group_id).then(res => {
         if (res.data.code === 0) {
           let data = res.data.data;
           this.groupUser = data;
@@ -2067,10 +2145,26 @@ export default {
       if (this.displayName !== this.oldName) {
         const {IMUI} = this.$refs;
         updateGroupName({
-          id: contact.id,
-          displayName: this.displayName
+          groupId: contact.id,
+          name: this.displayName
         }).then(res => {
           if (res.data.code === 0) {
+            // 更新群名
+            const data = {
+              id: utils.generateRandId(),
+              type: "event",
+              //使用 jsx 时 click必须使用箭头函数（使上下文停留在vue内）
+              content: (
+                  <div>
+                <span>
+                  你修改了群名为{this.displayName}
+                </span>
+                  </div>
+              ),
+              toContactId: contact.id,
+              sendTime: getTime()
+            };
+            IMUI.appendMessage(data, true);
             IMUI.updateContact({
               id: contact.id,
               displayName: this.displayName
@@ -2145,7 +2239,7 @@ export default {
       const {IMUI} = this.$refs;
       const contact = IMUI.getCurrentContact();
       // 如果收到消息是当前窗口的聊天，需要将消息修改为已读
-      if (contact.id === message.fromUser.id && contact.id !== 'system') {
+      if ((contact.id === message.fromUser.id || (contact.id === message.toContactId && message.isGroup)) && contact.id !== 'system') {
         let data = [];
         data.push(message);
         readMessage({
@@ -2154,9 +2248,7 @@ export default {
           from: message.fromUser.id
         });
       } else {
-        //发送者id
-        const fromId = message.fromUser.id;
-        const fromContact = IMUI.findContact(fromId);
+        const fromContact = message.isGroup ? IMUI.findConversation(message.toContactId) : IMUI.findConversation(message.fromUser.id) ;
         // 如果不是自己的消息 并且开启了消息提示 未读数才需要++
         if (this.user.id !== message.fromUser.id && fromContact.isNotice) {
           this.unread++;
@@ -2390,6 +2482,7 @@ export default {
   outline: -webkit-focus-ring-color auto 0px;
 }
 
+
 .lemon-last-content {
   display: flex;
   justify-content: space-between;
@@ -2405,9 +2498,9 @@ export default {
 .slot-group-list {
   background: #fff;
   width: 180px;
-  border-left: solid 1px #e6e6e6;
+  border-left: 1px solid #e6e6e6;
   height: 100%;
-  white-space: initial;
+  white-space: normal;
 
   .group-side-box {
     .group-side-title {
@@ -2443,6 +2536,9 @@ export default {
         }
 
         .user-name {
+          overflow: hidden;
+          white-space: nowrap;
+          text-overflow: ellipsis;
           width: 110px;
         }
 
@@ -2464,10 +2560,45 @@ export default {
   align-items: center;
   flex-wrap: nowrap;
   justify-content: space-between;
+  font-family: Microsoft YaHei;
+  font-size: 14px;
 }
 
 .group-notice {
   height: 140px;
+
+}
+
+
+::v-deep .group-user-body .el-scrollbar__wrap {
+  overflow-y: scroll;
+  overflow-x: hidden;
+}
+
+::v-deep .lemon-vessel__right  {
+  color:#606066;
+  font-family: Microsoft YaHei;
+  font-size: 14px;
+}
+
+::v-deep .lemon-container__title  {
+  color:#606066;
+  font-family: Microsoft YaHei;
+  font-size: 14px;
+}
+
+::v-deep .lemon-messages  {
+  color:#606066;
+  font-family: Microsoft YaHei;
+  font-size: 14px;
+}
+
+
+hr {
+  height: 1px;
+  background-color: #e6e6e6;
+  border: none;
+  margin-top: 0;
 }
 
 .group-user {
@@ -2500,13 +2631,24 @@ export default {
   color: #888;
 }
 
+/deep/ .lemon-editor__tool {
+  border-top: 1px solid #e6e6e6;
+}
+
 
 /deep/ .el-dropdown-menu__item:focus, .el-dropdown-menu__item:not(.is-disabled):hover {
   background-color: rgba(136, 136, 136, 0.25);
   color: #fffefe;
 }
 
+/deep/ .lemon-container__title  {
+  border-bottom: 1px solid #e6e6e6!important;
+  font-family: Microsoft YaHei !important;
+}
 
+/deep/ .el-dialog__body {
+  color: #606066;
+}
 
 
 </style>

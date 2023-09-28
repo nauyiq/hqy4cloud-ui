@@ -55,6 +55,20 @@ export default {
               }, 200)
             })
 
+            //listen socket.io groupChat event.
+            this.websocket.on('groupChat', (eventData) => {
+              const data = JSON.parse(eventData)
+              const event = {
+                "event": 'groupChat',
+                "data": data
+              }
+              setTimeout(() => {
+                this.$store.commit('SET_SOCKET_ACTION', event)
+              }, 200)
+            })
+
+
+
             //listen socket.io readMessages event.
             this.websocket.on('readMessages', (eventData) => {
               const data = JSON.parse(eventData)
@@ -74,6 +88,18 @@ export default {
               }
               this.$store.commit('SET_SOCKET_ACTION', event)
             })
+
+            //listen socket.io setChatTop event.
+            this.websocket.on('groupNoticeChange', (eventData) => {
+              const data = JSON.parse(eventData)
+              const event = {
+                "event": 'groupNoticeChange',
+                "data": data
+              }
+              this.$store.commit('SET_SOCKET_ACTION', event)
+            })
+
+
 
             //listen socket.io setChatTop event.
             this.websocket.on('setChatNotice', (eventData) => {
