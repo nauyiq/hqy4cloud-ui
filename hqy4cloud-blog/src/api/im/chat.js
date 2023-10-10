@@ -18,6 +18,14 @@ export const getChatMessages = (params) => {
     })
 }
 
+//删除聊天
+export const removeChat = (conversationId) => {
+    return ins.request({
+        url: "/im/conversation/" + conversationId,
+        method: "delete"
+    })
+}
+
 //发送聊天消息
 export const sendChatMessage = (data) => {
     return ins.request({

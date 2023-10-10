@@ -78,7 +78,7 @@
                     class="displayName"
                     v-if="isGroup"
                     @click="isEdit = true">
-                  <el-tag size="mini">群聊</el-tag> {{ contact.displayName.length > 20 ? contact.creatorName + "创建的群聊" : contact.displayName }}<span class="mr-5">({{
+                  <el-tag size="mini">群聊</el-tag> {{ contact && contact.displayName &&  contact.displayName.length > 20 ? contact.creatorName + "创建的群聊" : contact.displayName }}<span class="mr-5">({{
                     groupUserCount
                   }})</span>
 <!--                  <el-tag size="mini" v-if="contact.setting.nospeak === 1" type="warning">仅群管理员可发言</el-tag>-->
@@ -206,7 +206,7 @@
                   <div>
                     <span
                         class="el-icon-circle-plus-outline f-18 cur-handle"
-                        v-if="contact.role < 3 || contact.invite"
+                        v-if="contact.role === 1 || (contact.role !== 4 && contact.invite)"
                         @click="openAddGroupUser"
                     ></span>
                   </div>
@@ -274,7 +274,7 @@
     </div>
     <!-- 创建群聊 -->
     <Group :visible.sync="createChatBox" :title="dialogTitle" @manageGroup="manageGroup" :isAdd="isAdd"
-           :userIds="userIds"></Group>
+           :userIds="userIds" :allFriends="friends"></Group>
     <!-- 发布公告 -->
     <el-dialog
         title="发布公告"
@@ -352,7 +352,7 @@ import {
   getChatMessages, getChats,
   getConversations,
   getFriendContacts,
-  readMessage,
+  readMessage, removeChat,
   sendChatMessage,
   setChatNotice,
   setChatTop,
@@ -360,7 +360,17 @@ import {
   uploadFile
 } from "@/api/im/chat"
 import {addConversation, deleteFriend} from "@/api/im/friend"
-import {createGroup, addGroupUser, getGroupUsers, deleteGroup, groupRole, publishNotice, removeGroupUser, updateGroupName} from "@/api/im/group"
+import {
+  createGroup,
+  addGroupUser,
+  getGroupUsers,
+  deleteGroup,
+  groupRole,
+  publishNotice,
+  removeGroupUser,
+  updateGroupName,
+  exitGroup
+} from "@/api/im/group"
 import InviteImg from '@/assets/img/invite.png'
 // import webrtc from "./webrtc";
 // import VoiceRecorder from "./messageBox/voiceRecorder";
@@ -506,7 +516,7 @@ export default {
             return instance.contact.id !== this.user.id;
           }
         },
-        {
+        /*{
           text: "设置管理员",
           click: (e, instance, hide) => {
             const {IMUI, contact} = instance;
@@ -561,7 +571,7 @@ export default {
                 instance.contact.role === 2 && this.currentChat.creator === this.user.id
             );
           }
-        },
+        },*/
         {
           text: "查看资料",
           click: (e, instance, hide) => {
@@ -581,14 +591,34 @@ export default {
               cancelButtonText: "取消",
               type: "warning"
             }).then(() => {
-              removeGroupUser({id: this.groupId, userId: contact.id});
+              removeGroupUser({groupId: this.groupId, id: contact.userId});
             });
           },
           visible: instance => {
             return (
-                instance.contact.id !== this.user.id &&
+                instance.contact.userId !== this.user.id &&
                 this.currentChat.creator !== instance.contact.id &&
-                this.currentChat.role <= 2
+                this.currentChat.role === 1
+            );
+          }
+        },
+        {
+          text: "退出群聊",
+          color: "red",
+          click: (e, instance, hide) => {
+            const {IMUI, contact} = instance;
+            hide();
+            this.$confirm("确定退出该群聊吗？", "提示", {
+              confirmButtonText: "确定",
+              cancelButtonText: "取消",
+              type: "warning"
+            }).then(() => {
+              removeGroupUser({groupId: this.groupId, id: contact.userId});
+            });
+          },
+          visible: instance => {
+            return (
+                instance.contact.userId === this.user.id
             );
           }
         }
@@ -633,7 +663,7 @@ export default {
             hide();
           },
           visible: instance => {
-            return instance.contact.isTop === false && instance.contact.id !== 'system';
+            return instance.contact.isTop === false && instance.contact.id !== 'system' && instance.contact.role !== 4;
           }
         },
         {
@@ -658,7 +688,7 @@ export default {
             hide();
           },
           visible: instance => {
-            return instance.contact.isTop === true && instance.contact.id !== 'system';
+            return instance.contact.isTop === true && instance.contact.id !== 'system' && instance.contact.role !== 4;
           }
         },
 
@@ -676,7 +706,7 @@ export default {
           text: "消息免打扰",
           visible: instance => {
             return (
-                instance.contact.isNotice && instance.contact.id !== 'system'
+                instance.contact.isNotice && instance.contact.id !== 'system' && instance.contact.role !== 4
             );
           }
         },
@@ -694,7 +724,7 @@ export default {
           text: "取消免打扰",
           visible: instance => {
             return (
-                instance.contact.isNotice === false && instance.contact.id !== 'system'
+                instance.contact.isNotice === false && instance.contact.id !== 'system' && instance.contact.role !== 4
             );
           }
         },
@@ -755,25 +785,23 @@ export default {
                   type: "warning"
                 })
                 .then(() => {
-                  //TODO
-                  deleteFriend({id: contact.id}).then(res => {
+                  removeChat(contact.conversationId).then(res => {
                     if (res.data.code === 0) {
-                      _this.$message({
-                        type: "success",
-                        message: "删除成功!"
-                      });
                       _this.removeContact(contact.id);
+                      if (contact.unread > 0) {
+                        _this.unread -= contact.unread
+                        _this.initMenus(IMUI);
+                      }
                     }
                   });
                 }).catch(() => {
             });
           },
           icon: "el-icon-delete",
-          color: "red",
           text: "删除聊天",
           visible: instance => {
             return (
-                instance.contact.isGroup === false && instance.contact.id !== 'system' && !instance.contact.index
+                 instance.contact.id !== 'system' && !instance.contact.index
             );
           }
         },
@@ -782,23 +810,31 @@ export default {
             const {IMUI, contact} = instance;
             hide();
             _this
-                .$confirm("确定删除该群聊吗？", "提示", {
+                .$confirm("确定解散该群聊吗？", "提示", {
                   confirmButtonText: "确定",
                   cancelButtonText: "取消",
                   type: "warning"
                 })
                 .then(() => {
-                  deleteGroup({id: contact.id});
-                  _this.$message({
-                    type: "success",
-                    message: "删除成功!"
-                  });
+                  deleteGroup(contact.id).then(res => {
+                    if (res.data.code === 0) {
+                      if (contact.unread > 0) {
+                        _this.unread -= contact.unread
+                        _this.initMenus(IMUI);
+                      }
+                      _this.$message({
+                        type: "success",
+                        message: "解散群聊成功!"
+                      });
+                    }
+                  })
+
                 }).catch(() => {
             });
           },
-          icon: "el-icon-delete",
+          icon: "el-icon-close",
           color: "red",
-          text: "删除群聊",
+          text: "解散群聊",
           visible: instance => {
             return (
                 instance.contact.creator === _this.user.id && instance.contact.isGroup === true
@@ -816,7 +852,7 @@ export default {
                   type: "warning"
                 })
                 .then(() => {
-                  removeGroupUser({id: contact.id, userId: _this.user.id}).then(res => {
+                  exitGroup(contact.id).then(res => {
                     if (res.data.code === 0) {
                       _this.$message({
                         type: "success",
@@ -834,7 +870,8 @@ export default {
           visible: instance => {
             return (
                 instance.contact.creator !== _this.user.id &&
-                instance.contact.isGroup === true
+                instance.contact.isGroup === true &&
+                instance.contact.role !== 4
             );
           }
         }
@@ -1055,10 +1092,26 @@ export default {
           break;
           // 设置消息免打扰
         case "setChatNotice":
-          IMUI.updateContact({
-            id: message.id,
-            isNotice: message.isNotice
-          });
+          let conversation = IMUI.findConversation(message.id);
+          if (conversation && conversation.unread > 0) {
+            let count = this.unread - conversation.unread
+            this.unread = count < 0 ? 0 : count;
+            IMUI.updateContact({
+              id: message.id,
+              isNotice: message.isNotice,
+              unread: 0
+            });
+            this.initMenus(IMUI)
+            // 如果有未读的消息，需要将消息修改为已读
+            readMessage({
+              conversationId: message.conversationId
+            })
+          } else {
+            IMUI.updateContact({
+              id: message.id,
+              isNotice: message.isNotice
+            });
+          }
           break;
           // 修改联系人名称
         case "contactNameChange":
@@ -1105,8 +1158,44 @@ export default {
             avatar: message.avatar
           });
           break;
-        case "removeGroup":
-          this.removeContact(message.groupId);
+
+        case "addGroupMember":
+          if (message.groupId === this.groupId) {
+            let users = message.users;
+            this.groupUserCount += users.length
+            users.forEach(user => {
+              this.groupUser.push(user)
+            })
+
+          }
+          break;
+        case "removeGroupMember":
+          if (message.groupId === this.groupId) {
+            this.groupUserCount--
+            utils.delArrValue(this.groupUser, ["userId"], message.userId)
+            let vo = message.message;
+            if (vo.fromUser.id === this.user.id) {
+              vo.content = "你被移除了群聊。"
+            }
+            IMUI.appendMessage(vo, true);
+          }
+          break;
+        case "exitGroup":
+          if (message.groupId === this.groupId) {
+          this.groupUserCount--
+          utils.delArrValue(this.groupUser, ["userId"], message.userId)
+        }
+          break;
+        case "deleteGroup":
+          if (message.groupId === this.groupId) {
+            this.groupUserCount = 0
+            this.groupUser = []
+            let vo = message.message;
+            IMUI.appendMessage(vo, true);
+          }
+          if(message.userId === this.user.id) {
+            this.removeContact(message.groupId);
+          }
           break;
           // 发布公告
         case "groupNoticeChange":
@@ -1151,6 +1240,8 @@ export default {
             IMUI.appendContact(item)
           }
           if(message.contact) {
+            this.friends.push(message.contact)
+            this.$store.commit('INIT_FRIENDS', this.friends);
             IMUI.appendToContacts(message.contact)
           }
           break;
@@ -1366,105 +1457,34 @@ export default {
         // 初始化表情
         IMUI.initEmoji(EmojiData);
 
-        // 获取聊天会话列表
-        getChats().then(res => {
-          if (res.data.code === 0 ){
-            const data = res.data.data;
-            //会话列表
-            let conversations = data.conversations
-            let contacts = data.contacts
-            //添加系统联系人
-            const sysContact = {
-              id: 'system',
-              displayName: "新的朋友",
-              avatar: InviteImg,
-              index: "[0]新的朋友",
-              isGroup: false,
-              isNotice: true,
-              isTop: false,
-              unread: this.systemUnread,
-              click(next) {
-                next();
-              },
-              renderContainer: () => {
-                return <Apply></Apply>;
-              },
-            };
-
-            if(conversations) {
-              this.contacts = conversations
-              let msg = {};
-              // 重新渲染消息
-              conversations.forEach((item, index) => {
-                if (item.type) {
-                  msg.type = item.type;
-                  if (item.type === 'system') {
-                    item.lastContent =  "你已添加了" + item.lastContent + "，现在可以开始聊天了。"
-                  }
-                  msg.content = item.lastContent;
-                  conversations[index]['lastContent'] = IMUI.lastContentRender(msg);
-                }
-                if (item.unread && !update) {
-                  this.unread += item.unread;
-                  this.initMenus(IMUI);
-                }
-              })
-              conversations.push(sysContact)
-              this.$store.commit('INIT_CONTACTS', conversations);
-              // 设置置顶人
-              // this.getChatTop(data);
-              IMUI.initContacts(conversations);
-            }
-
-            if (contacts) {
-              let contactList = contacts.contacts
-              this.systemUnread = contacts.unread
-              this.friends = contactList
-              this.$store.commit('INIT_FRIENDS', contactList);
-              contactList.push(sysContact)
-              IMUI.initFriends(contactList)
-            }
-          }
-        }).catch(error => {
-          console.log(error)
-          this.$message.error("获取通讯录失败, 请稍后再试");
-        })
+        this.getImChats(update)
 
         setTimeout(() => {
           // 初始化左侧菜单栏
           this.initMenus(IMUI);
         }, 500)
 
-
-        // 获取聊天会话列表
-        /*getConversations().then(res => {
+      });
+    },
+    getImChats(update) {
+      const IMUI = this.$refs.IMUI;
+      // 获取聊天会话列表
+      getChats().then(res => {
+        if (res.data.code === 0 ){
           const data = res.data.data;
-          this.contacts = data;
-          let msg = {};
-          // 重新渲染消息
-          data.forEach((item, index) => {
-            if (item.type) {
-              msg.type = item.type;
-              if (item.type === 'system') {
-                item.lastContent =  "你已添加了" + item.lastContent + "，现在可以开始聊天了。"
-              }
-              msg.content = item.lastContent;
-              data[index]['lastContent'] = IMUI.lastContentRender(msg);
-            }
-            if (item.unread && !update) {
-              this.unread += item.unread;
-              this.initMenus(IMUI);
-            }
-          })
+          //会话列表
+          let conversations = data.conversations
+          let contacts = data.contacts
           //添加系统联系人
           const sysContact = {
             id: 'system',
             displayName: "新的朋友",
             avatar: InviteImg,
-            index: "[1]新的朋友",
+            index: "[0]新的朋友",
             isGroup: false,
             isNotice: true,
             isTop: false,
+            unread: this.systemUnread,
             click(next) {
               next();
             },
@@ -1472,46 +1492,51 @@ export default {
               return <Apply></Apply>;
             },
           };
-          data.push(sysContact)
-          this.$store.commit('INIT_CONTACTS', data);
-          // 设置置顶人
-          // this.getChatTop(data);
-          IMUI.initContacts(data);
-        });*/
-
-        //获取通讯录好友
-        /*getFriendContacts().then(res => {
-          if (res.data.code === 0) {
-            const data = res.data.data.contacts;
-            this.systemUnread = res.data.data.unread;
-            this.friends = data;
-            this.$store.commit('INIT_FRIENDS', data);
-            const sysContact = {
-              id: 'system',
-              displayName: "新的朋友",
-              avatar: InviteImg,
-              index: "[1]新的朋友",
-              isGroup: false,
-              isNotice: true,
-              isTop: false,
-              unread: this.systemUnread,
-              click(next) {
-                next();
-              },
-              renderContainer: () => {
-                return <Apply></Apply>;
-              },
-            };
-            data.push(sysContact)
-            IMUI.initFriends(data)
+          // 初始化最近联系人
+          if(conversations) {
+            this.contacts = conversations
+            let msg = {};
+            // 重新渲染消息
+            conversations.forEach((item, index) => {
+              if (item.type) {
+                msg.type = item.type;
+                if (item.type === 'system') {
+                  item.lastContent =  "你已添加了" + item.lastContent + "，现在可以开始聊天了。"
+                }
+                msg.content = item.lastContent;
+                conversations[index]['lastContent'] = IMUI.lastContentRender(msg);
+              }
+              if (item.unread && !update) {
+                this.unread += item.unread;
+                this.initMenus(IMUI);
+              }
+            })
+            // 设置置顶人
+            // this.getChatTop(data);
           } else {
-            this.$message.warning("获取通讯录失败");
+            conversations = []
           }
-        })*/
+          conversations.push(sysContact)
+          this.$store.commit('INIT_CONTACTS', conversations);
+          IMUI.initContacts(conversations);
 
-
-
-      });
+          //初始化通讯录
+          let contactList;
+          if (contacts) {
+            contactList = contacts.contacts
+            this.systemUnread = contacts.unread
+            this.friends = data.friends
+          } else {
+            contactList = []
+          }
+          contactList.push(sysContact)
+          IMUI.initFriends(contactList)
+          this.$store.commit('INIT_FRIENDS', contactList);
+        }
+      }).catch(error => {
+        console.log(error)
+        this.$message.error("获取通讯录失败, 请稍后再试");
+      })
     },
     shotScreen() {
       new ScreenShot({
@@ -1736,6 +1761,19 @@ export default {
     },
     // 切换聊天窗口时要检测那些消息未读
     handleChangeContact(contact, instance) {
+      let currentContact = instance.currentContact;
+      if (!currentContact.id) {
+        if (contact.sendMessage) {
+          //当前聊天联系人不存在
+          addConversation(contact.id).then(res => {
+            if (res.data.code === 0) {
+              instance.appendContact(res.data.data)
+              instance.changeContact(contact.id);
+            }
+          })
+        }
+        return;
+      }
       if (!contact.id) {
         this.currentChat = {}
         return;
@@ -1866,6 +1904,7 @@ export default {
       if (contact.id === id) {
         IMUI.changeContact(null);
       }
+      IMUI.clearMessages(id)
       IMUI.removeContact(id);
     },
     //自定义消息的发送
@@ -2040,8 +2079,6 @@ export default {
           if (res.data.code === 0) {
             // 添加联系人
             IMUI.appendContact(data);
-            // 添加到通讯录
-            IMUI.appendsidebarContact(data);
             // 切换到该联系人
             IMUI.changeContact(data.id);
           }
@@ -2050,7 +2087,7 @@ export default {
         if (selectUid.length > num && num > 0) {
           return this.$message.error("群成员不能大于" + num + "人！");
         }
-        addGroupUser({userIds: selectUid}).then(res => {
+        addGroupUser({groupId: this.groupId,userIds: selectUid}).then(res => {
 
         });
       }
@@ -2239,16 +2276,22 @@ export default {
       const {IMUI} = this.$refs;
       const contact = IMUI.getCurrentContact();
       // 如果收到消息是当前窗口的聊天，需要将消息修改为已读
-      if ((contact.id === message.fromUser.id || (contact.id === message.toContactId && message.isGroup)) && contact.id !== 'system') {
+      if ((contact.id === message.fromUser.id && !message.isGroup || (contact.id === message.toContactId && message.isGroup)) && contact.id !== 'system') {
         let data = [];
         data.push(message);
         readMessage({
+          conversationId: contact.conversationId,
           to: this.user.id,
           isGroup: contact.isGroup,
           from: message.fromUser.id
         });
       } else {
         const fromContact = message.isGroup ? IMUI.findConversation(message.toContactId) : IMUI.findConversation(message.fromUser.id) ;
+        if (!fromContact) {
+          //如果聊天窗口不存在，又收到消息 说明刚好聊天窗口被删除了 又未重新加载
+          this.getImChats()
+          return
+        }
         // 如果不是自己的消息 并且开启了消息提示 未读数才需要++
         if (this.user.id !== message.fromUser.id && fromContact.isNotice) {
           this.unread++;

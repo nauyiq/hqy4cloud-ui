@@ -2,13 +2,12 @@
   <el-dialog
       :visible="visible"
       :modal="true"
-      :title="title"
       :width="width"
       @open="openDialog"
       @close="closeDialog"
       append-to-body>
 
-    <div v-show="isAdd" >
+    <div>
       <div class="container">
         <div class="left">
           <el-input placeholder="搜索联系人"
@@ -18,9 +17,9 @@
                     </el-input>
           <el-checkbox-group v-model="selectUid" fill="#888">
             <div v-if="keywords === ''">
-              <div v-for="user in allUser">
-                <p class="lemon-sidebar__label">{{user.index}}</p>
-                <el-checkbox class="checkBox" v-for="friend in user.friends" :label="friend" :key="friend.id" >
+              <div v-for="user in allFriends">
+                <p class="lemon-sidebar__label" v-if="user.friends">{{user.index}}</p>
+                <el-checkbox class="checkBox" v-for="friend in user.friends" :label="friend" :key="friend.id"  :disabled="isGroupMember(friend.id)">
                   <div>
                     <el-avatar :src="friend.avatar"></el-avatar>
                     <span style="margin-left: 6px; width: 100px;" class="nickname">{{friend.displayName}}</span>
@@ -29,7 +28,7 @@
               </div>
             </div>
             <div v-else>
-              <el-checkbox class="checkBox" v-for="friend in allUser" :label="friend" :key="friend.id" >
+              <el-checkbox class="checkBox" v-for="friend in allUser" :label="friend" :key="friend.id" :disabled="isGroupMember(friend.id)" >
                 <div>
                   <el-avatar :src="friend.avatar"></el-avatar>
                   <span style="margin-left: 6px;" class="nickname">{{friend.displayName}}</span>
@@ -46,7 +45,7 @@
         <div class="right" style="position: relative;">
           <el-checkbox-group
               v-model="selectUid">
-            <el-checkbox v-for="user in selectUid" :label="user" :key="user.id">
+            <el-checkbox v-for="user in selectUid" :label="user" :key="user.id" :disabled="isGroupMember(user.id)" >
               <el-avatar style="margin-left: 10px" :src="user.avatar"></el-avatar>
             </el-checkbox>
           </el-checkbox-group>
@@ -63,8 +62,9 @@
 </template>
 <script>
 
-import { allFriend } from "@/api/im/friend";
+import {allFriend} from "@/api/im/friend";
 import * as utils from "@/utils";
+
 export default {
   name: "manageGroup",
   props: {
@@ -77,6 +77,10 @@ export default {
       default: false,
     },
     userIds: {
+      type: Array,
+      default: () => [],
+    },
+    allFriends: {
       type: Array,
       default: () => [],
     },
@@ -106,6 +110,7 @@ export default {
   },
   mounted() {
 
+
   },
   watch:{
     keywords() {
@@ -119,24 +124,72 @@ export default {
             this.keywords
         );
       }
+    },
+    allFriends() {
+      this.init()
+    },
+    isAdd() {
+      this.doIsAdd()
     }
   },
   methods: {
-    openDialog() {
-      let params = {};
-      if(this.userIds.length > 0){
-        params.userIds = this.userIds;
+    doIsAdd() {
+      if (this.isAdd) {
+        this.selectUid = []
+      } else {
+        this.selectUid = []
+        this.userIds.forEach( useId => {
+          let find = this.all.find(({ id }) => id === useId);
+          if (find) {
+            this.selectUid.push(find)
+          }
+        })
       }
-      this.getAllUser(params);
+    },
+    init() {
+      if (this.allFriends.length > 0) {
+        this.allIndexUser = this.allFriends
+        this.all = []
+        this.allIndexUser.forEach(user => {
+          if (user.friends) {
+            user.friends.forEach(friend => {
+              this.all.push(friend)
+            })
+          }
+        })
+      } else {
+        this.allIndexUser = []
+        this.all = []
+      }
+    },
+    openDialog() {
+      // this.init()
+      // this.getAllUser(params);
     },
     closeDialog() {
       this.$emit("update:visible", false);
-      this.selectUid = [];
+      /*if (this.isAdd) {
+        this.selectUid = [];
+      }*/
     },
     manageGroup() {
+      let selectUid = []
+      if (this.isAdd) {
+        this.selectUid.forEach(e => {
+          selectUid.push(e.id)
+        })
+      } else {
+        this.userIds.forEach(uid => {
+          this.selectUid.forEach(e => {
+            if (e.id !== uid) {
+              selectUid.push(e.id)
+            }
+          })
+        })
+      }
       if(!this.isAdd) {
         // 添加成员
-        if (this.selectUid.length < 1) {
+        if (selectUid.length < 1) {
           this.$message.error("请选择要添加的成员");
           return;
         }
@@ -146,18 +199,23 @@ export default {
           this.$message.error("群聊人数不能少于2人");
           return;
         }
-        /*this.selectUid.forEach(uid => {
-          let user = utils.search_object(this.all, ["id"], uid);
-          this.groupName += user.displayName + "、"
-        })*/
       }
-
-      let selectUid = []
-      this.selectUid.forEach(e => {
-        console.log(e)
-        selectUid.push(e.id)
-      })
       this.$emit("manageGroup", selectUid, this.isAdd, this.groupName);
+      this.doIsAdd()
+    },
+    isGroupMember(memberId) {
+      if (this.isAdd) {
+        return false
+      }
+      let result = false
+      if (this.userIds.length > 0) {
+        this.userIds.forEach(id => {
+          if (id === memberId) {
+            result = true
+          }
+        })
+      }
+      return result
     },
     // 获取所有人员列表
     getAllUser(data) {
@@ -171,6 +229,7 @@ export default {
             })
           }
         })
+
       });
     },
   },

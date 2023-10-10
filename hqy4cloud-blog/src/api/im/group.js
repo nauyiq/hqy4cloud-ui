@@ -4,7 +4,7 @@ import ins from "@/utils/request";
 //添加群聊用户
 export const addGroupUser = (data) => {
     return ins.request({
-        url: '/chat/group/append',
+        url: '/im/group/member',
         method: 'post',
         data: data
     })
@@ -13,9 +13,25 @@ export const addGroupUser = (data) => {
 //移除群聊用户
 export const removeGroupUser = (data) => {
     return ins.request({
-        url: '/chat/group/remove',
-        method: 'post',
+        url: '/im/group/member',
+        method: 'delete',
         data: data
+    })
+}
+
+//退出群聊
+export const exitGroup = (groupId) => {
+    return ins.request({
+        url: '/im/group/exit/' + groupId,
+        method: 'delete',
+    })
+}
+
+//解散群聊
+export const deleteGroup = (groupId) => {
+    return ins.request({
+        url: '/im/group/' + groupId,
+        method: 'delete',
     })
 }
 
@@ -33,14 +49,6 @@ export const createGroup = (data) => {
         url: '/im/group',
         method: 'post',
         data: data
-    })
-}
-
-//删除群聊
-export const deleteGroup = (data) => {
-    return ins.request({
-        url: '/chat/group/' + data,
-        method: 'delete',
     })
 }
 

@@ -101,6 +101,49 @@ export default {
 
 
 
+
+            //listen socket.io removeGroupMember event.
+            this.websocket.on('removeGroupMember', (eventData) => {
+              const data = JSON.parse(eventData)
+              const event = {
+                "event": 'removeGroupMember',
+                "data": data
+              }
+              this.$store.commit('SET_SOCKET_ACTION', event)
+            })
+
+            //listen socket.io removeGroupMember event.
+            this.websocket.on('exitGroup', (eventData) => {
+              const data = JSON.parse(eventData)
+              const event = {
+                "event": 'exitGroup',
+                "data": data
+              }
+              this.$store.commit('SET_SOCKET_ACTION', event)
+            })
+
+            //listen socket.io removeGroupMember event.
+            this.websocket.on('deleteGroup', (eventData) => {
+              const data = JSON.parse(eventData)
+              const event = {
+                "event": 'deleteGroup',
+                "data": data
+              }
+              this.$store.commit('SET_SOCKET_ACTION', event)
+            })
+
+
+            //listen socket.io removeGroupMember event.
+            this.websocket.on('addGroupMember', (eventData) => {
+              const data = JSON.parse(eventData)
+              const event = {
+                "event": 'addGroupMember',
+                "data": data
+              }
+              this.$store.commit('SET_SOCKET_ACTION', event)
+            })
+
+
             //listen socket.io setChatTop event.
             this.websocket.on('setChatNotice', (eventData) => {
               const data = JSON.parse(eventData)
