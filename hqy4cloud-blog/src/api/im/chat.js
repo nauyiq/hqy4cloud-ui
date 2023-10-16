@@ -19,6 +19,14 @@ export const getChatMessages = (params) => {
 }
 
 //删除聊天
+export const getChat = (conversationId) => {
+    return ins.request({
+        url: "/im/conversation/" + conversationId,
+        method: "get"
+    })
+}
+
+//删除聊天
 export const removeChat = (conversationId) => {
     return ins.request({
         url: "/im/conversation/" + conversationId,
@@ -32,6 +40,24 @@ export const sendChatMessage = (data) => {
         url: '/im/message',
         method: 'post',
         data: data
+    })
+}
+
+//发送文件消息
+export const sendfileMessage = (file) => {
+    return ins.request({
+        url: '/im/file/message',
+        method: 'post',
+        data: file
+    })
+}
+
+//获取远程服务的文件
+export const getServerFile = (url) => {
+    return ins.request({
+        url: url,
+        responseType: "blob",
+        method: "get"
     })
 }
 
@@ -55,10 +81,20 @@ export const readMessage = (data) => {
 //撤回消息
 export const undoChatMessage = (id) => {
     return ins.request({
-        url: '/chat/message/undo/' + id,
-        method: 'delete'
+        url: '/im/message/undo/' + id,
+        method: 'put'
     })
 }
+
+//转发消息
+export const forwardMessage = (data) => {
+    return ins.request({
+        url: '/im/message/forward',
+        method: 'post',
+        data: data
+    })
+}
+
 
 //设置消息置顶
 export const setChatTop = (data) => {
@@ -102,14 +138,7 @@ export const getFriendContacts = () => {
     })
 }
 
-//上传文件
-export const uploadFile = (file) => {
-    return ins.request({
-        url: '/chat/upload',
-        method: 'post',
-        data: file
-    })
-}
+
 
 
 

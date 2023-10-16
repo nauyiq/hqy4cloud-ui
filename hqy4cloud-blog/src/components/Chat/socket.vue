@@ -67,13 +67,21 @@ export default {
               }, 200)
             })
 
-
-
             //listen socket.io readMessages event.
             this.websocket.on('readMessages', (eventData) => {
               const data = JSON.parse(eventData)
               const event = {
                 "event": 'readMessages',
+                "data": data
+              }
+              this.$store.commit('SET_SOCKET_ACTION', event)
+            })
+
+            //listen socket.io readMessages event.
+            this.websocket.on('undoMessage', (eventData) => {
+              const data = JSON.parse(eventData)
+              const event = {
+                "event": 'undoMessage',
                 "data": data
               }
               this.$store.commit('SET_SOCKET_ACTION', event)
@@ -98,9 +106,6 @@ export default {
               }
               this.$store.commit('SET_SOCKET_ACTION', event)
             })
-
-
-
 
             //listen socket.io removeGroupMember event.
             this.websocket.on('removeGroupMember', (eventData) => {

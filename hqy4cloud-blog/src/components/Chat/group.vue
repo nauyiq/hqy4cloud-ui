@@ -17,7 +17,7 @@
                     </el-input>
           <el-checkbox-group v-model="selectUid" fill="#888">
             <div v-if="keywords === ''">
-              <div v-for="user in allFriends">
+              <div class="left-contacts-list" v-for="user in allFriends">
                 <p class="lemon-sidebar__label" v-if="user.friends">{{user.index}}</p>
                 <el-checkbox class="checkBox" v-for="friend in user.friends" :label="friend" :key="friend.id"  :disabled="isGroupMember(friend.id)">
                   <div>
@@ -27,7 +27,7 @@
                 </el-checkbox>
               </div>
             </div>
-            <div v-else>
+            <div class="left-contacts-list" v-else>
               <el-checkbox class="checkBox" v-for="friend in allUser" :label="friend" :key="friend.id" :disabled="isGroupMember(friend.id)" >
                 <div>
                   <el-avatar :src="friend.avatar"></el-avatar>
@@ -62,7 +62,6 @@
 </template>
 <script>
 
-import {allFriend} from "@/api/im/friend";
 import * as utils from "@/utils";
 
 export default {
@@ -107,10 +106,6 @@ export default {
         pinyin: "displayName"
       },
     };
-  },
-  mounted() {
-
-
   },
   watch:{
     keywords() {
@@ -168,9 +163,6 @@ export default {
     },
     closeDialog() {
       this.$emit("update:visible", false);
-      /*if (this.isAdd) {
-        this.selectUid = [];
-      }*/
     },
     manageGroup() {
       let selectUid = []
@@ -216,21 +208,6 @@ export default {
         })
       }
       return result
-    },
-    // 获取所有人员列表
-    getAllUser(data) {
-      allFriend(data).then(res => {
-        this.allUser = res.data.data;
-        this.allIndexUser = this.allUser
-        this.allUser.forEach(user => {
-          if (user.friends) {
-            user.friends.forEach(friend => {
-              this.all.push(friend)
-            })
-          }
-        })
-
-      });
     },
   },
 };
@@ -301,6 +278,23 @@ export default {
 }
 .left {
   margin-right: 10px;
+}
+
+.left-contacts-list {
+  overflow-y: auto;
+}
+
+::-webkit-scrollbar {
+  width: 5px;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: rgba(142, 144, 145, 0.82); /* 设置滚动条的颜色 */
+  border-radius: 5px; /* 设置滚动条的圆角 */
+}
+::-webkit-scrollbar-track {
+  background-color: #F5F5F5; /* 设置滚动条轨道的背景色 */
+  border-radius: 5px; /* 设置滚动条轨道的圆角 */
 }
 
 /*::v-deep  .checkBox .is-bordered.is-checked {
