@@ -18,11 +18,12 @@
             <el-dropdown-item @click.native= "showPassword"   v-if="isToken">
               <i class="el-icon-edit-outline dropdown-item" ></i>修改密码
             </el-dropdown-item>
-            <el-dropdown-item @click.native= "showMessageBox"   v-if="isToken">
+
+<!--            <el-dropdown-item @click.native= "showMessageBox"   v-if="isToken">
               <el-badge :value="unread" :max="99" :hidden="unread === 0" class="item">
                 <i class="el-icon-message dropdown-item" ></i>未读消息
               </el-badge>
-            </el-dropdown-item>
+            </el-dropdown-item>-->
 
             <el-dropdown-item @click.native="toLogout" v-if="isToken">
               <i class="el-icon-circle-close dropdown-item"></i>退出登录
@@ -64,7 +65,7 @@
                       @hide="showPasswordDialog = false"/>
 
     </div>
-    <Message class="messageDialog" ref="Message" :dialogTableVisible.sync="dialogTableVisible"></Message>
+<!--    <Message class="messageDialog" ref="Message" :dialogTableVisible.sync="dialogTableVisible"></Message>-->
   </div>
 
 

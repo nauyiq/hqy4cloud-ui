@@ -21,9 +21,18 @@
         </div>
         <div class="markdown-body html-content" v-html="content" v-highlight ></div>
       </div>
-      <div class="down flex align-center justify-center" :class="'show'" @click="backBottom">评论</div>
+<!--      <div class="down flex align-center justify-center" :class="'show'" @click="backBottom">评论</div>-->
+      <div class="down flex align-center justify-center" :class="'show'" @click="commentDrawer = true">评论</div>
       <div id="hash"></div>
-      <comment class="comments" @commentChange="commentChange" @getComData='getComData' :comments="commentList.resultList" :isLoading="isLoading" :isNext="isNext" />
+
+      <el-drawer
+          title="评论"
+          :visible.sync="commentDrawer"
+          :direction="direction">
+        <comment class="comments" @commentChange="commentChange" @getComData='getComData' :comments="commentList.resultList" :isLoading="isLoading" :isNext="isNext" />
+      </el-drawer>
+
+
     </div>
   </div>
 </template> 
@@ -64,6 +73,8 @@ export default {
       placeholder: "", // 回复者名称
       floorId: '',
       userContent: '',
+      commentDrawer: false,
+      direction: "rtl",
       content: '',
       page: {
         pageSize: 10,

@@ -152,6 +152,9 @@ import * as utils from '@/utils/index';
             this.getFileList();
         },
         getFileList(){
+          
+
+
             /*this.$api.imApi.getFileList(this.params).then(res=>{
                 if(res.code == 0){
                     this.fileList = res.data;

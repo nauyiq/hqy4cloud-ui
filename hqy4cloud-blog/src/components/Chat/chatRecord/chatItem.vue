@@ -5,12 +5,12 @@
     </div>
     <div class="chat-list-body">
       <div class="chat-list-title">
-        {{ data.fromUser.realname }}
+        {{ data.fromUser.nickname }}
         <span class="time"> {{ formatTime(data.sendTime) }}</span>
       </div>
       <div
           class="chat-list-text"
-          v-if="data.type == 'text'"
+          v-if="data.type === 'text'"
           v-html="data.content"
       ></div>
       <div class="chat-list-tools" v-if="data.type === 'text'">
@@ -62,19 +62,42 @@
       </div>
       <!-- <div class="chat-list-tools"><span class='el-icon-document-copy' @click="copyText(data.content)" title="复制文本"></span></div> -->
     </div>
+
+
+    <!-- 文件预览组件 -->
+    <el-dialog class="preview-dialog"
+               :visible.sync="previewFileShow"
+               idth="80%"
+               :modal-append-to-body='false'
+               :close-on-press-escape='false'
+               :before-close="handleClose"
+               :modal="true"
+               width="800px"
+               style="height:auto; overflow-y: hidden;">
+      <PreviewFile :file="previewFile" v-if="previewFileShow"></PreviewFile>
+    </el-dialog>
   </div>
 </template>
 
 <script>
 import { date } from "@/utils";
 import { getFileSize, getFileExtImg, download } from "@/utils/file";
-
+import PreviewFile from "@c/preview/preview";
 export default {
   name: "chatItem",
+  components: {
+    PreviewFile,
+  },
   props: {
     data: {
       type: Object,
       default: {}
+    }
+  },
+  data() {
+    return {
+      previewFile:{}, // 传递的参数
+      previewFileShow:false, // 默认预览框是关闭状态
     }
   },
   computed: {
@@ -96,6 +119,9 @@ export default {
     }
   },
   methods: {
+    handleClose(){
+      this.previewFileShow = false
+    },
     // 复制文本
     copyText(val) {
       this.$clipboard(val);
@@ -106,11 +132,13 @@ export default {
     },
     // 预览文件
     onlinePreview(item){
-      this.$preview(item.preview);
+      this.previewFileShow = true
+      this.previewFile.fileName = item.fileName
+      this.previewFile.downloadUrl = item.content
     },
     // 下载文件
     downloadFile(item){
-      download(item.content,item.filename);
+      download(item.content, item.fileName);
     }
   },
 }

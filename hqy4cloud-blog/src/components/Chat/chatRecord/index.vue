@@ -88,10 +88,10 @@
                       <el-image
                           class="fileExt"
                           fit="cover"
-                          :src="fileExt(scope.row.filename)"
+                          :src="fileExt(scope.row.fileName)"
                       ></el-image>
                     </div>
-                    <div class="filename">{{ scope.row.filename }}</div>
+                    <div class="filename">{{ scope.row.fileName }}</div>
                   </div>
                 </template>
               </el-table-column>
@@ -106,7 +106,7 @@
                 </template>
               </el-table-column>
               <el-table-column
-                  prop="fromUser.realname"
+                  prop="fromUser.nickname"
                   label="上传者"
                   width="100"
               >
@@ -191,6 +191,9 @@ export default {
       }
     };
   },
+  created() {
+    this.searchMessage()
+  },
   methods: {
     handleClick(tab, event) {
       this.params.page = 1;
@@ -201,17 +204,23 @@ export default {
       this.getMessage();
     },
     getMessage() {
-        getChatMessages(this.params).then(res => {
-          let data = res.data.data
-          this.data = data.resultList
-          this.total = data.total
-          this.singlePage = data.total <= this.params.limit
-          if (this.params.type === "image") {
-            this.previewList = arrayToString(data.resultList, "content", false);
-          }
-        }).catch(error => {
-          console.log(error);
-        });
+      if (this.params.type === 'all') {
+        this.params.type = ''
+      }
+      this.params.isGroup = this.contact.isGroup
+      this.params.toContactId = this.contact.id;
+      this.params.conversationId = this.  contact.conversationId;
+      getChatMessages(this.params).then(res => {
+        let data = res.data.data
+        this.dataList = data.resultList
+        this.total = data.total
+        this.singlePage = data.total <= this.params.limit
+        if (this.params.type === "image") {
+          this.previewList = arrayToString(data.resultList, "content", false);
+        }
+      }).catch(error => {
+        console.log(error);
+      });
     },
     handleCurrentChange(val) {
       this.params.page = val;
@@ -236,6 +245,7 @@ export default {
 
 .input-with-select {
   width: 250px;
+  margin-top: 10px;
 }
 .el-select .el-input {
   width: 130px;

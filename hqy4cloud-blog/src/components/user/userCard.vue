@@ -10,8 +10,9 @@
             </div>
           </div>
           <div class="username">
-            <span class="displayName-span">{{displayName}}</span>
-              <i class="el-icon-edit icon-edit"  v-if="detail.friend"  @click="setMark"></i>
+            <span class="displayName-span">{{displayName}}<i class="el-icon-edit icon-edit"
+                                                             v-if="detail.friend"  @click="setMark"></i></span>
+
           </div>
         </div>
       </el-header>
@@ -76,9 +77,9 @@
 
 
       <el-footer class="footer">
-        <el-button v-if="userInfo.id !== detail.id && (detail.friend || detail.setting.isPrivateChat)" round @click="openChat()" style="width:150px">发消息
+        <el-button v-if="isToken && userInfo.id !== detail.id && (detail.friend || detail.setting.isPrivateChat)" round @click="openChat()" style="width:150px">发消息
         </el-button>
-        <el-button v-if="!detail.friend && detail.id !== userInfo.id"  round @click="addFriend()" style="width:150px">加好友</el-button>
+        <el-button v-if="isToken && !detail.friend && detail.id !== userInfo.id"  round @click="addFriend()" style="width:150px">加好友</el-button>
 <!--        <el-button round v-if="userInfo.id === detail.id" style="width:150px" @click="editUser">
           编辑资料
         </el-button>-->
@@ -111,6 +112,9 @@ export default {
   computed: {
     ...mapState({
       userInfo: state => state.user.userInfo,
+      isToken() {
+        return this.$store.getters.access_token;
+      }
     }),
   },
   filters: {

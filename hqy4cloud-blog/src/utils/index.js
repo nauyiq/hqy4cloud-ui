@@ -1,4 +1,5 @@
 import {Message} from 'element-ui'
+const path = require('path');
 
 export function debounce(fn, delay) {
   var delay = delay || 200;
@@ -42,6 +43,39 @@ export function search_object(array, field, keywords) {
     return found;
   }
 }
+
+/*export function download(filePath) {
+  const fileName = path.basename(filePath);
+  var ajax = new XMLHttpRequest();
+ //path为静态资源访问路径
+  ajax.open("GET", filePath, true);
+  ajax.responseType = 'blob';
+  ajax.onload = function(e){
+    download(e.target.response, fileName, "application/octet-stream");
+  };
+  ajax.send();
+}*/
+
+/*export function download(filePath) {
+  let a = document.createElement('a');
+  const fileName = path.basename(filePath);
+  a.href = filePath
+  a.download = fileName
+  a.target = '_blank'
+  a.click()
+}*/
+
+export function download(filePath) {
+  var form = document.createElement('form')
+  form.setAttribute('action', filePath)
+  form.setAttribute('method', 'get')
+  form.setAttribute('target', '_blank')
+  form.setAttribute('style', 'display:none')
+  document.body.appendChild(form)
+  form.submit()
+  document.body.removeChild(form)
+}
+
 
 export function throttle(fn, delay) {
   var last;

@@ -3,8 +3,7 @@
   <div class="container">
 
     <div class="inputContent">
-        <img class="avatar" v-if="ownerAvatar" :src="ownerAvatar" width="36" height="36"/>
-<!--        <div class="name" v-if="ownerAvatar">{{ownerName}}</div>-->
+        <img class="avatar" v-if="ownerAvatar" :src="ownerAvatar" width="18" height="18"/>
       <el-input type="textarea" rows="3" autofocus placeholder="写下你的评论" maxlength="100" show-word-limit resize="none" v-model.trim="inputComment"  class="parent-content"  ></el-input>
       <div class="btn-control">
         <Button  :styles="{width: rows === 4 ? '80px' : '100px', height: rows === 4 ? '26px' : '34px', borderRadius: '10px'}" text="提交"  @onclick="commitComment()" />
@@ -13,9 +12,9 @@
 
     <div class="comment" v-for="item in comments">
       <div class="info">
-        <img class="avatar" :src="item.commenter.avatar" width="36" height="36"/>
+        <img class="avatar" @click="$user(item.commenter.id)" :src="item.commenter.avatar" width="18" height="18"/>
         <div class="right">
-          <div class="name">{{item.commenter.nickname}}</div>
+          <div class="name" >{{item.commenter.nickname}}</div>
           <div class="date">{{item.created}}</div>
         </div>
       </div>
@@ -48,7 +47,7 @@
       <div class="reply">
         <div class="item" v-for="reply in item.replies">
           <div class="reply-content">
-            <span class="from-name">{{reply.commenter.nickname}}:</span>
+            <span class="from-name" style="cursor: pointer" @click="$user(reply.commenter.id)">{{reply.commenter.nickname}}:</span>
             <span v-if="reply.replier" class="to-name">@{{reply.replier.nickname}}</span>
             <span class="reply-content">{{reply.content}}</span>
           </div>
@@ -191,7 +190,7 @@ export default {
               message: '评论成功.',
               offset: 60
             })
-          } else if (res.data.code === 9300) {
+          } else if (res.data.code === 9300 || res.data.code === 9800) {
             this.$message({
               type: 'warning',
               message: '请登录后再评论.',
@@ -234,6 +233,12 @@ export default {
               offset: 60
             })
             this.inputComment = ""
+          } else if (res.data.code === 9300 || res.data.code === 9800) {
+            this.$message({
+              type: 'warning',
+              message: '请登录后再评论.',
+              offset: 60
+            })
           }
         })
       } catch (e) {}
@@ -280,7 +285,6 @@ export default {
     }
   },
   created() {
-    console.log(this.loginUser)
     if (this.loginUser) {
       this.ownerAvatar = this.loginUser.avatar
       this.ownerId = this.loginUser.id
@@ -317,8 +321,9 @@ $content-bg-color: #fff;
   justify-content: flex-end;
   align-items: center;
   padding-top: 10px;
+  font-size: 14px;
   .cancel {
-    font-size: 16px;
+    font-size: 14px;
     color: $text-normal;
     margin-right: 20px;
     cursor: pointer;
@@ -327,7 +332,7 @@ $content-bg-color: #fff;
     }
   }
   .confirm {
-    font-size: 16px;
+    font-size: 14px;
   }
 }
 
@@ -426,6 +431,9 @@ $content-bg-color: #fff;
 
 .avatar {
   border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  cursor:pointer;
 }
 
 .name {
@@ -439,8 +447,8 @@ $content-bg-color: #fff;
 .container {
   padding: 0 10px;
   box-sizing: border-box;
-  width: 800px;
-  margin-left: 100px;
+  width: 100%;
+  overflow-x: hidden !important;
 
   .delete-btn {
     color: $text-minor;

@@ -8,7 +8,8 @@
 </template>
 
 <script>
-import Background from "@/assets/img/login-background.jpg";
+// import Background from "@/assets/img/login-background.jpg";
+import Background from "@/assets/img/summary_main.jpg";
 import im from "@/components/Chat/index";
 
 export default {

@@ -202,7 +202,7 @@ const user = {
             setStore({
                 name: 'access_token',
                 content: state.access_token,
-                type: 'session'
+                // type: 'session'
             })
         },
         SET_REFRESH_TOKEN: (state, rfToken) => {
@@ -211,7 +211,7 @@ const user = {
             setStore({
                 name: 'refresh_token',
                 content: state.refresh_token,
-                type: 'session'
+                // type: 'session'
             })
         },
         SET_USER_REFRESH_TOKEN: (state, rfToken) => {
@@ -219,7 +219,7 @@ const user = {
             setStore({
                 name: 'use_refresh_token',
                 content: state.use_refresh_token,
-                type: 'session'
+                // type: 'session'
             })
         },
         SET_USER_INFO: (state, userInfo) => {
@@ -227,7 +227,7 @@ const user = {
             setStore({
                 name: 'userInfo',
                 content: userInfo,
-                type: 'session'
+                // type: 'session'
             })
         },
         SET_ROLES: (state, roles) => {
@@ -248,7 +248,7 @@ const user = {
             setStore({
                 name: 'setting',
                 content: data,
-                type: 'session'
+                // type: 'session'
             })
         },
         INIT_CONTACTS: (state, data) => {
@@ -256,7 +256,7 @@ const user = {
             setStore({
                 name: 'contacts',
                 content: data,
-                type: 'session'
+                // type: 'session'
             })
         },
         INIT_FRIENDS: (state, data) => {
@@ -264,7 +264,7 @@ const user = {
             setStore({
                 name: 'friends',
                 content: data,
-                type: 'session'
+                // type: 'session'
             })
         },
         UPDATE_UNREAD: (state, data) => {
@@ -272,7 +272,7 @@ const user = {
             setStore({
                 name: 'unread',
                 content: data,
-                type: 'session'
+                // type: 'session'
             })
         },
         UPDATE_SYSTEM_UNREAD: (state, data) => {

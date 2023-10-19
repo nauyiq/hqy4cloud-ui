@@ -111,7 +111,7 @@
 
             </div>
           </div>
-        </template>
+         </template>
 
 
         <!-- 最近联系人列表顶部插槽 不滚动-->
@@ -331,6 +331,18 @@
     <Socket ref="socket"></Socket>
     <!-- 视频通话组件 -->
     <!--    <webrtc :contact="currentChat" :config="webrtcConfig" :alias="$packageData.name" :userInfo="user" ref="webrtc" :key="componentKey" @message="rtcMsg"></webrtc>-->
+    <!-- 文件预览组件 -->
+    <el-dialog class="preview-dialog"
+               :visible.sync="previewFileShow"
+               idth="80%"
+               :modal-append-to-body='false'
+               :close-on-press-escape='false'
+               :before-close="handleClose"
+               :modal="true"
+               width="800px"
+               style="height:auto; overflow-y: hidden;">
+      <PreviewFile :file="previewFile" v-if="previewFileShow"></PreviewFile>
+    </el-dialog>
   </div>
 </template>
 
@@ -351,6 +363,7 @@ import addFriend from "./friend";
 import OnlineStatus from "./onlineStatus";
 import Apply from "./apply";
 import ScreenShot from "js-web-screen-shot";
+import PreviewFile from "@c/preview/preview";
 import {
   forwardMessage,
   getChat,
@@ -390,6 +403,7 @@ export default {
     // webrtc,
     Group,
     Files,
+    PreviewFile,
     addFriend,
     ChooseDialog,
     OnlineStatus,
@@ -488,6 +502,8 @@ export default {
         page: 1,
         limit: 10,
       },
+      previewFile:{}, // 传递的参数
+      previewFileShow:false, // 默认预览框是关闭状态
       isGroup: false,
       groupId: 0,
       //联系人, 会话列表
@@ -970,7 +986,7 @@ export default {
           click: (e, instance, hide) => {
             const {message} = instance;
             hide();
-            message.download ? window.location = message.download : '';
+            utils.download(message.content)
           }
         },
         {
@@ -980,7 +996,7 @@ export default {
           text: "下载文件",
           click: (e, instance, hide) => {
             const {message} = instance;
-            window.open(message.download);
+            utils.download(message.content)
             hide();
           }
         }
@@ -1452,6 +1468,14 @@ export default {
       //TODO
       // this.$refs.webrtc.called(is_video);
     },
+    handleClose(){
+      this.previewFileShow = false
+    },
+    preview(index, row){
+      this.previewFileShow = true
+      this.previewFile.fileName = row.fileName
+      this.previewFile.downloadUrl = row.url
+    },
     // 初始化聊天
     getSimpleChat(update) {
       this.$nextTick(() => {
@@ -1470,7 +1494,7 @@ export default {
           {
             name: "emoji"
           },
-          {
+          /*{
             name: "screenShot",
             title: "发送截屏",
             click: () => {
@@ -1480,7 +1504,7 @@ export default {
               return <i class="el-icon el-icon-scissors f-18"
                         style="font-size: 17px; vertical-align: middle;font-weight: 600;"></i>
             }
-          },
+          },*/
           {
             name: "uploadImage",
             title: "发送图片"
@@ -1679,7 +1703,7 @@ export default {
           name: "contacts",
           unread: this.systemUnread
         },
-        {
+        /*{
           name: "files",
           title: "文件",
           unread: 0,
@@ -1691,7 +1715,7 @@ export default {
                 <Files title={this.dialogTitle}></Files>
             );
           },
-        },
+        },*/
         {
           name: "setting",
           title: "设置",
@@ -1705,7 +1729,7 @@ export default {
             );
           },
           isBottom: true
-        },
+        }
       ];
       if (this.fullScreen) {
         menus.push({
@@ -1810,18 +1834,10 @@ export default {
       }
       let imageTypes = ["image", "file", "video"];
       if (imageTypes.includes(message.type)) {
-        /*if (!message.preview) {
-          return this.$message.error("没有配置预览接口");
-        }*/
-        getServerFile.then(data => {
-          console.log(data); // 后端返回的是流文件
-
-        })
-
-
-
-
-        this.$preview(message.content);
+        this.previewFileShow = true
+        this.previewFile.fileName = message.fileName
+        this.previewFile.downloadUrl = message.content
+        // this.$preview(message.content);
       } else if (message.type === 'webrtc') {
         this.called(parseFloat(message.extends.type));
       }
@@ -2149,7 +2165,6 @@ export default {
         this.isEdit = true
       }
     },
-
     // 打开添加群成员的窗口
     openAddGroupUser() {
       let user_ids = utils.arrayToString(this.groupUser, "userId");
@@ -2746,8 +2761,8 @@ hr {
 //自定义emoji大小
 ::v-deep .lemon-message__content {
   img {
-    width: 24px !important;
-    height: 20px !important;
+    //width: 24px !important;
+    //height: 20px !important;
   }
 }
 
@@ -2789,5 +2804,12 @@ hr {
   color: #606066;
 }
 
+::v-deep .preview-dialog {
+  .el-dialog .el-dialog__body {
+    padding-top: 10px;
+    max-height: 600px;
+    overflow-y: hidden !important;
+  }
+}
 
 </style>

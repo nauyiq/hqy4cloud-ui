@@ -63,19 +63,26 @@
           </div>
         </div>
 
-        <div class="card-row" >
+<!--        <div class="card-row" >
           <div class="label">保留聊天记录</div>
           <div>
             <el-switch @change="updateImSetting" :width="60" v-model="!setting.isClearMsg"> </el-switch>
           </div>
-        </div>
+        </div>-->
 
-        <div class="card-row" >
+<!--        <div class="card-row" >
           <div class="label">聊天记录保留天数</div>
           <div>
-            <el-input-number @change="updateImSetting" v-model="setting.clearMessageDate"> </el-input-number>
+            <el-input-number :min="1" :max="180" @change="updateImSetting" v-model="setting.clearMessageDate"> </el-input-number>
           </div>
-        </div>
+        </div>-->
+
+<!--        <div class="card-row" >
+          <div class="label">离开聊天室</div>
+          <div>
+            <el-button @click="toHome"></el-button>
+          </div>
+        </div>-->
 
       </div>
 
@@ -138,6 +145,9 @@ export default {
     },*/
   },
   methods: {
+    toHome () {
+      this.$router.push({path: '/'})
+    },
     logout() {
       this.$confirm("确定退出登录吗？", "提示", {
         confirmButtonText: "确定",

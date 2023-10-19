@@ -71,7 +71,9 @@ export default {
   name: "center",
   computed: {
     ...mapState({
-      isToken:  state => state.user.access_token,
+      isToken() {
+        return this.$store.getters.access_token;
+      }
     })
   },
   data() {
@@ -80,6 +82,7 @@ export default {
         { name:' Home',icon:'iconfont el-icon-s-home', path:'/' },
         // { name:' Articles',icon:'iconfont el-icon-notebook-2', path:'/articles' },
         { name:' Articles',icon:'iconfont el-icon-s-data', path:'/articles' },
+        { name:' IM',icon:'el-icon-s-comment', path:'/chat' },
         // { name:' Message',icon:'iconfont el-icon-message', path:'/message' },
         { name:' About me',icon:'el-icon-s-help', path:'/aboutMe' },
         // { name:' Github',icon:'iconfont icon-GitHub', path:'https://github.com/nauyiq' },
@@ -87,7 +90,6 @@ export default {
     };
   },
   created () {
-
     if (!this.isToken) {
       this.navgation.push({name:'Login', icon: 'iconfont  el-icon-user-solid', path: '/login'});
     } /*else {
@@ -97,9 +99,8 @@ export default {
 
   },
   methods: {
-
     triggerPage(path) {
-      if (path === "https://github.com/nauyiq") {
+      if (path === "https://github.com/nauyiq" || path ===  "/chat") {
         window.open(path);
       } else {
         this.$router.push(path);

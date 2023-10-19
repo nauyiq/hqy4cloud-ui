@@ -73,7 +73,7 @@ export default {
                   this.$router.go(-1)
                   setTimeout(()=> {
                     window.location.reload()
-                  }, 200)
+                  }, 500)
                 })
 
 

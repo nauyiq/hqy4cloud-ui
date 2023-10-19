@@ -46,6 +46,7 @@
     "socket.io-client": "^2.5.0",
     "svg-captcha": "^1.4.0",
     "v-clipboard": "^2.2.3",
+    "video.js": "^8.6.0",
     "vue": "^2.6.11",
     "vue-router": "^3.2.0",
     "vue-socket.io": "^3.0.10",
