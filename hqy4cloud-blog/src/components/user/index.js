@@ -2,7 +2,7 @@ import UserCardDetail from './userCard'
 
 export default {
   install(Vue) {
-    function user(userId, options) {
+    function user(userId, chat, options) {
       let _vm = this
       const el = new Vue({
         router: _vm.$router,
@@ -22,6 +22,7 @@ export default {
             },
             props: {
               userId,
+              chat,
               options
             },
           })

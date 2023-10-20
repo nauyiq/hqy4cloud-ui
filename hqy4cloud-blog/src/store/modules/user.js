@@ -31,7 +31,9 @@ const user = {
         use_refresh_token: getStore({
             name: 'use_refresh_token'
         }) || '',
-        socketAction: {},
+        socketAction: getStore({
+            name: 'socket_action'
+        }) || {},
         contactId: 0,
         contactSync: '',
         unread: getStore({
@@ -146,11 +148,11 @@ const user = {
                 updateImUserSetting(data).then(res => {
                     let result;
                     if (res.data.code === 0) {
-                        result = res.data.data
+                        result = data
+                        result["sendKey"] = 1
                     } else {
                         result = {}
                     }
-                    result["sendKey"] = 1
                     commit('SET_SETTING', result)
                     resolve(result)
                 }).catch(() => {
@@ -168,11 +170,14 @@ const user = {
                     commit('SET_PERMISSIONS', [])
                     commit('SET_USER_INFO', {})
                     commit('SET_SETTING', {})
+                    commit('INIT_FRIENDS', {})
+                    commit('UPDATE_UNREAD', 0)
                     commit('SET_ACCESS_TOKEN', '')
                     commit('SET_REFRESH_TOKEN', '')
                     commit('SET_ROLES', [])
                     commit('DEL_ALL_TAG')
                     commit('CLEAR_LOCK')
+                    commit('SET_SOCKET_ACTION', {"event": 'logout', "data": null})
                     resolve()
                 }).catch(error => {
                     reject(error)
@@ -235,6 +240,10 @@ const user = {
         },
         SET_SOCKET_ACTION: (state, data) => {
             state.socketAction = data
+            setStore({
+                name: 'socket_action',
+                content: data
+            })
         },
         SET_CHAT: (state, data) => {
             state.contactId = data

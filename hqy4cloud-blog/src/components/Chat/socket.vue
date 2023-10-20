@@ -14,11 +14,13 @@ export default {
       socketConnection: {}
     }
   },
+
   computed: {
     ...mapState({
       isToken() {
         return this.$store.getters.access_token;
-      }
+      },
+      socketAction: state => state.user.socketAction,
     })
   },
   methods: {
@@ -191,8 +193,6 @@ export default {
               }
               this.$store.commit('SET_SOCKET_ACTION', event)
             })
-
-
             Vue.prototype.$websocket = this.websocket;
           } else {
             this.$message.warning("连接服务器失败, 请稍后再试")
@@ -204,14 +204,22 @@ export default {
   },
   created() {
     this.initWebSocket()
-
-    if (this.websocket) {
-      // im私聊事件
-
+    window.addEventListener('storage', function (e) {
+      if (e.key === 'hongqy-socket_action') {
+        const data = JSON.parse(e.newValue);
+        if (data.content.event === "logout") {
+          window.location.reload()
+        }
+      }
+    })
+  },
+  watch: {
+    socketAction(val) {
+      let event = val.event;
+      if (event === "logout") {
+        this.websocket.disconnect()
+      }
     }
-
-
-
   }
 
 }

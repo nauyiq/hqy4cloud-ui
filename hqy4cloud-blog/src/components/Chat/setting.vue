@@ -63,12 +63,12 @@
           </div>
         </div>
 
-<!--        <div class="card-row" >
-          <div class="label">保留聊天记录</div>
+        <div class="card-row" >
+          <div class="label">是否开启全局聊天</div>
           <div>
-            <el-switch @change="updateImSetting" :width="60" v-model="!setting.isClearMsg"> </el-switch>
+            <el-switch @change="updateImSetting" :width="60" v-model="setting.isGlobalChat"> </el-switch>
           </div>
-        </div>-->
+        </div>
 
 <!--        <div class="card-row" >
           <div class="label">聊天记录保留天数</div>
@@ -171,7 +171,6 @@ export default {
           this.$store.dispatch('GetUserInfo')
         }
       })
-
     },
     // 是否为图片
     isImg (fileUrl) {
@@ -236,7 +235,6 @@ export default {
         this.$refs.upload.submit()
         this.cropperDialogVisible = false
       }, uploadFile.name, uploadFile.type)
-
     },
     handleAvatarSuccess (res, file) {
       if (res.code !== 0) {
@@ -247,7 +245,6 @@ export default {
         this.$message.success('头像上传成功')
       }
     },
-
     updateImSetting() {
       this.$store.dispatch('UpdateUserImSetting', this.setting)
     }

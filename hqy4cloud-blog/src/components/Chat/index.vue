@@ -1342,6 +1342,9 @@ export default {
             this.initMenus(IMUI);
           }
           break;
+        case "logout":
+          this.$router.push("/login")
+          break;
           /*case 'webrtc':
             // 如果收到自己的消息，并且是其他端处理操作，则静默挂断
             if (message.fromUser.id == this.user.id) {
@@ -1421,6 +1424,15 @@ export default {
       this.$message.info("请先登录，再进入聊天室")
       this.$router.push({path: '/login'})
     }
+
+    window.addEventListener('storage', function (e) {
+      if (e.key === 'hongqy-socket_action') {
+        const data = JSON.parse(e.newValue);
+        if (data.content.event === "logout") {
+          window.location.reload()
+        }
+      }
+    })
 
     if (window.Notification) {
       // 浏览器通知--window.Notification

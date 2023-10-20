@@ -11,7 +11,7 @@
         <span>喜欢: {{detail.statistics ? detail.statistics.likes : 0}}</span>
       </div>
 
-      <div class="content">
+      <div v-loading="articleLoading" class="content">
         <div class="toc">
           <el-tree class="tree" ref="tree" node-key="uuid" :data="treeData" :props="defaultProps"  :empty-text="emptyText" default-expand-all>
             <div class="custom-tree-node" slot-scope="{ node, data }">
@@ -56,6 +56,7 @@ export default {
   computed: {
     ...mapState({
       isToken:  state => state.user.access_token,
+      userInfo: state => state.user.userInfo,
     })
   },
   data() {
@@ -69,6 +70,7 @@ export default {
       detail: {},
       commentList: [],
       userName: '',
+      articleLoading: true,
       aiteName: '',
       placeholder: "", // 回复者名称
       floorId: '',
@@ -108,16 +110,16 @@ export default {
       const data = await this.$store.dispatch('dataHandle', result.data.data)
       document.title = data.title // 动态设置页面的title
       this.detail = data;
+      this.articleLoading = false
     },
     async readArticle(id) {
-      const userInfo = localStorage.getItem("userInfo")
-      if (userInfo) {
-        const name = JSON.parse(userInfo).username
+      if (this.isToken) {
+        let nickname = this.userInfo.nickname;
         const status = getStatus();
-        if (!status || status !== name) {
+        if (!status || status !== nickname) {
           await readArticle(id).then(() => {
             this.$set(this.detail.statistics, 'visits', this.detail.statistics.visits ? this.detail.statistics.visits + 1 : 1)
-            setStatus(name)
+            setStatus(nickname)
           })
         }
       }

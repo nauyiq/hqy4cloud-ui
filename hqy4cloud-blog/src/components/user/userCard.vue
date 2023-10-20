@@ -77,7 +77,7 @@
 
 
       <el-footer class="footer">
-        <el-button v-if="isToken && userInfo.id !== detail.id && (detail.friend || detail.setting.isPrivateChat)" round @click="openChat()" style="width:150px">发消息
+        <el-button v-if="isToken && chat && userInfo.id !== detail.id && (detail.friend || detail.setting.isPrivateChat)" round @click="openChat()" style="width:150px">发消息
         </el-button>
         <el-button v-if="isToken && !detail.friend && detail.id !== userInfo.id"  round @click="addFriend()" style="width:150px">加好友</el-button>
 <!--        <el-button round v-if="userInfo.id === detail.id" style="width:150px" @click="editUser">
@@ -99,6 +99,10 @@ export default {
     userId: {
       type: [Number, String],
       default: 0,
+    },
+    chat: {
+      type: Boolean,
+      default: true
     },
     options: {
       type: Object,

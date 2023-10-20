@@ -4,13 +4,14 @@
       <div class="left flex align-center">
         <i @click="toHome" class="iconfont el-icon-s-home el-home"></i>
         <i @click="toIndex" class="iconfont el-icon-menu el-home"></i>
-        <i class="iconfont" @click="changeMusic" :class="isPlay ? 'icon-zanting' : 'icon-bofang'"></i>
+        <i v-if="midText" @click="toArticles" class="iconfont el-icon-s-data el-home"/>
+        <i class="iconfont" v-if="music" @click="changeMusic" :class="isPlay ? 'icon-zanting' : 'icon-bofang'"></i>
       </div>
       <div class="mid" :class="musicIcon==='show' ? 'show' : 'hid'">{{midText}}</div>
       <div class="right flex align-center">
         <i class="iconfont" :class="isLike ? 'icon-xinheart118 liked' : 'icon-xinheart118'" v-if="showLike" @click="$emit('like', isLike)"></i>
         <el-dropdown >
-          <img width="31px" height="31px" style="cursor: pointer" :src="loadAvatar(avatar)"  @error="e => { e.target.src = onerrorAvatar() }" alt />
+          <img width="31px" height="31px" style="cursor: pointer" :src="loadAvatar(avatar)"  @error="e => { e.target.src = this.onerrorAvatar() }" alt />
           <el-dropdown-menu slot="dropdown" class="dropdownPop" style="width: 120px;">
             <el-dropdown-item @click.native= "showConfig"   v-if="isToken">
               <i class="el-icon-setting dropdown-item" ></i>设置
@@ -19,11 +20,11 @@
               <i class="el-icon-edit-outline dropdown-item" ></i>修改密码
             </el-dropdown-item>
 
-<!--            <el-dropdown-item @click.native= "showMessageBox"   v-if="isToken">
+            <el-dropdown-item @click.native= "showMessageBox"  v-if="isToken && userSetting.isGlobalChat">
               <el-badge :value="unread" :max="99" :hidden="unread === 0" class="item">
-                <i class="el-icon-message dropdown-item" ></i>未读消息
+                <i class="el-icon-message dropdown-item" ></i>聊天消息
               </el-badge>
-            </el-dropdown-item>-->
+            </el-dropdown-item>
 
             <el-dropdown-item @click.native="toLogout" v-if="isToken">
               <i class="el-icon-circle-close dropdown-item"></i>退出登录
@@ -65,7 +66,7 @@
                       @hide="showPasswordDialog = false"/>
 
     </div>
-<!--    <Message class="messageDialog" ref="Message" :dialogTableVisible.sync="dialogTableVisible"></Message>-->
+    <Message v-if="isToken && userSetting.isGlobalChat" class="messageDialog" ref="Message" :dialogTableVisible.sync="dialogTableVisible"></Message>
   </div>
 
 
@@ -79,14 +80,13 @@ import configDialog from '@/components/ConfigDialog.vue'
 import passwordDialog from '@/components/PasswordDialog.vue'
 import Message from "@c/Chat/dialog.vue";
 
-
 export default {
   name: 'HeaderComp',
   components: { configDialog, passwordDialog,Message },
   props: {
     music: {
       type: String,
-      default: 'https://file.hongqy1024.cn/files/blog/yellow.mp3'
+      default: ''
     },
     isLike: {
       type: Boolean,
@@ -105,6 +105,7 @@ export default {
       default: 'https://file.hongqy1024.cn/files/avatar/default_avatar.png'
     }
   },
+
   data() {
     return {
       isPlay: false,
@@ -118,6 +119,7 @@ export default {
       showConfigDialog: false,
       showPasswordDialog: false,
       dialogTableVisible: false, //消息弹窗是否显示
+      userSetting: {}
     };
   },
   computed: {
@@ -130,6 +132,7 @@ export default {
     ...mapState({
       userInfo: state => state.user.userInfo,
       unread:  state => state.user.unread,
+      setting: state => state.user.setting,
       isToken() {
         return this.$store.getters.access_token;
       }
@@ -150,9 +153,20 @@ export default {
   },
   created () {
     this.listenScroll() // 是为了防止有些界面是不缓存的情况
+    this.init();
     this.mid = this.midText
   },
   methods: {
+    init() {
+      if (this.setting) {
+        this.userSetting = this.setting
+      }
+      window.addEventListener('storage', function (e) {
+        if (e.key === 'hongqy-setting') {
+          window.location.reload()
+        }
+      })
+    },
     showMessageBox() {
       this.dialogTableVisible
           ? (this.dialogTableVisible = false)
@@ -195,7 +209,9 @@ export default {
       this.$router.push({path: '/'})
     },
     toArticles () {
-      this.$router.push({path: '/articles'})
+      this.$router.push({path: '/articles'}).then(() => {
+        window.location.reload()
+      })
     },
     toLogin () {
       this.$router.push({path: '/login'})
@@ -226,13 +242,11 @@ export default {
           return this.userInfo.avatar
         }
       }
-
       return avatar
     },
     onerrorAvatar() {
       return "https://file.hongqy1024.cn/files/avatar/default_avatar.png"
     }
-
   }
 };
 </script>

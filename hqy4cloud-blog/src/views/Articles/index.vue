@@ -24,7 +24,7 @@
             <li class="mCLi flex space-between">
               <div class="mCLeft flex align-center">
                 <img :src="thunk.cover" :title="thunk.title" :alt="thunk.title"
-                     @error="e => { e.target.src = onerrorImg() }"/>
+                     @error="e => { e.target.src = this.onerrorImg() }"/>
                 <div class="mCLText flex flex-column space-around">
                   <span>{{ thunk.title }}</span>
                   <span>{{ thunk.statistics.likes }} LIKED / {{ thunk.statistics.visits }} READ</span>

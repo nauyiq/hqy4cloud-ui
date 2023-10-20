@@ -12,7 +12,7 @@
 
     <div class="comment" v-for="item in comments">
       <div class="info">
-        <img class="avatar" @click="$user(item.commenter.id)" :src="item.commenter.avatar" width="18" height="18"/>
+        <img class="avatar" @click="$user(item.commenter.id, setting.isGlobalChat)" :src="item.commenter.avatar" width="18" height="18"/>
         <div class="right">
           <div class="name" >{{item.commenter.nickname}}</div>
           <div class="date">{{item.created}}</div>
@@ -47,7 +47,7 @@
       <div class="reply">
         <div class="item" v-for="reply in item.replies">
           <div class="reply-content">
-            <span class="from-name" style="cursor: pointer" @click="$user(reply.commenter.id)">{{reply.commenter.nickname}}:</span>
+            <span class="from-name" style="cursor: pointer" @click="$user(reply.commenter.id, setting.isGlobalChat)">{{reply.commenter.nickname}}:</span>
             <span v-if="reply.replier" class="to-name">@{{reply.replier.nickname}}</span>
             <span class="reply-content">{{reply.content}}</span>
           </div>
@@ -141,7 +141,8 @@ export default {
   },
   computed: {
     ...mapState({
-      loginUser: state => state.user.userInfo
+      loginUser: state => state.user.userInfo,
+      setting: state => state.user.setting,
     })
   },
   methods: {
