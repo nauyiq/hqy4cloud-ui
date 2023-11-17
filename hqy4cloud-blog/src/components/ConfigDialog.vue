@@ -28,6 +28,7 @@
           <el-upload
               class="avatar-uploader"
               :action="mainUrl + '/blog/upload/avatar'"
+              :headers="token"
               :on-error="uploadError"
               :show-file-list="false"
               :on-success="handleAvatarSuccess"
@@ -68,6 +69,7 @@ import Compressor from "compressorjs";
 import { uploadAvatar,updateUserInfo } from "@/api/user";
 import moment from "moment";
 
+
 export default {
   name: 'configDialog',
   props: {
@@ -78,6 +80,7 @@ export default {
       type: Object
     }
   },
+
   data() {
     return {
       form: {
@@ -88,7 +91,10 @@ export default {
         intro: '',
         email: '',
         birthday: '',
-        mobile: ''
+        mobile: '',
+      },
+      token: {
+        Authorization: 'Bearer ' + this.$store.getters.access_token
       },
       login:true,
       rules: {
@@ -173,7 +179,11 @@ export default {
     uploadError (e) {
       this.$message.error(JSON.parse(e.message).msg)
     },
-
+    getHeaders() {
+      return {
+        Authorization: 'Bearer ' + this.$store.getters.access_token
+      }
+    }
   }
 }
 

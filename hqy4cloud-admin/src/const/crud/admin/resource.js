@@ -102,6 +102,7 @@ export const tableOption = {
     label: '状态',
     prop: 'status',
     type: 'radio',
+    formslot: true,
     slot: true,
     border: true,
     span: 24,

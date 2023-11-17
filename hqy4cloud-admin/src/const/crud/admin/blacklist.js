@@ -45,15 +45,23 @@ export const tableOption = {
     }],
     span: 24
   }, {
-    label: '值',
-    prop: 'value',
+    label: 'IP',
+    prop: 'ip',
     formslot: true,
     slot: true,
     overHidden: true,
     span: 24,
   }, {
-    label: '过期时间',
-    prop: 'expired',
+    label: '过期时间（s）',
+    prop: 'blockSeconds',
+    formslot: true,
+    slot: true,
+    overHidden: true,
+    span: 24,
+  }
+  , {
+    label: '封禁时间',
+    prop: 'expireDateTime',
     formslot: true,
     slot: true,
     overHidden: true,

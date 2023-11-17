@@ -46,7 +46,7 @@ export const tableOption = {
     span: 24
   }, {
     label: '值',
-    prop: 'value',
+    prop: 'ip',
     formslot: true,
     slot: true,
     overHidden: true,

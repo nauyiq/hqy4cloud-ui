@@ -132,7 +132,7 @@ export default {
       this.page.currentPage = current
     },
     handleDelete(row, index) {
-      this.$confirm('是否确认删除类型为"' + row.type + '"' + '值为"' + row.value  + '"的白名单?', '警告', {
+      this.$confirm('是否确认删除类型为"' + row.type + '"' + '值为"' + row.ip  + '"的白名单?', '警告', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'

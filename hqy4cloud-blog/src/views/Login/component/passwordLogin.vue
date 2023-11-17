@@ -70,9 +70,9 @@ export default {
                 //获取登录信息
                 this.$store.dispatch('GetUserInfo')
                 this.$store.dispatch('GetUserSetting').then(res => {
-                  this.$router.go(-1)
                   setTimeout(()=> {
                     window.location.reload()
+                    this.$router.go(-1)
                   }, 500)
                 })
 
