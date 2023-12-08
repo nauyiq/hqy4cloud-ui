@@ -4,6 +4,9 @@
     <div class="content-wrap">
       <Article :datas="requestDatas" :isLoading="isLoading" :isNext="isNext" />
     </div>
+    <div class="beian">
+      <a class="content" href="https://beian.miit.gov.cn/">粤ICP备2022109316号-1</a>
+    </div>
   </div>
 </template>
 <script>
@@ -75,6 +78,21 @@ export default {
     height: 100%;
   }
 }
+.beian {
+  z-index: 9999999;
+  margin-bottom: 10px;
+  color: #fff;
+  font-weight: bold;
+  letter-spacing: 2px;
+  font-size: 14px;
+  white-space: nowrap;
+  text-align: center;
+  .content {
+    color: rgba(28, 24, 24, 0.76);
+    display: inline-block;
+  }
+}
+
 @media screen and (max-width: 1200px) {
   .content-wrap {
     width: 900px; 

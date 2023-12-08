@@ -2,7 +2,9 @@
   <div id="Maske">
     <Center class="center" />
     <div class="bg"></div>
-    <div class="beian">粤ICP备2022109316号</div>
+    <div class="beian">
+      <a href="https://beian.miit.gov.cn/">粤ICP备2022109316号-1</a>
+    </div>
   </div>
 </template>
 <script>
@@ -38,6 +40,7 @@ export default {
     z-index: -99;
   }
   .beian {
+    z-index: 9999999;
     position: fixed;
     bottom: 10px;
     left: 50%;
@@ -45,7 +48,7 @@ export default {
     color: #fff;
     font-weight: bold;
     letter-spacing: 2px;
-    font-size: 16px;
+    font-size: 14px;
     white-space: nowrap;
   }
   @keyframes change {

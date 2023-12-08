@@ -37,8 +37,15 @@
       </div>
       <div class="footer">
         <Loader v-show="isLoading && !pageLoad"/>
-        <span class="notMany" v-show="!isLoading && !pageLoad">- No More - </span>
       </div>
+    </div>
+
+<!--    <div class="beian">
+      <a class="content" href="https://beian.miit.gov.cn/">粤ICP备2022109316号-1</a>
+    </div>-->
+
+    <div>
+      <span class="notMany" v-show="!isLoading && !pageLoad">- No More - </span>
     </div>
   </div>
 
@@ -260,7 +267,23 @@ export default {
 
 
 }
+.beian {
+  position: fixed;
+  bottom: 0;
 
+  z-index: 9999999;
+  margin-bottom: 10px;
+  color: #fff;
+  font-weight: bold;
+  letter-spacing: 2px;
+  font-size: 14px;
+  white-space: nowrap;
+  left: 50%;
+  transform: translateX(-50%);
+  .content {
+    color: rgba(28, 24, 24, 0.76);
+  }
+}
 
 
 @media screen and (max-width: 768px) {
