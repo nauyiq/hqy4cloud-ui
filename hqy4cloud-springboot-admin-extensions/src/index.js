@@ -16,6 +16,7 @@
 
 /* global SBA */
 import manage from './views/manage'
+import druid from './views/druid-monitor'
 
 // tag::customization-ui-toplevel[]
 /*SBA.use({
@@ -89,6 +90,29 @@ SBA.use({
       sidebar: {
         manage: {
           title: "My Manage Extensions"
+        }
+      }
+    });
+  }
+});
+
+
+SBA.use({
+  install({viewRegistry, vueI18n}) {
+    viewRegistry.addView({
+      name: 'instances/druid',
+      parent: 'instances', // <1>
+      path: 'druid',
+      component: druid,
+      label: '数据库连接池管理',
+      group: 'druid', // <2>
+      order: 1001,
+    });
+
+    vueI18n.mergeLocaleMessage('en', { // <4>
+      sidebar: {
+        manage: {
+          title: "My Druid Extensions"
         }
       }
     });
