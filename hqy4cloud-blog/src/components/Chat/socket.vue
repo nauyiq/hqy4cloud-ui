@@ -29,9 +29,10 @@ export default {
       if (this.isToken) {
         getSocketIoConnection().then((res) => {
           if (res.data.code === 0) {
+            console.log(res.data.data)
             let connection =  res.data.data
             let host = connection.connectUrl;
-            let contentPath = connection.context;
+            let contentPath = connection.contextPath;
             let authorization = connection.authorization;
             const io = require("socket.io-client");
 

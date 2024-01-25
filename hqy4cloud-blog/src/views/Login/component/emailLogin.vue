@@ -78,14 +78,14 @@ export default {
         if (valid) {
           this.$store.dispatch('LoginByEmail', this.ruleForm)
               .then(() => {
-                this.$message.success('登录成功.')
                 //获取登录信息
-                this.$store.dispatch('GetUserInfo')
                 this.$store.dispatch('GetUserSetting')
-                setTimeout(()=> {
-                  window.location.reload()
-                }, 300)
-                this.$router.go(-1)
+                this.$store.dispatch('GetUserInfo').then(res => {
+                  this.$router.go(-1)
+                  setTimeout(()=> {
+                    window.location.reload()
+                  }, 100)
+                })
               })
         }
       });
