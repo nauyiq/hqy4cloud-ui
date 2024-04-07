@@ -1,4 +1,5 @@
 import ins from "@/utils/request";
+import axios from "@/utils/request";
 
 //获取socket.io 连接
 export const getSocketIoConnection = () => {
@@ -18,7 +19,16 @@ export const getChatMessages = (params) => {
     })
 }
 
-//删除聊天
+// 查找聊天记录
+export const searchChatMessages = (params) => {
+    return ins.request({
+        url: '/im/message/search',
+        method: 'get',
+        params: params
+    })
+}
+
+//获取聊天
 export const getChat = (conversationId) => {
     return ins.request({
         url: "/im/conversation/" + conversationId,
@@ -27,12 +37,20 @@ export const getChat = (conversationId) => {
 }
 
 //删除聊天
-export const removeChat = (conversationId) => {
+export const removeGroupConversation = (conversationId) => {
     return ins.request({
-        url: "/im/conversation/" + conversationId,
+        url: "/im/conversation/group/" + conversationId,
         method: "delete"
     })
 }
+
+export const removePrivateConversation = (conversationId) => {
+    return ins.request({
+        url: "/im/conversation/friend/" + conversationId,
+        method: "delete"
+    })
+}
+
 
 //发送聊天消息
 export const sendChatMessage = (data) => {
@@ -79,10 +97,11 @@ export const readMessage = (data) => {
 }
 
 //撤回消息
-export const undoChatMessage = (id) => {
+export const undoChatMessage = (data) => {
     return ins.request({
-        url: '/im/message/undo/' + id,
-        method: 'put'
+        url: '/im/message/undo',
+        method: 'put',
+        data : data
     })
 }
 
@@ -122,6 +141,14 @@ export const getConversations = () => {
     })
 }
 
+// 获取联系人列表
+export const getContacts = () => {
+    return ins.request({
+        url: '/im/contacts',
+        method: 'get'
+    })
+}
+
 //获取聊天列表
 export const getChats = () => {
     return ins.request({
@@ -130,13 +157,17 @@ export const getChats = () => {
     })
 }
 
-//获取通讯录好友列表
-export const getFriendContacts = () => {
+
+
+//新增聊天会话
+export const addConversation = (data) => {
     return ins.request({
-        url: '/im/user/contacts',
-        method: 'get'
+        url: '/im/conversation' ,
+        method: "post",
+        data: data
     })
 }
+
 
 
 

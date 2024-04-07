@@ -20,13 +20,13 @@
             <el-form-item label="昵称" >
               <el-input placeholder="请输入昵称" v-model="user.nickname" maxlength="20" style="width:400px"></el-input>
             </el-form-item>
-            <el-form-item label="生日">
+<!--            <el-form-item label="生日">
               <el-date-picker
                   v-model="user.birthday"
                   type="date"
                   placeholder="选择日期">
               </el-date-picker>
-            </el-form-item>
+            </el-form-item>-->
 <!--            <el-form-item label="性别">
               <el-radio-group v-model="user.sex">
                 <el-radio :label="2" border>未知</el-radio>
@@ -49,33 +49,37 @@
 
 
       <div class="common-setting card-rows">
-        <div class="card-row" >
+<!--        <div class="card-row" >
           <div class="label">陌生人聊天</div>
           <div>
             <el-switch @change="updateImSetting" :width="60" v-model="setting.isPrivateChat"> </el-switch>
           </div>
-        </div>
+        </div>-->
 
         <div class="card-row" >
-          <div class="label">允许邀请加入群聊</div>
+<!--          <div class="label">允许邀请加入群聊</div>
           <div>
             <el-switch @change="updateImSetting" :width="60" v-model="setting.isInviteGroup"> </el-switch>
-          </div>
-        </div>
-
-        <div class="card-row" >
-          <div class="label">是否开启全局聊天</div>
+          </div>-->
+          <div class="label">同步聊天信息到账号信息（头像、昵称等信息都会同步到该账号）</div>
           <div>
-            <el-switch @change="updateImSetting" :width="60" v-model="setting.isGlobalChat"> </el-switch>
+            <el-switch @change="updateImSetting" :width="60" v-model="setting.isSyncSetting"> </el-switch>
           </div>
         </div>
 
 <!--        <div class="card-row" >
-          <div class="label">聊天记录保留天数</div>
+          <div class="label">是否开启全局聊天</div>
           <div>
-            <el-input-number :min="1" :max="180" @change="updateImSetting" v-model="setting.clearMessageDate"> </el-input-number>
+            <el-switch @change="updateImSetting" :width="60" v-model="setting.isGlobalChat"> </el-switch>
           </div>
         </div>-->
+
+        <div class="card-row" >
+          <div class="label">是否可以通过账号名搜索到你</div>
+          <div>
+            <el-switch @change="updateImSetting" :width="60" v-model="setting.isQueryAccount"> </el-switch>
+          </div>
+        </div>
 
 <!--        <div class="card-row" >
           <div class="label">离开聊天室</div>
@@ -132,6 +136,9 @@ export default {
       return window.BASE_URL + '/common/upload/uploadAvatar'
     },
   },
+  mounted() {
+    this.$store.dispatch('GetUserInfo')
+  },
   watch: {
     // 监听设置发送变化需要进行设置更改
     /*setting: {
@@ -166,8 +173,13 @@ export default {
         this.$message.error('请输入昵称')
         return false
       }
-      updateUserInfo(this.user).then(res => {
-        if (res.data.code === 0) {
+      const data = this.user
+      updateUserInfo(data).then(res => {
+
+        if (res.data.code !== 0) {
+          this.$message.error('系统异常，请稍后再试')
+        } else {
+          this.$message.success('保存成功')
           this.$store.dispatch('GetUserInfo')
         }
       })
@@ -304,14 +316,14 @@ export default {
   .card-row {
     display: flex;
     justify-content: flex-start;
-    height: 60px;
+    height: 100px;
     line-height: 35px;
     font-size: 14px;
     position: relative;
     color: #736f6f;
 
     .label {
-      width: 128px;
+      width: 500px;
       margin-right: 20px;
       text-align: left;
     }

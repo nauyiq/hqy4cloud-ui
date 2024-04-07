@@ -11,7 +11,7 @@ export const getUserInfoById = (userId) => {
 
 export const allFriend = (data) => {
     return axios.request({
-        url: '/im/user/friends',
+        url: '/im/friends',
         method: 'get',
         params: data
     })
@@ -19,7 +19,7 @@ export const allFriend = (data) => {
 
 export const addFriend = (data) => {
     return axios.request({
-        url: '/im/user/friend',
+        url: '/im/friend/application',
         method: 'post',
         data: data
     })
@@ -28,7 +28,7 @@ export const addFriend = (data) => {
 //删除好友
 export const deleteFriend = (data) => {
     return axios.request({
-        url: '/im/user/friend/' + data,
+        url: '/im/friend/' + data,
         method: 'delete'
     })
 }
@@ -36,7 +36,7 @@ export const deleteFriend = (data) => {
 //修改好友备注
 export const setFriendMark = (data) => {
     return axios.request({
-        url: '/im/user/friend/mark',
+        url: '/im/friend',
         method: 'put',
         data: data
     })
@@ -45,7 +45,7 @@ export const setFriendMark = (data) => {
 //获取好友申请列表
 export const getFriendApplications = () => {
     return axios.request({
-        url: '/im/user/applications',
+        url: '/im/friend/applications',
         method: 'get'
     })
 }
@@ -53,7 +53,7 @@ export const getFriendApplications = () => {
 // 接收或者拒绝好友申请
 export const acceptOrRejectImFriend = (data) => {
     return axios.request({
-        url: '/im/user/friend',
+        url: '/im/friend/application',
         method: 'put',
         data: data
     })
@@ -70,10 +70,3 @@ export const searchImUsers = (name) => {
     })
 }
 
-//新增聊天会话
-export const addConversation = (userId) => {
-    return axios.request({
-        url: '/im/conversation/' + userId,
-        method: "post",
-    })
-}

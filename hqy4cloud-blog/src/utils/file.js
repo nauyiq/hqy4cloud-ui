@@ -14,6 +14,9 @@ export function getFileSize(size) {
 
 // 获取文件后缀
 export function getFileExtImg(fileName) {
+    if (!fileName) {
+        return ''
+    }
     var url = "https://file.lcoce.com/ext/";
     var spl = fileName.split(".");
     var exts = spl[spl.length - 1];

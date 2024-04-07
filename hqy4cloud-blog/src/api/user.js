@@ -158,7 +158,7 @@ export const updateImUserSetting = (data) => {
 
 
 // 修改用户信息
-export const updateUserInfo = data => axios.put('/blog/user/profile', data)
+export const updateUserInfo = data => axios.put('/im/user', data)
 
 
 // 获取管理员的个人信息，必须在数据库里面id为 **1**

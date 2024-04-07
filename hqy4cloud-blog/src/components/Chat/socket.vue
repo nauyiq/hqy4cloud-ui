@@ -187,7 +187,12 @@ export default {
 
             //listen socket.io friendApplication event.
             this.websocket.on('friendApplication', (eventData) => {
-              const data = JSON.parse(eventData)
+              let data;
+              if (eventData) {
+                data = JSON.parse(eventData)
+              } else {
+                data = {}
+              }
               const event = {
                 "event": 'friendApplication',
                 "data": data

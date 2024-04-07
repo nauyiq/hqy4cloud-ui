@@ -107,6 +107,8 @@ export default {
             if (response.data.code === 0) {
               this.$message.success('验证码发送成功')
               this.timeCacl()
+            } else if (response.data.code === 2005) {
+              this.$message.warning('当前账号已经存在')
             } else {
               const message =  errorCode[response.data.code] || errorCode['default']
               this.$message.error(message)

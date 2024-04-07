@@ -12,22 +12,24 @@
                   <el-avatar :src="item.info.avatar"></el-avatar>
                   <div style="margin-left: 5px">
                     <div @click="$user(item.info.id)"> <span class="nickname fc-primary cur-handle">{{item.info.nickname}}</span>
-                      <div class="remark f-12 c-999">{{item.remark}}</div>
+                      <div class="remark f-12 c-999">{{item.applyRemark}}</div>
                     </div>
                   </div>
               </div>
               <div class="option">
-                <el-tag type="success" v-if="item.status === 1">已添加</el-tag>
-                <div v-if="item.status === 2">
+                <el-tag type="success" v-if="item.status === 2">已添加</el-tag>
+                <el-tag type="info" v-if="item.status === 3">已拒绝</el-tag>
+                <el-tag type="info" v-if="item.status === 4">已失效</el-tag>
+
+<!--                <div v-if="item.status === 2">
                   <el-tag type="info" v-if="item.send === user.id">已申请</el-tag>
                   <el-tag type="info" v-else>已拒绝</el-tag>
-                </div>
-                <div v-if="item.status === 0">
-                  <div v-if="item.send !== user.id">
+                </div>-->
+                <div v-if="item.status === 1 || item.status === 0">
+<!--                  <div v-if="item.send !== user.id">-->
                     <el-button slot="reference" :size="'small'" type="primary"  @click="acceptApply(item.id,true)">接受</el-button>
                     <el-button slot="reference" :size="'small'" type="info"  @click="acceptApply(item.id,false)">拒绝</el-button>
-                  </div>
-                  <el-tag type="info" v-else>已申请</el-tag>
+<!--                  <el-tag type="info" v-else>已申请</el-tag>-->
                 </div>
 
 <!--                <el-tag type="info" v-if="item.status === 2">已拒绝</el-tag>-->

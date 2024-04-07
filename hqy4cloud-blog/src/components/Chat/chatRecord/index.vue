@@ -144,7 +144,7 @@ import ChatItem from "./chatItem";
 import ChatImage from "./chatImage";
 import { arrayToString, date } from "@/utils";
 import { getFileSize, getFileExtImg, download } from "@/utils/file";
-import { getChatMessages } from "@/api/im/chat";
+import { searchChatMessages } from "@/api/im/chat";
 export default {
   name: "chatRecord",
   components: {
@@ -210,7 +210,7 @@ export default {
       this.params.isGroup = this.contact.isGroup
       this.params.toContactId = this.contact.id;
       this.params.conversationId = this.  contact.conversationId;
-      getChatMessages(this.params).then(res => {
+      searchChatMessages(this.params).then(res => {
         let data = res.data.data
         this.dataList = data.resultList
         this.total = data.total

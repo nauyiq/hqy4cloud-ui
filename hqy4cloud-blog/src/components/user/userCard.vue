@@ -77,8 +77,8 @@
 
 
       <el-footer class="footer">
-        <el-button v-if="isToken && chat && userInfo.id !== detail.id && (detail.friend || detail.setting.isPrivateChat)" round @click="openChat()" style="width:150px">发消息
-        </el-button>
+<!--        <el-button v-if="isToken && chat && userInfo.id !== detail.id && (detail.friend || detail.setting.isPrivateChat)" round @click="openChat()" style="width:150px">发消息
+        </el-button>-->
         <el-button v-if="isToken && !detail.friend && detail.id !== userInfo.id"  round @click="addFriend()" style="width:150px">加好友</el-button>
 <!--        <el-button round v-if="userInfo.id === detail.id" style="width:150px" @click="editUser">
           编辑资料
@@ -191,7 +191,7 @@ export default {
       })
     },
     changeChatNotice(val) {
-      setChatNotice({contactId: this.userId, status: !val, isGroup: false}).then(res => {
+      setChatNotice({contacctId: this.userId, status: !val, isGroup: false}).then(res => {
         if (res.data.code !== 0) {
           this.$message.warning("服务器异常，请稍后再试")
         } else {
