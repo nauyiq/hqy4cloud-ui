@@ -1,0 +1,12 @@
+{
+  "name": "nfturbo",
+  "version": "1.0.0",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "qrcodejs2": "^0.0.2",
+    "vue-i18n": "^8.20.0"
+  }
+}

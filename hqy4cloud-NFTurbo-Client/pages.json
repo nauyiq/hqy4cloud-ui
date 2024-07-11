@@ -1,0 +1,106 @@
+{
+	"easycom": {
+		"^u-(.*)": "@/uview-ui/components/u-$1/u-$1.vue"
+	},
+	"pages": [{
+			"path": "pages/home",
+			"style": {
+				"navigationBarTitleText": "",
+				"enablePullDownRefresh": true,
+				"h5": {
+					"titleNView": false
+				},
+				"app-plus": {
+					"titleNView": false
+				}
+			}
+		},
+		{
+			"path": "pages/login",
+			"style": {
+				"navigationBarTitleText": "登录",
+				"enablePullDownRefresh": false
+			}
+		}, {
+			"path": "pages/auth",
+			"style": {
+				"navigationBarTitleText": "实名认证",
+				"enablePullDownRefresh": false
+			}
+
+		}, {
+			"path": "pages/nftDetail",
+			"style": {
+				"navigationBarTitleText": "",
+				"enablePullDownRefresh": false
+			}
+
+		}, {
+			"path": "pages/setting",
+			"style": {
+				"navigationBarTitleText": "设置",
+				"enablePullDownRefresh": false
+			}
+
+		}, {
+			"path": "pages/my",
+			"style": {
+				"navigationBarTitleText": "",
+				"enablePullDownRefresh": true,
+				"h5": {
+					"titleNView": false
+				},
+				"app-plus": {
+					"titleNView": false
+				}
+			}
+
+		}, {
+			"path": "pages/order",
+			"style": {
+				"navigationBarTitleText": "我的订单",
+				"enablePullDownRefresh": true
+			}
+
+		}, {
+			"path": "pages/orderDetail",
+			"style": {
+				"navigationBarTitleText": "订单详情",
+				"enablePullDownRefresh": false
+			}
+
+		}, {
+			"path": "pages/payFinish",
+			"style": {
+				"navigationBarTitleText": "支付结果",
+				"enablePullDownRefresh": false
+			}
+
+		}
+    ],
+	"globalStyle": {
+		"navigationBarTextStyle": "black",
+		"navigationBarTitleText": "nft",
+		"navigationBarBackgroundColor": "#FFFFFF",
+		"backgroundColor": "#FFFFFF"
+	},
+	"tabBar": {
+		"color": "#909399",
+		"selectedColor": "#909399",
+		"backgroundColor": "#FFFFFF",
+		"borderStyle": "black",
+		"list": [{
+				"pagePath": "pages/home",
+				"iconPath": "static/img/home.png",
+				"selectedIconPath": "static/img/homeSelect.png",
+				"text": "首页"
+			},
+			{
+				"pagePath": "pages/my",
+				"iconPath": "static/img/my.png",
+				"selectedIconPath": "static/img/mySelect.png",
+				"text": "我的"
+			}
+		]
+	}
+}
