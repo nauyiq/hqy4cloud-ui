@@ -435,7 +435,7 @@ export default {
       contactId: state => state.user.contactId,
       contactSync: state => state.user.contactSync,
       setting: state => state.user.setting,
-      userInfo: state => state.user.userInfo,
+      userInfo: state => state.user.setting,
       globalConfig: state => state.user.globalConfig,
       isToken() {
         return this.$store.getters.access_token;

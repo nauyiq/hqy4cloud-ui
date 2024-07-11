@@ -66,7 +66,7 @@
 
 <script>
 import Compressor from "compressorjs";
-import { uploadAvatar,updateUserInfo } from "@/api/user";
+import {uploadAvatar, updateUserInfoByBlog} from "@/api/user";
 import moment from "moment";
 
 
@@ -162,7 +162,7 @@ export default {
       this.form.birthday = moment(this.form.birthday).format('YYYY-MM-DD HH:mm:ss')
       this.$refs["form"].validate(valid => {
         if (!valid) return
-        updateUserInfo(this.form).then(res => {
+        updateUserInfoByBlog(this.form).then(res => {
           if (res.data.code === 0) {
             this.$message.success('更新成功.');
             //更新用户数据

@@ -4,9 +4,14 @@
     <el-tab-pane label="账号设置" class="pd-20">
       <div class="user-center">
         <div class="user-avatar">
-          <el-upload ref="upload" class="upload-demo" :multiple="false" :action="mainUrl + '/blog/upload/avatar'" :show-file-list='false'
-                     :data='{type:1}' :on-success="handleAvatarSuccess"  :auto-upload="false" :on-change="change"
-                     :before-upload="before" :http-request="request">
+          <el-upload ref="upload"
+                     class="upload-demo"
+                     :action="mainUrl + '/blog/upload/avatar'"
+                     :show-file-list='false'
+                     :headers="token"
+                     :on-success="handleAvatarSuccess"
+                     :on-error="uploadError"
+                     :before-upload="before">
             <el-image :src="user.avatar" style="width:160px;border-radius: 8px;overflow: hidden;" class="m-20"></el-image>
             <el-button size="mini" class="replace-picture-button mab-30">更换头像</el-button>
           </el-upload>
@@ -63,7 +68,7 @@
           </div>-->
           <div class="label">同步聊天信息到账号信息（头像、昵称等信息都会同步到该账号）</div>
           <div>
-            <el-switch @change="updateImSetting" :width="60" v-model="setting.isSyncSetting"> </el-switch>
+            <el-switch @change="updateImSetting" :width="60" v-model="user.isSyncSetting"> </el-switch>
           </div>
         </div>
 
@@ -77,7 +82,7 @@
         <div class="card-row" >
           <div class="label">是否可以通过账号名搜索到你</div>
           <div>
-            <el-switch @change="updateImSetting" :width="60" v-model="setting.isQueryAccount"> </el-switch>
+            <el-switch @change="updateImSetting" :width="60" v-model="user.isQueryAccount"> </el-switch>
           </div>
         </div>
 
@@ -121,13 +126,14 @@ export default {
       code: '',
       newCode:'',
       loading: false,
-
+      token: {
+        Authorization: 'Bearer ' + this.$store.getters.access_token
+      }
     };
   },
   computed: {
     ...mapState({
-      setting: state => state.user.setting,
-      user: state => state.user.userInfo,
+      user: state => state.user.setting,
       isToken() {
         return this.$store.getters.access_token;
       }
@@ -137,7 +143,7 @@ export default {
     },
   },
   mounted() {
-    this.$store.dispatch('GetUserInfo')
+    this.$store.dispatch('GetUserSetting')
   },
   watch: {
     // 监听设置发送变化需要进行设置更改
@@ -180,7 +186,7 @@ export default {
           this.$message.error('系统异常，请稍后再试')
         } else {
           this.$message.success('保存成功')
-          this.$store.dispatch('GetUserInfo')
+          this.$store.dispatch('GetUserSetting')
         }
       })
     },
@@ -196,7 +202,7 @@ export default {
     },
     // 选择图片后进行操作
     change (file) {
-      if (this.cropper && file.status == 'ready') {
+      if (this.cropper && file.status === 'ready') {
         this.isImg(file.name)
         if (!this.fileIsImg) {
           this.$message.error('选择的文件非图像类文件')
@@ -219,26 +225,6 @@ export default {
       }
       return isJPG && isLt2M;
     },
-    // 上传图图片
-    request (param) {
-      const loading = this.$loading({
-        lock: true,
-        text: 'Loading',
-      });
-      const data = new FormData();
-      var file = this.cropper ? this.cropperUploadFile : param.file
-      data.append("file", file);
-      data.append("type", 1);
-      this.$api.commonApi.uploadAvatar(data).then(res => {
-        this.cropperImg = '';
-        loading.close();
-        this.handleAvatarSuccess(res)
-        param.onSuccess(res)
-      }).catch(err => {
-        loading.close();
-        param.onError(err)
-      })
-    },
     // 保存裁剪图片并上传
     cropperSave () {
       var uploadFile = this.$refs.upload.uploadFiles[0].raw
@@ -258,8 +244,11 @@ export default {
       }
     },
     updateImSetting() {
-      this.$store.dispatch('UpdateUserImSetting', this.setting)
-    }
+      this.$store.dispatch('UpdateUserImSetting', this.user)
+    },
+    uploadError (e) {
+      this.$message.error(JSON.parse(e.message).msg)
+    },
 
   },
 

@@ -156,6 +156,7 @@ export const updateImUserSetting = (data) => {
 }
 
 
+export const updateUserInfoByBlog = data => axios.put('/blog/user/profile', data)
 
 // 修改用户信息
 export const updateUserInfo = data => axios.put('/im/user', data)

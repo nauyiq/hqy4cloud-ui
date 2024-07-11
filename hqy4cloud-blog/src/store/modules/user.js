@@ -18,9 +18,6 @@ const user = {
             name: 'permissions'
         }) || [],
         roles: [],
-        menu: getStore({
-            name: 'menu'
-        }) || [],
         menuAll: getStore({name: 'menuAll'}) || [],
         access_token: getStore({
             name: 'access_token'
@@ -248,9 +245,6 @@ const user = {
         SET_CHAT: (state, data) => {
             state.contactId = data
             state.contactSync = Math.random().toString(36).substr(-8);
-        },
-        SET_GLOBAL_CONFIG(state, data) {
-            state.globalConfig = data;
         },
         SET_SETTING(state, data) {
             state.setting = data
