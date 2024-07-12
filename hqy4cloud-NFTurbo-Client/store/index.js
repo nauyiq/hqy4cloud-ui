@@ -27,8 +27,8 @@ const saveLifeData = function(key, value){
 }
 const store = new Vuex.Store({
 	state: {
-		baseUrl: 'http://114.55.55.45:80'
-		// baseUrl: 'http://localhost:8081',
+		// baseUrl: 'http://114.55.55.45:80'
+		baseUrl: 'http://127.0.0.1:9527',
 	},
 	mutations: {
 		$uStore(state, payload) {

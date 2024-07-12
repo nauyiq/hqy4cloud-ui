@@ -59,6 +59,8 @@
 					title: '已发送验证码',
 					mask: true
 				});
+
+
 				this.$u.get('/auth/sendCaptcha', {
 					telephone: this.telephone
 				}).then(res => {
@@ -91,12 +93,30 @@
 					});
 					return;
 				}
-				this.$u.post('/auth/login', {
-					telephone: this.telephone,
-					captcha: this.captcha,
-					inviteCode: this.inviteCode,
-					rememberMe: true
-				}).then(res => {
+
+        this.$u.post('/oauth2/token', {
+          phone: this.telephone,
+          code: this.captcha,
+          inviteCode: this.inviteCode,
+          rememberMe: true
+        })
+
+        // 改用OAUTH2 PHONE
+        this.$u.request({
+          url: '/oauth2/token',
+          method: "POST",
+          params: {
+            phone: this.telephone,
+            code: this.captcha,
+            grant_type: "sms",
+            scope:"all",
+            inviteCode: this.inviteCode,
+            rememberMe: true,
+          },
+          headers: {
+            Authorization: 'Basic ' + window.btoa('hongqy:b7f5d4e072bcb46d16d38bcc1efc13a4')
+          }
+        }).then(res => {
 					if(!res.success) {
 						uni.showToast({
 							title: "验证码错误",
@@ -106,9 +126,8 @@
 					}
 					
 					const loginInfo = res.data;
-					
 					uni.setStorageSync('tokenValue', loginInfo.token);
-					uni.setStorageSync('accountId', loginInfo.userId);
+					uni.setStorageSync('accountId', loginInfo.id);
 
 					// #ifdef APP-PLUS
 					//this.updatePushClientId();
