@@ -19,6 +19,7 @@ class Request {
 			}
 			this.options = interceptorRequest;
 		}
+
 		options.dataType = options.dataType || this.config.dataType;
 		options.responseType = options.responseType || this.config.responseType;
 		options.url = options.url || '';
@@ -143,6 +144,17 @@ class Request {
 				header,
 				data
 			})
+		}
+
+		// post 发送Urlencoded请求 非application/json
+		this.postUrlencoded = (url, params = {}, headers = {}) => {
+			return this.request( {
+					url: url,
+					method: 'POST',
+					header: headers,
+					data:params
+			}
+			)
 		}
 		
 		// put请求，不支持支付宝小程序(HX2.6.15)

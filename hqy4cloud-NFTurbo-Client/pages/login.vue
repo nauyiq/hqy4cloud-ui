@@ -64,7 +64,7 @@
 				this.$u.get('/auth/sendCaptcha', {
 					telephone: this.telephone
 				}).then(res => {
-					if(res.success) {
+					if(res.result) {
 						uni.hideLoading();
 						this.$refs.uCode.start();
 					}
@@ -94,40 +94,68 @@
 					return;
 				}
 
-        this.$u.post('/oauth2/token', {
+        /*this.$u.post('/oauth2/token', {
           phone: this.telephone,
           code: this.captcha,
           inviteCode: this.inviteCode,
           rememberMe: true
-        })
+        })*/
 
         // 改用OAUTH2 PHONE
-        this.$u.request({
-          url: '/oauth2/token',
-          method: "POST",
-          params: {
+        this.$u.post( '/oauth2/token', {
+
             phone: this.telephone,
             code: this.captcha,
             grant_type: "sms",
             scope:"all",
             inviteCode: this.inviteCode,
-            rememberMe: true,
+            rememberMe: true
           },
-          headers: {
-            Authorization: 'Basic ' + window.btoa('hongqy:b7f5d4e072bcb46d16d38bcc1efc13a4')
-          }
-        }).then(res => {
-					if(!res.success) {
-						uni.showToast({
-							title: "验证码错误",
-							icon: "error"
-						});
-						return;
+          {
+            Authorization: 'Basic ' + window.btoa('hongqy:b7f5d4e072bcb46d16d38bcc1efc13a4'),
+            'Content-Type': 'application/x-www-form-urlencoded',
+          }).then(res => {
+					if(!res.result) {
+            const code = res.code;
+            if (code === 2000) {
+                // 找不到用户， 调用注册接口
+              this.$u.post('/nft/user/register', {
+                phone: this.telephone,
+                code: this.captcha,
+                inviteCode: this.inviteCode
+              }).then(registerRes => {
+                if (!registerRes.result) {
+                  uni.showToast({
+                    title: "注册失败，请稍后再试",
+                    icon: "error"
+                  });
+                } else {
+                  const loginInfo = res.data;
+                  uni.setStorageSync('tokenValue', loginInfo.access_token);
+                  uni.setStorageSync('accountId', loginInfo.id);
+                  uni.setStorageSync('refreshToken', loginInfo.refresh_token)
+
+                  // #ifdef APP-PLUS
+                  //this.updatePushClientId();
+                  // #endif
+                  uni.reLaunch({
+                    url: "/pages/my"
+                  });
+                }
+              })
+            } else {
+              uni.showToast({
+                title: "验证码错误",
+                icon: "error"
+              });
+              return;
+            }
 					}
 					
 					const loginInfo = res.data;
-					uni.setStorageSync('tokenValue', loginInfo.token);
+					uni.setStorageSync('tokenValue', loginInfo.access_token);
 					uni.setStorageSync('accountId', loginInfo.id);
+          uni.setStorageSync('refreshToken', loginInfo.refresh_token)
 
 					// #ifdef APP-PLUS
 					//this.updatePushClientId();

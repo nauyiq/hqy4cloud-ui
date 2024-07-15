@@ -92,7 +92,7 @@ const $u = {
 	wranning,
 	get: http.get,
 	post: http.post,
-	request:http.request,
+	postUrlencoded:http.postUrlencoded,
 	put: http.put,
 	'delete': http.delete,
 	hexToRgb: colorGradient.hexToRgb,

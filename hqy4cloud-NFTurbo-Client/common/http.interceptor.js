@@ -4,7 +4,8 @@ const install = (Vue, vm) => {
 		originalData: true, 
 		loadingText: '加载中...', 
 		header: {
-			'content-type': 'application/json;charset=UTF-8'
+			// FIXME 修改
+			// 'content-type': 'application/json;charset=UTF-8'
 		}
 	});
 
