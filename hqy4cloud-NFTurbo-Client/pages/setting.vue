@@ -162,7 +162,7 @@
 				uni.showLoading({
 					title: ''
 				});
-				this.$u.get('/user/getUserInfo').then(res => {
+				this.$u.get('/nft/user').then(res => {
 					this.personalInfo = res.data;
 					uni.hideLoading();
 				});

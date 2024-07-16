@@ -101,9 +101,8 @@
           rememberMe: true
         })*/
 
-        // 改用OAUTH2 PHONE
+        // FIXME 改用OAUTH2 PHONE
         this.$u.post( '/oauth2/token', {
-
             phone: this.telephone,
             code: this.captcha,
             grant_type: "sms",
@@ -130,17 +129,37 @@
                     icon: "error"
                   });
                 } else {
-                  const loginInfo = res.data;
-                  uni.setStorageSync('tokenValue', loginInfo.access_token);
-                  uni.setStorageSync('accountId', loginInfo.id);
-                  uni.setStorageSync('refreshToken', loginInfo.refresh_token)
+                  // 注册成功则再次调用登录接口
+                  this.$u.post('/oauth2/token', {
+                    phone: this.telephone,
+                    code: this.captcha,
+                    grant_type: "sms",
+                    scope:"all",
+                    inviteCode: this.inviteCode,
+                    rememberMe: true
+                  }, {
+                    Authorization: 'Basic ' + window.btoa('hongqy:b7f5d4e072bcb46d16d38bcc1efc13a4'),
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                  }).then( res => {
+                    if (res.result) {
+                      const loginInfo = res.data;
+                      uni.setStorageSync('tokenValue', loginInfo.access_token);
+                      uni.setStorageSync('accountId', loginInfo.id);
+                      uni.setStorageSync('refreshToken', loginInfo.refresh_token)
 
-                  // #ifdef APP-PLUS
-                  //this.updatePushClientId();
-                  // #endif
-                  uni.reLaunch({
-                    url: "/pages/my"
-                  });
+                      // #ifdef APP-PLUS
+                      //this.updatePushClientId();
+                      // #endif
+                      uni.reLaunch({
+                        url: "/pages/my"
+                      });
+                    } else {
+                      uni.showToast({
+                        title: "系统异常，请稍后再试",
+                        icon: "error"
+                      });
+                    }
+                  })
                 }
               })
             } else {

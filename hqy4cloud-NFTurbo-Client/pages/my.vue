@@ -417,8 +417,9 @@
 				if (!this.isLogin()) {
 					return;
 				}
-				
-				this.$u.get('/user/getUserInfo').then(res => {
+
+        //FIXME
+				this.$u.get('/nft/user').then(res => {
 					this.personalInfo = res.data;
 				});
 			},
